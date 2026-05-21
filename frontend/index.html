@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EA AI Intelligence</title>
+<style>
+  :root {
+    --bg:       #0f172a;
+    --surface:  #1e293b;
+    --card:     #243044;
+    --border:   #334155;
+    --accent:   #6366f1;
+    --accent2:  #22d3ee;
+    --success:  #10b981;
+    --warn:     #f59e0b;
+    --danger:   #ef4444;
+    --text:     #e2e8f0;
+    --muted:    #94a3b8;
+    --font:     'Inter', system-ui, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; display: flex; }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: 240px; min-height: 100vh; background: var(--surface);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+  }
+  .brand { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+  .brand h1 { font-size: 15px; font-weight: 700; color: var(--accent2); letter-spacing: -0.3px; line-height: 1.3; }
+  .brand p  { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .nav { flex: 1; padding: 12px 0; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px; cursor: pointer; font-size: 13.5px; font-weight: 500;
+    color: var(--muted); border-left: 3px solid transparent; transition: all .15s;
+  }
+  .nav-item:hover { color: var(--text); background: rgba(99,102,241,.08); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(99,102,241,.12); }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-section { padding: 14px 20px 4px; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--border); }
+  .server-status { padding: 14px 20px; border-top: 1px solid var(--border); }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); margin-right: 6px; }
+  .status-dot.ok { background: var(--success); box-shadow: 0 0 6px var(--success); }
+  .status-label { font-size: 12px; color: var(--muted); }
+
+  /* ── Main ── */
+  #main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .topbar {
+    padding: 16px 32px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface); position: sticky; top: 0; z-index: 50;
+  }
+  .topbar h2 { font-size: 17px; font-weight: 600; }
+  .topbar p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .api-badge { font-size: 11px; background: var(--card); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; color: var(--muted); }
+  .content { padding: 28px 32px; flex: 1; }
+
+  /* ── Panels ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── Cards ── */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 14px; }
+
+  /* ── KPI row ── */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .kpi-value { font-size: 26px; font-weight: 700; color: var(--accent2); }
+  .kpi-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Forms ── */
+  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 5px; }
+  input[type=text], input[type=url], textarea, select {
+    width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); padding: 9px 12px; font-size: 13.5px; font-family: var(--font);
+    outline: none; transition: border .15s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 90px; }
+  .form-row { margin-bottom: 14px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; border: none; transition: all .15s;
+  }
+  .btn-primary  { background: var(--accent);  color: #fff; }
+  .btn-primary:hover  { background: #4f51e0; }
+  .btn-teal     { background: #0891b2; color: #fff; }
+  .btn-teal:hover     { background: #0e7490; }
+  .btn-success  { background: var(--success); color: #fff; }
+  .btn-success:hover  { background: #059669; }
+  .btn-outline  { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover  { background: var(--surface); }
+  .btn-danger   { background: var(--danger);  color: #fff; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+  /* ── Upload zone ── */
+  .upload-zone {
+    border: 2px dashed var(--border); border-radius: 10px;
+    padding: 28px; text-align: center; cursor: pointer; transition: border .15s;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(99,102,241,.05); }
+  .upload-zone p { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .upload-zone .uf-icon { font-size: 32px; }
+
+  /* ── Results ── */
+  .result-box {
+    background: #0a1628; border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px; max-height: 560px; overflow-y: auto; font-size: 13px; line-height: 1.7;
+  }
+  .result-box pre { white-space: pre-wrap; word-break: break-word; font-family: 'Fira Mono', monospace; font-size: 12px; }
+  .result-empty { color: var(--muted); font-style: italic; text-align: center; padding: 40px; }
+
+  /* ── Badge / tag ── */
+  .badge {
+    display: inline-block; padding: 2px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px;
+  }
+  .badge-invest    { background: rgba(16,185,129,.18); color: #10b981; }
+  .badge-tolerate  { background: rgba(99,102,241,.18); color: #818cf8; }
+  .badge-migrate   { background: rgba(245,158,11,.18); color: #f59e0b; }
+  .badge-eliminate { background: rgba(239,68,68,.18); color: #ef4444; }
+  .badge-approved  { background: rgba(16,185,129,.18); color: #10b981; }
+  .badge-rejected  { background: rgba(239,68,68,.18); color: #ef4444; }
+  .badge-conditional { background: rgba(245,158,11,.18); color: #f59e0b; }
+
+  /* ── Table ── */
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--surface); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 9px 12px; border-bottom: 1px solid rgba(51,65,85,.5); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(99,102,241,.04); }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .tab {
+    padding: 9px 18px; font-size: 13px; font-weight: 500; cursor: pointer;
+    color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s;
+  }
+  .tab:hover  { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── Spinner ── */
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.2); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Toast ── */
+  #toast-area { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 18px; font-size: 13px; max-width: 340px;
+    animation: slideIn .2s ease; display: flex; align-items: center; gap: 10px;
+  }
+  .toast.success { border-left: 3px solid var(--success); }
+  .toast.error   { border-left: 3px solid var(--danger); }
+  .toast.info    { border-left: 3px solid var(--accent2); }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* ── Pipeline stages ── */
+  .pipeline-stages { display: flex; gap: 0; margin-bottom: 24px; overflow-x: auto; }
+  .stage {
+    flex: 1; min-width: 110px; text-align: center; padding: 14px 8px;
+    background: var(--card); border: 1px solid var(--border); position: relative;
+  }
+  .stage:not(:last-child)::after {
+    content: '→'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 18px; z-index: 1;
+  }
+  .stage:first-child { border-radius: 10px 0 0 10px; }
+  .stage:last-child  { border-radius: 0 10px 10px 0; }
+  .stage.done  { background: rgba(99,102,241,.12); border-color: var(--accent); }
+  .stage.error { background: rgba(239,68,68,.08);  border-color: var(--danger); }
+  .stage-name  { font-size: 12px; font-weight: 700; letter-spacing: .5px; color: var(--muted); }
+  .stage.done  .stage-name { color: var(--accent); }
+  .stage-icon  { font-size: 22px; margin-bottom: 6px; }
+
+  /* ── Accordion ── */
+  .accordion { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .accordion-hdr {
+    padding: 13px 16px; background: var(--card); cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; font-weight: 600;
+  }
+  .accordion-hdr:hover { background: var(--surface); }
+  .accordion-body { display: none; padding: 16px; background: var(--bg); border-top: 1px solid var(--border); }
+  .accordion-body.open { display: block; }
+
+  /* ── Progress bar ── */
+  .progress { background: var(--border); border-radius: 99px; height: 7px; overflow: hidden; margin-top: 6px; }
+  .progress-bar { height: 100%; border-radius: 99px; background: var(--accent2); transition: width .4s; }
+
+  /* Dashboard stats */
+  .dash-welcome { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .dash-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .quick-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .qa-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; cursor: pointer; transition: all .15s; text-decoration: none; color: var(--text);
+  }
+  .qa-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .qa-icon { font-size: 28px; margin-bottom: 10px; }
+  .qa-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .qa-desc  { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─────────────────────────────────────────────── -->
+<nav id="sidebar">
+  <div class="brand">
+    <h1>EA AI Intelligence</h1>
+    <p>Enterprise Architecture Platform</p>
+  </div>
+  <div class="nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" data-panel="dashboard">
+      <span class="nav-icon">🏠</span> Dashboard
+    </div>
+    <div class="nav-section">Agents</div>
+    <div class="nav-item" data-panel="portfolio">
+      <span class="nav-icon">📊</span> Portfolio (TIME)
+    </div>
+    <div class="nav-item" data-panel="arb">
+      <span class="nav-icon">🏛️</span> ARB Review
+    </div>
+    <div class="nav-item" data-panel="pipeline">
+      <span class="nav-icon">⚡</span> Full Pipeline
+    </div>
+    <div class="nav-item" data-panel="mapping">
+      <span class="nav-icon">🗺️</span> Mapping
+    </div>
+    <div class="nav-item" data-panel="maturity">
+      <span class="nav-icon">📈</span> Maturity
+    </div>
+    <div class="nav-item" data-panel="insights">
+      <span class="nav-icon">💡</span> Insights
+    </div>
+    <div class="nav-section">System</div>
+    <div class="nav-item" data-panel="settings">
+      <span class="nav-icon">⚙️</span> Settings
+    </div>
+  </div>
+  <div class="server-status">
+    <span class="status-dot" id="status-dot"></span>
+    <span class="status-label" id="status-label">Checking…</span>
+  </div>
+</nav>
+
+<!-- ─── MAIN ─────────────────────────────────────────────────── -->
+<div id="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <h2 id="topbar-title">Dashboard</h2>
+      <p id="topbar-desc">EA AI Intelligence Platform</p>
+    </div>
+    <span class="api-badge" id="api-url-badge">localhost:8000</span>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="dash-welcome">Good to see you 👋</div>
+      <div class="dash-sub">Multi-agent Enterprise Architecture Intelligence — choose an agent to get started.</div>
+      <div class="quick-actions">
+        <div class="qa-card" onclick="nav('portfolio')">
+          <div class="qa-icon">📊</div>
+          <div class="qa-title">Portfolio Rationalization</div>
+          <div class="qa-desc">Upload your app portfolio and get TIME + 6R classification with cost analysis.</div>
+        </div>
+        <div class="qa-card" onclick="nav('arb')">
+          <div class="qa-icon">🏛️</div>
+          <div class="qa-title">ARB Review</div>
+          <div class="qa-desc">Submit an architecture proposal for review against enterprise standards.</div>
+        </div>
+        <div class="qa-card" onclick="nav('pipeline')">
+          <div class="qa-icon">⚡</div>
+          <div class="qa-title">Full EA Pipeline</div>
+          <div class="qa-desc">Run the complete 4-stage pipeline: TIME → Mapping → Maturity → Insights + PDF.</div>
+        </div>
+        <div class="qa-card" onclick="nav('maturity')">
+          <div class="qa-icon">📈</div>
+          <div class="qa-title">Maturity Assessment</div>
+          <div class="qa-desc">Assess EA maturity across 6 dimensions with improvement roadmap.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Platform Status</div>
+        <div id="health-display" class="result-empty">Checking server…</div>
+      </div>
+    </div>
+
+    <!-- ══ PORTFOLIO (TIME) ══ -->
+    <div class="panel" id="panel-portfolio">
+      <div class="tabs">
+        <div class="tab active" data-tab="portfolio-upload">Upload Portfolio</div>
+        <div class="tab" data-tab="portfolio-text">Free Text</div>
+        <div class="tab" data-tab="portfolio-results">Results</div>
+      </div>
+
+      <!-- Upload tab -->
+      <div class="tab-content active" id="tab-portfolio-upload">
+        <div class="card">
+          <div class="card-title">Upload Portfolio File</div>
+          <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <div class="uf-icon">📁</div>
+            <p><strong>Click to upload</strong> or drag & drop</p>
+            <p>Supports CSV, JSON, Excel (.xlsx/.xls)</p>
+          </div>
+          <input type="file" id="file-input" style="display:none" accept=".csv,.json,.xlsx,.xls"/>
+          <div id="file-name" style="margin-top:10px; font-size:12px; color:var(--muted);"></div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="ingestFile()" id="btn-ingest">
+              <span>Analyse Portfolio</span>
+            </button>
+            <button class="btn btn-teal" onclick="generateReport()" id="btn-report" style="display:none">
+              📄 Download PDF Report
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Free text tab -->
+      <div class="tab-content" id="tab-portfolio-text">
+        <div class="card">
+          <div class="card-title">Describe Your Portfolio in Plain Text</div>
+          <div class="form-row">
+            <label>Portfolio Description</label>
+            <textarea id="free-text-input" rows="8" placeholder="e.g. We use Salesforce CRM ($120k/yr, 500 users), legacy Oracle billing system ($80k/yr, end of support in 12 months), Jira for project tracking ($24k/yr), and a custom Python analytics tool built in-house…"></textarea>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="ingestText()">
+              <span>Extract & Analyse</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results tab -->
+      <div class="tab-content" id="tab-portfolio-results">
+        <div id="portfolio-kpis" style="display:none">
+          <div class="kpi-row" id="portfolio-kpi-row"></div>
+        </div>
+        <div id="portfolio-table-wrap" style="display:none">
+          <div class="card">
+            <div class="card-title">Application Portfolio</div>
+            <div class="tbl-wrap"><table id="portfolio-table"></table></div>
+          </div>
+          <div class="card" id="dup-card" style="display:none">
+            <div class="card-title">Duplication Risks</div>
+            <div class="tbl-wrap"><table id="dup-table"></table></div>
+          </div>
+          <div class="card" id="narrative-card" style="display:none">
+            <div class="card-title">Executive Assessment</div>
+            <div id="narrative-content"></div>
+          </div>
+        </div>
+        <div id="portfolio-empty" class="result-empty">Run an analysis to see results here.</div>
+      </div>
+    </div>
+
+    <!-- ══ ARB REVIEW ══ -->
+    <div class="panel" id="panel-arb">
+      <div class="card">
+        <div class="card-title">Architecture Proposal</div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Proposal Title *</label>
+            <input type="text" id="arb-title" placeholder="e.g. Migrate Legacy Billing to Microservices"/>
+          </div>
+          <div class="form-row">
+            <label>Proposer / Team</label>
+            <input type="text" id="arb-proposer" placeholder="e.g. Digital Transformation Team"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Description *</label>
+          <textarea id="arb-desc" rows="4" placeholder="Describe the proposed architecture change, components involved, and rationale…"></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Technology Stack (comma-separated)</label>
+            <input type="text" id="arb-tech" placeholder="e.g. AWS, Kubernetes, Kafka, PostgreSQL"/>
+          </div>
+          <div class="form-row">
+            <label>Timeline</label>
+            <input type="text" id="arb-timeline" placeholder="e.g. 6 months"/>
+          </div>
+          <div class="form-row">
+            <label>Estimated One-Off Cost ($)</label>
+            <input type="text" id="arb-cost" placeholder="e.g. 150000"/>
+          </div>
+          <div class="form-row">
+            <label>Annual Running Cost ($)</label>
+            <input type="text" id="arb-annual" placeholder="e.g. 60000"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Business Case</label>
+          <textarea id="arb-biz" rows="3" placeholder="Why is this change needed? What problem does it solve?"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Known Risk Areas (comma-separated)</label>
+          <input type="text" id="arb-risks" placeholder="e.g. Data migration, team skill gap, vendor lock-in"/>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="submitARB()" id="btn-arb">
+            <span>Submit for Review</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="arb-result-wrap" style="display:none">
+        <div class="kpi-row" id="arb-kpis"></div>
+        <div id="arb-accordions"></div>
+        <div class="card">
+          <div class="card-title">Raw JSON Response</div>
+          <div class="result-box"><pre id="arb-raw"></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FULL PIPELINE ══ -->
+    <div class="panel" id="panel-pipeline">
+      <div class="pipeline-stages" id="pipeline-stages">
+        <div class="stage" id="stage-TIME"><div class="stage-icon">📊</div><div class="stage-name">TIME</div></div>
+        <div class="stage" id="stage-MAPPING"><div class="stage-icon">🗺️</div><div class="stage-name">MAPPING</div></div>
+        <div class="stage" id="stage-MATURITY"><div class="stage-icon">📈</div><div class="stage-name">MATURITY</div></div>
+        <div class="stage" id="stage-INSIGHTS"><div class="stage-icon">💡</div><div class="stage-name">INSIGHTS</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Portfolio Input</div>
+        <div class="tabs" style="margin-bottom:14px;">
+          <div class="tab active" data-tab="pipe-upload">File Upload</div>
+          <div class="tab" data-tab="pipe-text">Free Text</div>
+          <div class="tab" data-tab="pipe-json">JSON</div>
+        </div>
+        <div class="tab-content active" id="tab-pipe-upload">
+          <div class="upload-zone" onclick="document.getElementById('pipe-file').click()">
+            <div class="uf-icon">📁</div>
+            <p><strong>Click to upload</strong> portfolio file</p>
+            <p>CSV, JSON, Excel supported</p>
+          </div>
+          <input type="file" id="pipe-file" style="display:none" accept=".csv,.json,.xlsx,.xls"/>
+          <div id="pipe-filename" style="margin-top:8px; font-size:12px; color:var(--muted);"></div>
+        </div>
+        <div class="tab-content" id="tab-pipe-text">
+          <textarea id="pipe-text" rows="6" placeholder="Describe your application portfolio in plain English…"></textarea>
+        </div>
+        <div class="tab-content" id="tab-pipe-json">
+          <textarea id="pipe-json" rows="8" placeholder='[{"name":"Salesforce","category":"CRM","annual_cost":120000,"user_count":500},...]'></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runPipeline()" id="btn-pipeline">
+            <span>⚡ Run Full Pipeline</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="pipeline-result" style="display:none">
+        <div class="kpi-row" id="pipeline-kpis"></div>
+        <div id="pipeline-accordions"></div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-success" id="btn-pipeline-pdf" onclick="downloadPipelinePDF()" style="display:none">
+            📥 Download Full EA Intelligence Report (PDF)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MAPPING ══ -->
+    <div class="panel" id="panel-mapping">
+      <div class="card">
+        <div class="card-title">Application Dependency Analysis</div>
+        <div class="form-row">
+          <label>Application Name / ID *</label>
+          <input type="text" id="map-app" placeholder="e.g. Legacy Billing System"/>
+        </div>
+        <div class="form-row">
+          <label>Additional Context</label>
+          <textarea id="map-context" rows="3" placeholder="Any known integrations, planned changes, or specific concerns…"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runMapping()">Analyse Dependencies</button>
+        </div>
+      </div>
+      <div id="mapping-result-wrap" style="display:none">
+        <div class="card">
+          <div class="card-title">Dependency Analysis</div>
+          <div class="result-box"><pre id="mapping-raw"></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MATURITY ══ -->
+    <div class="panel" id="panel-maturity">
+      <div class="card">
+        <div class="card-title">EA Maturity Assessment</div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Portfolio Size (# of apps)</label>
+            <input type="text" id="mat-size" placeholder="e.g. 45"/>
+          </div>
+          <div class="form-row">
+            <label>Total Annual Spend ($)</label>
+            <input type="text" id="mat-cost" placeholder="e.g. 2400000"/>
+          </div>
+          <div class="form-row">
+            <label>% Apps to Eliminate</label>
+            <input type="text" id="mat-elim" placeholder="e.g. 15"/>
+          </div>
+          <div class="form-row">
+            <label>Duplications Found</label>
+            <input type="text" id="mat-dups" placeholder="e.g. 4"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Context / Notes</label>
+          <textarea id="mat-context" rows="3" placeholder="Describe your organisation's EA maturity context, challenges, and recent initiatives…"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runMaturity()">Run Maturity Assessment</button>
+        </div>
+      </div>
+      <div id="maturity-result-wrap" style="display:none">
+        <div class="kpi-row" id="maturity-kpis"></div>
+        <div id="maturity-dims"></div>
+        <div class="card">
+          <div class="card-title">Full Assessment</div>
+          <div class="result-box"><pre id="maturity-raw"></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ INSIGHTS ══ -->
+    <div class="panel" id="panel-insights">
+      <div class="card">
+        <div class="card-title">Executive Insights Query</div>
+        <div class="form-row">
+          <label>Query / Context</label>
+          <textarea id="insights-query" rows="5" placeholder="e.g. We have 40 apps, £2.4M annual spend, 8 flagged for elimination, maturity score 2.5. What are the top strategic priorities?"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runInsights()">Generate Insights</button>
+        </div>
+      </div>
+      <div id="insights-result-wrap" style="display:none">
+        <div class="card">
+          <div class="card-title">Executive Insights</div>
+          <div class="result-box"><pre id="insights-raw"></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS ══ -->
+    <div class="panel" id="panel-settings">
+      <div class="card">
+        <div class="card-title">API Configuration</div>
+        <div class="form-row">
+          <label>Backend API URL</label>
+          <input type="text" id="api-url-input" placeholder="http://localhost:8000"/>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveSettings()">Save & Test Connection</button>
+          <button class="btn btn-outline" onclick="resetSettings()">Reset to Default</button>
+        </div>
+        <div id="settings-result" style="margin-top:12px; font-size:13px; color:var(--muted);"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">About</div>
+        <p style="font-size:13px; color:var(--muted); line-height:1.8;">
+          <strong style="color:var(--text)">EA AI Intelligence</strong> — Multi-agent Enterprise Architecture platform.<br/>
+          Agents: ARB · TIME · MAPPING · MATURITY · INSIGHTS<br/>
+          Powered by Anthropic Claude · Supabase · FastAPI
+        </p>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Toast area -->
+<div id="toast-area"></div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+let API = localStorage.getItem('ea_api_url') || 'http://localhost:8000';
+let _ingestData = null;  // last /time/ingest result, used for report generation
+let _pipelineData = null; // last /ea-full result
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+const PANEL_META = {
+  dashboard: { title: 'Dashboard', desc: 'EA AI Intelligence Platform' },
+  portfolio:  { title: 'Portfolio Rationalization', desc: 'TIME framework — Tolerate · Invest · Migrate · Eliminate' },
+  arb:        { title: 'ARB Review', desc: 'Architecture Review Board — evaluate proposals against enterprise standards' },
+  pipeline:   { title: 'Full EA Pipeline', desc: 'TIME → Mapping → Maturity → Insights → PDF Report' },
+  mapping:    { title: 'Dependency Mapping', desc: 'Analyse application dependencies and change impact' },
+  maturity:   { title: 'Maturity Assessment', desc: '6-dimension EA maturity scoring and roadmap' },
+  insights:   { title: 'Executive Insights', desc: 'Strategic synthesis across all EA dimensions' },
+  settings:   { title: 'Settings', desc: 'Configure API connection and preferences' },
+};
+
+function nav(panel) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.panel === panel));
+  document.querySelectorAll('.panel').forEach(el => el.classList.toggle('active', el.id === 'panel-' + panel));
+  const meta = PANEL_META[panel] || {};
+  document.getElementById('topbar-title').textContent = meta.title || panel;
+  document.getElementById('topbar-desc').textContent  = meta.desc  || '';
+}
+document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', () => nav(el.dataset.panel)));
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    const parent = tab.closest('.tabs')?.parentElement;
+    parent?.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === target));
+    parent?.querySelectorAll('.tab-content').forEach(tc => tc.classList.toggle('active', tc.id === 'tab-' + target));
+  });
+});
+
+// ─── ACCORDION ───────────────────────────────────────────────────────────────
+function accordion(title, bodyHtml, startOpen = false) {
+  const id = 'acc-' + Math.random().toString(36).slice(2);
+  return `<div class="accordion">
+    <div class="accordion-hdr" onclick="
+      var b=document.getElementById('${id}');
+      b.classList.toggle('open');
+      this.querySelector('.acc-arrow').textContent = b.classList.contains('open') ? '▲' : '▼';
+    ">
+      <span>${title}</span><span class="acc-arrow">${startOpen ? '▲' : '▼'}</span>
+    </div>
+    <div class="accordion-body ${startOpen ? 'open' : ''}" id="${id}">${bodyHtml}</div>
+  </div>`;
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+  el.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  document.getElementById('toast-area').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ─── API HELPER ───────────────────────────────────────────────────────────────
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, opts);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`${res.status}: ${err}`);
+  }
+  const ct = res.headers.get('content-type') || '';
+  return ct.includes('application/json') ? res.json() : res;
+}
+
+function setBtn(id, loading, label) {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.innerHTML = loading ? `<span class="spinner"></span> ${label}` : `<span>${label}</span>`;
+}
+
+// ─── HEALTH CHECK ─────────────────────────────────────────────────────────────
+async function checkHealth() {
+  try {
+    const data = await api('/health');
+    document.getElementById('status-dot').className = 'status-dot ok';
+    document.getElementById('status-label').textContent = 'API Online';
+    document.getElementById('health-display').innerHTML = `
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-value" style="font-size:14px;color:var(--success)">● Online</div><div class="kpi-label">Status</div></div>
+        <div class="kpi"><div class="kpi-value" style="font-size:16px;">${data.version || '1.0.0'}</div><div class="kpi-label">Version</div></div>
+        <div class="kpi"><div class="kpi-value" style="font-size:16px;">${(data.agents||[]).length}</div><div class="kpi-label">Agents</div></div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);">Active agents: ${(data.agents||[]).join(' · ')}</p>`;
+  } catch(e) {
+    document.getElementById('status-dot').className = 'status-dot';
+    document.getElementById('status-label').textContent = 'Offline';
+    document.getElementById('health-display').innerHTML = `<div class="result-empty">⚠️ Cannot reach API at <strong>${API}</strong>. Check the server is running or update the URL in Settings.</div>`;
+  }
+}
+checkHealth();
+
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
+document.getElementById('api-url-input').value = API;
+document.getElementById('api-url-badge').textContent = API.replace('http://','').replace('https://','');
+function saveSettings() {
+  API = document.getElementById('api-url-input').value.replace(/\/$/, '');
+  localStorage.setItem('ea_api_url', API);
+  document.getElementById('api-url-badge').textContent = API.replace('http://','').replace('https://','');
+  document.getElementById('settings-result').textContent = '';
+  checkHealth().then(() => {
+    document.getElementById('settings-result').textContent = '✅ Connected successfully';
+    toast('API URL saved', 'success');
+  }).catch(e => {
+    document.getElementById('settings-result').textContent = '❌ Could not connect: ' + e.message;
+    toast('Connection failed', 'error');
+  });
+}
+function resetSettings() {
+  API = 'http://localhost:8000';
+  document.getElementById('api-url-input').value = API;
+  localStorage.setItem('ea_api_url', API);
+  checkHealth();
+}
+
+// ─── FILE UPLOAD HELPERS ──────────────────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) document.getElementById('file-name').textContent = '📎 ' + f.name;
+});
+document.getElementById('pipe-file').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) document.getElementById('pipe-filename').textContent = '📎 ' + f.name;
+});
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) { document.getElementById('file-input').files = e.dataTransfer.files; document.getElementById('file-name').textContent = '📎 ' + f.name; }
+});
+
+// ─── PORTFOLIO — INGEST FILE ──────────────────────────────────────────────────
+async function ingestFile() {
+  const file = document.getElementById('file-input').files[0];
+  if (!file) { toast('Please select a file first', 'error'); return; }
+  setBtn('btn-ingest', true, 'Analysing…');
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch(API + '/time/ingest', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    _ingestData = data;
+    toast('Portfolio analysed successfully', 'success');
+    renderPortfolioResults(data);
+    // Switch to results tab
+    document.querySelector('[data-tab="portfolio-results"]').click();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  setBtn('btn-ingest', false, 'Analyse Portfolio');
+}
+
+async function ingestText() {
+  const text = document.getElementById('free-text-input').value.trim();
+  if (!text) { toast('Please enter a portfolio description', 'error'); return; }
+  const fd = new FormData();
+  fd.append('free_text', text);
+  try {
+    setBtn('btn-ingest', true, 'Extracting & Analysing…');
+    const res = await fetch(API + '/time/ingest', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    _ingestData = data;
+    toast('Text extracted and analysed', 'success');
+    renderPortfolioResults(data);
+    document.querySelector('[data-tab="portfolio-results"]').click();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  setBtn('btn-ingest', false, 'Extract & Analyse');
+}
+
+function renderPortfolioResults(data) {
+  const apps = data.applications || [];
+  const dups = data.duplications || [];
+  const summary = data.summary || {};
+  document.getElementById('portfolio-empty').style.display = 'none';
+  document.getElementById('portfolio-table-wrap').style.display = '';
+  document.getElementById('portfolio-kpis').style.display = '';
+  document.getElementById('btn-report').style.display = '';
+
+  // KPIs
+  const kpiRow = document.getElementById('portfolio-kpi-row');
+  kpiRow.innerHTML = `
+    <div class="kpi"><div class="kpi-value">${apps.length}</div><div class="kpi-label">Total Apps</div></div>
+    <div class="kpi"><div class="kpi-value">$${fmtNum(summary.total_annual_cost || data.summary?.total_annual_cost || 0)}</div><div class="kpi-label">Annual Spend</div></div>
+    <div class="kpi"><div class="kpi-value">${dups.length}</div><div class="kpi-label">Duplications</div></div>
+    <div class="kpi"><div class="kpi-value" style="color:var(--success);">$${fmtNum(summary.potential_savings || 0)}</div><div class="kpi-label">Potential Savings</div></div>
+    ${Object.entries(summary.time_breakdown || {}).map(([k,v]) => `<div class="kpi"><div class="kpi-value" style="font-size:20px;">${v}</div><div class="kpi-label">${k}</div></div>`).join('')}
+  `;
+
+  // App table
+  const tbl = document.getElementById('portfolio-table');
+  tbl.innerHTML = `<thead><tr>
+    <th>Application</th><th>Category</th><th>TIME</th><th>6R Action</th>
+    <th>Score</th><th>Annual Cost</th><th>Confidence</th>
+  </tr></thead><tbody>
+  ${apps.map(a => `<tr>
+    <td><strong>${esc(a.name)}</strong>${a.vendor ? `<br/><span style="font-size:11px;color:var(--muted)">${esc(a.vendor)}</span>` : ''}</td>
+    <td>${esc(a.category||'—')}</td>
+    <td><span class="badge badge-${(a.time_classification||'').toLowerCase()}">${a.time_classification||'—'}</span></td>
+    <td style="font-size:12px;">${esc(a.rationalization_action||'—')}</td>
+    <td>
+      <div style="font-weight:700;font-size:15px;">${num(a.composite_score)}</div>
+      <div class="progress"><div class="progress-bar" style="width:${(a.composite_score||0)*10}%;"></div></div>
+    </td>
+    <td>${a.annual_cost ? '$'+fmtNum(a.annual_cost) : '—'}</td>
+    <td style="font-size:12px;color:var(--muted)">${esc(a.confidence_level||'—')}</td>
+  </tr>`).join('')}
+  </tbody>`;
+
+  // Duplications
+  if (dups.length) {
+    document.getElementById('dup-card').style.display = '';
+    const dt = document.getElementById('dup-table');
+    dt.innerHTML = `<thead><tr><th>App 1</th><th>App 2</th><th>Overlap</th><th>Potential Savings</th><th>Recommendation</th></tr></thead>
+    <tbody>${dups.map(d => `<tr>
+      <td>${esc(d.app1_name||d.tool1||'')}</td>
+      <td>${esc(d.app2_name||d.tool2||'')}</td>
+      <td>${Math.round((d.overlap_score||0)*100)}%</td>
+      <td style="color:var(--success)">${d.potential_annual_savings ? '$'+fmtNum(d.potential_annual_savings) : '—'}</td>
+      <td style="font-size:12px;">${esc(d.recommendation||'—')}</td>
+    </tr>`).join('')}</tbody>`;
+  }
+}
+
+async function generateReport() {
+  if (!_ingestData) { toast('Run an analysis first', 'error'); return; }
+  setBtn('btn-report', true, 'Generating PDF…');
+  try {
+    const body = {
+      applications: _ingestData.applications,
+      duplications: _ingestData.duplications || [],
+      assessments: [],
+    };
+    const res = await fetch(API + '/time/report', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error(await res.text());
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'ea_portfolio_report.pdf'; a.click();
+    toast('PDF downloaded', 'success');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  setBtn('btn-report', false, '📄 Download PDF Report');
+}
+
+// ─── ARB ─────────────────────────────────────────────────────────────────────
+async function submitARB() {
+  const title = document.getElementById('arb-title').value.trim();
+  const desc  = document.getElementById('arb-desc').value.trim();
+  if (!title || !desc) { toast('Title and Description are required', 'error'); return; }
+  setBtn('btn-arb', true, 'Reviewing…');
+  const payload = {
+    query: title,
+    agent_override: 'ARB',
+    data: {
+      proposal_title: title,
+      proposer: document.getElementById('arb-proposer').value,
+      description: desc,
+      technology_stack: document.getElementById('arb-tech').value.split(',').map(s=>s.trim()).filter(Boolean),
+      timeline: document.getElementById('arb-timeline').value,
+      estimated_cost: parseNum(document.getElementById('arb-cost').value),
+      annual_running_cost: parseNum(document.getElementById('arb-annual').value),
+      business_case: document.getElementById('arb-biz').value,
+      risk_areas: document.getElementById('arb-risks').value.split(',').map(s=>s.trim()).filter(Boolean),
+    }
+  };
+  try {
+    const data = await api('/ea-agent', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const result = data.result?.ARB || data.result || {};
+    document.getElementById('arb-result-wrap').style.display = '';
+    renderARBResult(result);
+    document.getElementById('arb-raw').textContent = JSON.stringify(result, null, 2);
+    toast('ARB review complete', 'success');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  setBtn('btn-arb', false, 'Submit for Review');
+}
+
+function renderARBResult(r) {
+  const decision = r.decision || 'UNKNOWN';
+  const badge = `<span class="badge badge-${decision.toLowerCase()}">${decision}</span>`;
+  document.getElementById('arb-kpis').innerHTML = `
+    <div class="kpi"><div class="kpi-value" style="font-size:16px;">${badge}</div><div class="kpi-label">Decision</div></div>
+    <div class="kpi"><div class="kpi-value">${r.confidence_score||'—'}<span style="font-size:14px;color:var(--muted)">/100</span></div><div class="kpi-label">Confidence</div></div>
+    <div class="kpi"><div class="kpi-value">${r.compliance_score||'—'}<span style="font-size:14px;color:var(--muted)">/100</span></div><div class="kpi-label">Compliance</div></div>
+    <div class="kpi"><div class="kpi-value">${(r.risks||[]).length}</div><div class="kpi-label">Risks Found</div></div>
+    <div class="kpi"><div class="kpi-value">${(r.anti_patterns_detected||[]).length}</div><div class="kpi-label">Anti-patterns</div></div>
+  `;
+  let accs = '';
+  if ((r.risks||[]).length) accs += accordion('⚠️ Risks (' + r.risks.length + ')', `<ul style="margin-left:18px;">${r.risks.map(x=>`<li style="margin-bottom:6px;font-size:13px;">${esc(x)}</li>`).join('')}</ul>`, true);
+  if ((r.anti_patterns_detected||[]).length) accs += accordion('🚫 Anti-patterns', `<ul style="margin-left:18px;">${r.anti_patterns_detected.map(x=>`<li style="margin-bottom:6px;font-size:13px;">${esc(x)}</li>`).join('')}</ul>`);
+  if ((r.recommendations||[]).length) accs += accordion('✅ Recommendations', `<ul style="margin-left:18px;">${r.recommendations.map(x=>`<li style="margin-bottom:6px;font-size:13px;">${esc(typeof x==='object'?x.text||JSON.stringify(x):x)}</li>`).join('')}</ul>`, true);
+  if (r.conditions_for_approval) accs += accordion('📋 Conditions for Approval', `<p style="font-size:13px;">${esc(typeof r.conditions_for_approval==='object'?JSON.stringify(r.conditions_for_approval,null,2):r.conditions_for_approval)}</p>`);
+  document.getElementById('arb-accordions').innerHTML = accs;
+}
+
+// ─── FULL PIPELINE ────────────────────────────────────────────────────────────
+async function runPipeline() {
+  // Reset stage indicators
+  ['TIME','MAPPING','MATURITY','INSIGHTS'].forEach(s => {
+    const el = document.getElementById('stage-' + s);
+    if (el) { el.className = 'stage'; }
+  });
+  document.getElementById('pipeline-result').style.display = 'none';
+  setBtn('btn-pipeline', true, 'Running Pipeline…');
+
+  // Build body
+  let body = {};
+  const activeTab = document.querySelector('#tab-pipe-upload.active, #tab-pipe-text.active, #tab-pipe-json.active');
+  if (!activeTab) { toast('No input tab active', 'error'); setBtn('btn-pipeline', false, '⚡ Run Full Pipeline'); return; }
+
+  try {
+    if (activeTab.id === 'tab-pipe-upload') {
+      const file = document.getElementById('pipe-file').files[0];
+      if (!file) { toast('Please select a file', 'error'); setBtn('btn-pipeline', false, '⚡ Run Full Pipeline'); return; }
+      const fd = new FormData(); fd.append('file', file);
+      const ingest = await fetch(API + '/time/ingest', { method: 'POST', body: fd });
+      if (!ingest.ok) throw new Error(await ingest.text());
+      const id = await ingest.json();
+      body = { applications: id.applications };
+    } else if (activeTab.id === 'tab-pipe-text') {
+      const text = document.getElementById('pipe-text').value.trim();
+      if (!text) { toast('Please enter portfolio description', 'error'); setBtn('btn-pipeline', false, '⚡ Run Full Pipeline'); return; }
+      body = { free_text: text };
+    } else {
+      const raw = document.getElementById('pipe-json').value.trim();
+      try { body = { applications: JSON.parse(raw) }; }
+      catch(e) { toast('Invalid JSON', 'error'); setBtn('btn-pipeline', false, '⚡ Run Full Pipeline'); return; }
+    }
+
+    const data = await api('/ea-full', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    _pipelineData = data;
+
+    // Mark stages
+    const completed = data.pipeline_summary?.stages_completed || [];
+    const failed = data.pipeline_summary?.stages_failed || [];
+    completed.forEach(s => { const el = document.getElementById('stage-' + s); if (el) el.classList.add('done'); });
+    failed.forEach(s => { const el = document.getElementById('stage-' + s); if (el) el.classList.add('error'); });
+
+    renderPipelineResult(data);
+    toast('Pipeline complete — ' + completed.length + ' stages done', 'success');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  setBtn('btn-pipeline', false, '⚡ Run Full Pipeline');
+}
+
+function renderPipelineResult(data) {
+  const ps = data.pipeline_summary || {};
+  document.getElementById('pipeline-result').style.display = '';
+  document.getElementById('pipeline-kpis').innerHTML = `
+    <div class="kpi"><div class="kpi-value">${ps.total_apps_assessed||0}</div><div class="kpi-label">Apps Assessed</div></div>
+    <div class="kpi"><div class="kpi-value">$${fmtNum(ps.total_annual_cost||0)}</div><div class="kpi-label">Annual Spend</div></div>
+    <div class="kpi"><div class="kpi-value" style="color:var(--warn);">${ps.flagged_for_action||0}</div><div class="kpi-label">Flagged Apps</div></div>
+    <div class="kpi"><div class="kpi-value" style="color:var(--success);">$${fmtNum(ps.potential_savings||0)}</div><div class="kpi-label">Potential Savings</div></div>
+    <div class="kpi"><div class="kpi-value">${ps.maturity_score||'—'}<span style="font-size:12px;color:var(--muted)">/5</span></div><div class="kpi-label">Maturity Score</div></div>
+    <div class="kpi"><div class="kpi-value" style="font-size:15px;color:var(--danger);">${ps.overall_risk||'—'}</div><div class="kpi-label">Overall Risk</div></div>
+  `;
+
+  let accs = '';
+
+  // TIME summary
+  const time = data.TIME || {};
+  const timeBreak = time.portfolio_summary?.time_breakdown || {};
+  accs += accordion('📊 TIME — Portfolio Rationalization', `
+    <div class="kpi-row" style="margin-bottom:14px;">
+      ${Object.entries(timeBreak).map(([k,v])=>`<div class="kpi"><div class="kpi-value" style="font-size:20px;">${v}</div><div class="kpi-label">${k}</div></div>`).join('')}
+    </div>
+    ${time.assessment?.executive_summary ? `<p style="font-size:13px;line-height:1.8;color:var(--text);">${esc(time.assessment.executive_summary)}</p>` : ''}
+  `, true);
+
+  // MAPPING
+  const mapping = data.MAPPING || {};
+  if (!mapping.skipped) {
+    const apps = mapping.app_analyses || [];
+    accs += accordion(`🗺️ MAPPING — ${apps.length} Apps Analysed`, `
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">${esc(mapping.pipeline_context||'')}</p>
+      ${apps.length ? `<div class="tbl-wrap"><table>
+        <thead><tr><th>App</th><th>TIME</th><th>Impact</th><th>Coupling</th><th>Risk</th></tr></thead>
+        <tbody>${apps.map(a=>`<tr>
+          <td><strong>${esc(a.app_name)}</strong></td>
+          <td><span class="badge badge-${(a.time_classification||'').toLowerCase()}">${esc(a.time_classification||'')}</span></td>
+          <td><span class="badge badge-${impactBadge(a.impact_level)}">${esc(a.impact_level||'')}</span></td>
+          <td>${num(a.coupling_score)}/10</td>
+          <td style="font-size:12px;">${esc(a.removal_risk||'—')}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>` : '<p style="color:var(--muted);font-size:13px;">No app analyses returned.</p>'}
+    `);
+  } else {
+    accs += accordion('🗺️ MAPPING — Skipped', `<p style="font-size:13px;color:var(--muted);">${esc(mapping.reason||'No flagged apps to analyse.')}</p>`);
+  }
+
+  // MATURITY
+  const mat = data.MATURITY || {};
+  accs += accordion('📈 MATURITY — EA Assessment', `
+    <div class="kpi-row" style="margin-bottom:14px;">
+      <div class="kpi"><div class="kpi-value">${num(mat.overall_maturity_score)}<span style="font-size:12px;color:var(--muted)">/5</span></div><div class="kpi-label">Overall Score</div></div>
+      <div class="kpi"><div class="kpi-value" style="font-size:15px;">${esc(mat.maturity_level||'—')}</div><div class="kpi-label">Level</div></div>
+    </div>
+    ${mat.dimensions ? `<div class="tbl-wrap"><table>
+      <thead><tr><th>Dimension</th><th>Score</th><th>Level</th></tr></thead>
+      <tbody>${Object.entries(mat.dimensions||{}).map(([k,v])=>`<tr>
+        <td>${esc(k)}</td>
+        <td>
+          <div>${num(v.score||v)}/5</div>
+          <div class="progress"><div class="progress-bar" style="width:${((v.score||v)/5)*100}%"></div></div>
+        </td>
+        <td style="font-size:12px;color:var(--muted)">${esc(v.level||'')}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>` : ''}
+  `);
+
+  // INSIGHTS
+  const ins = data.INSIGHTS || {};
+  const recs = ins.strategic_recommendations || ins.recommendations || [];
+  accs += accordion('💡 INSIGHTS — Executive Synthesis', `
+    ${ins.executive_summary ? `<p style="font-size:13px;line-height:1.8;margin-bottom:16px;">${esc(ins.executive_summary)}</p>` : ''}
+    ${recs.length ? `<div><strong style="font-size:12px;color:var(--muted);">TOP RECOMMENDATIONS</strong><ul style="margin:10px 0 0 18px;">${recs.slice(0,5).map(r=>`<li style="margin-bottom:8px;font-size:13px;">${esc(typeof r==='string'?r:r.recommendation||r.title||JSON.stringify(r))}</li>`).join('')}</ul></div>` : ''}
+  `, true);
+
+  document.getElementById('pipeline-accordions').innerHTML = accs;
+
+  // Show PDF button
+  if (data.report_filename) {
+    document.getElementById('btn-pipeline-pdf').style.display = '';
+  }
+}
+
+async function downloadPipelinePDF() {
+  if (!_pipelineData?.report_filename) { toast('No report available', 'error'); return; }
+  const url = `${API}/ea-full/report/${_pipelineData.report_filename}`;
+  const a = document.createElement('a'); a.href = url; a.download = _pipelineData.report_filename;
+  a.target = '_blank'; a.click();
+  toast('Downloading PDF report…', 'info');
+}
+
+// ─── MAPPING ─────────────────────────────────────────────────────────────────
+async function runMapping() {
+  const app = document.getElementById('map-app').value.trim();
+  if (!app) { toast('App name is required', 'error'); return; }
+  try {
+    const data = await api('/ea-agent', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ query: 'dependency analysis for ' + app, agent_override: 'MAPPING', data: { target_system: app, context: document.getElementById('map-context').value } })
+    });
+    document.getElementById('mapping-result-wrap').style.display = '';
+    document.getElementById('mapping-raw').textContent = JSON.stringify(data.result?.MAPPING || data.result, null, 2);
+    toast('Mapping complete', 'success');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ─── MATURITY ────────────────────────────────────────────────────────────────
+async function runMaturity() {
+  const body = {
+    query: 'EA maturity assessment',
+    agent_override: 'MATURITY',
+    data: {
+      portfolio_size: parseNum(document.getElementById('mat-size').value),
+      total_annual_cost: parseNum(document.getElementById('mat-cost').value),
+      eliminate_percentage: parseNum(document.getElementById('mat-elim').value),
+      duplications_found: parseNum(document.getElementById('mat-dups').value),
+      context: document.getElementById('mat-context').value,
+    }
+  };
+  try {
+    const data = await api('/ea-agent', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const result = data.result?.MATURITY || data.result || {};
+    document.getElementById('maturity-result-wrap').style.display = '';
+    document.getElementById('maturity-kpis').innerHTML = `
+      <div class="kpi"><div class="kpi-value">${num(result.overall_maturity_score)}<span style="font-size:12px;color:var(--muted)">/5</span></div><div class="kpi-label">Maturity Score</div></div>
+      <div class="kpi"><div class="kpi-value" style="font-size:14px;">${esc(result.maturity_level||'—')}</div><div class="kpi-label">Level</div></div>
+    `;
+    document.getElementById('maturity-raw').textContent = JSON.stringify(result, null, 2);
+    toast('Maturity assessment complete', 'success');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ─── INSIGHTS ────────────────────────────────────────────────────────────────
+async function runInsights() {
+  const query = document.getElementById('insights-query').value.trim();
+  if (!query) { toast('Please enter a query', 'error'); return; }
+  try {
+    const data = await api('/ea-agent', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ query, agent_override: 'INSIGHTS', data: { context: query } }) });
+    document.getElementById('insights-result-wrap').style.display = '';
+    document.getElementById('insights-raw').textContent = JSON.stringify(data.result?.INSIGHTS || data.result, null, 2);
+    toast('Insights generated', 'success');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtNum(n) {
+  n = Number(n) || 0;
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(0) + 'K';
+  return n.toFixed(0);
+}
+function num(n) { return n != null ? Number(n).toFixed(1) : '—'; }
+function parseNum(s) { return s ? parseFloat(String(s).replace(/[,$]/g,'')) || null : null; }
+function impactBadge(level) {
+  const m = { LOW:'tolerate', MEDIUM:'migrate', HIGH:'eliminate', CRITICAL:'eliminate' };
+  return m[(level||'').toUpperCase()] || 'tolerate';
+}
+</script>
+</body>
+</html>

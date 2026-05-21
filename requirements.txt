@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+anthropic
+supabase==2.9.1
+pydantic
+xhtml2pdf
+pandas
+openpyxl
+python-multipart
