@@ -7,6 +7,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
+# Load frontend HTML at startup so Vercel Lambda can serve it from memory
+_FRONTEND_HTML = ""
+try:
+    _frontend_path = Path(__file__).parent / "frontend" / "index.html"
+    if _frontend_path.exists():
+        _FRONTEND_HTML = _frontend_path.read_text(encoding="utf-8")
+except Exception:
+    pass
+
 from models.schemas import EARequest, EAResponse
 from orchestrator import route_request, resolve_agents
 from agents.arb_agent import run_arb
@@ -55,20 +64,9 @@ if _FRONTEND_DIR.exists() and not _on_vercel:
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def serve_ui():
-    candidates = [
-        Path(__file__).parent / "frontend" / "index.html",  # local & Vercel /var/task/
-        Path("/var/task/frontend/index.html"),               # Vercel explicit
-        Path("frontend/index.html"),                         # cwd fallback
-    ]
-    for candidate in candidates:
-        try:
-            if candidate.exists():
-                return HTMLResponse(content=candidate.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-    return HTMLResponse(
-        content="<h2>EA AI Intelligence API is running. See <a href='/docs'>/docs</a>.</h2>"
-    )
+    if _FRONTEND_HTML:
+        return HTMLResponse(content=_FRONTEND_HTML)
+    return HTMLResponse(content="<h2>EA AI Intelligence — <a href='/docs'>See API Docs</a></h2>")
 
 
 # ─── Core EA Agent endpoint ───────────────────────────────────────────────────
