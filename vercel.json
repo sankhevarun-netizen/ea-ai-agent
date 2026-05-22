@@ -17,6 +17,11 @@
       }
     }
   ],
+  "functions": {
+    "main.py": {
+      "maxDuration": 300
+    }
+  },
   "routes": [
     {"src": "/(.*)", "dest": "main.py"}
   ]

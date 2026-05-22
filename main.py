@@ -146,13 +146,14 @@ async def time_ingest(
             tools_raw = list(reader)
 
         elif ext in (".xlsx", ".xls"):
-            import tempfile, pandas as pd
+            import tempfile, pandas as pd, json as _json
             with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
                 tmp.write(content)
                 tmp_path = tmp.name
             df = pd.read_excel(tmp_path)
-            tools_raw = df.to_dict("records")
             os.unlink(tmp_path)
+            # Use pandas JSON round-trip to convert numpy types and NaN → None
+            tools_raw = _json.loads(df.to_json(orient="records"))
 
         elif ext == ".pdf":
             import pypdf, io as _io
@@ -275,15 +276,22 @@ async def ea_full(body: Dict[str, Any]):
       - pipeline JSON with all 4 agent outputs
       - report_url: path to the downloadable PDF report
     """
-    pipeline = run_full_pipeline(body)
+    try:
+        pipeline = run_full_pipeline(body)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Pipeline execution failed: {str(e)}")
 
-    report_path = _reporter.generate_pipeline_pdf(
-        pipeline=pipeline,
-        output_dir=str(REPORTS_DIR),
-    )
+    try:
+        report_path = _reporter.generate_pipeline_pdf(
+            pipeline=pipeline,
+            output_dir=str(REPORTS_DIR),
+        )
+        pipeline["report_path"] = report_path
+        pipeline["report_filename"] = Path(report_path).name
+    except Exception as e:
+        pipeline["report_error"] = str(e)
+        pipeline["report_filename"] = None
 
-    pipeline["report_path"] = report_path
-    pipeline["report_filename"] = Path(report_path).name
     return pipeline
 
 

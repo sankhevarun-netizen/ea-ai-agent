@@ -1,6 +1,18 @@
 import json
+import math
 import uuid
 from typing import List, Dict, Any
+
+
+def _json_default(obj):
+    """JSON encoder fallback: handle NaN, Inf, and numpy scalars."""
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
+    try:
+        return obj.item()   # numpy scalar → Python native
+    except AttributeError:
+        pass
+    return str(obj)
 
 from services.claude_service import call_claude, call_claude_vision
 from services.supabase_service import (
@@ -240,8 +252,8 @@ def run_time(input_data: dict) -> dict:
         for t in scored_tools
     ]
     user_msg = (
-        f"Portfolio (pre-scored by ScoringEngine):\n{json.dumps(tool_summary, indent=2)}\n\n"
-        f"Duplications found:\n{json.dumps(duplications[:10], indent=2)}"
+        f"Portfolio (pre-scored by ScoringEngine):\n{json.dumps(tool_summary, indent=2, default=_json_default)}\n\n"
+        f"Duplications found:\n{json.dumps(duplications[:10], indent=2, default=_json_default)}"
     )
     narrative_str = call_claude(enriched_prompt, user_msg)
     narrative_str_clean = narrative_str.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
@@ -275,7 +287,7 @@ def run_time(input_data: dict) -> dict:
         json.dumps({
             "portfolio_summary": result["portfolio_summary"],
             "time_breakdown": time_counts,
-        }),
+        }, default=_json_default),
         agent="TIME",
     )
 

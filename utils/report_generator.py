@@ -1,8 +1,57 @@
 import io
+import math
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any
 from fpdf import FPDF
+
+
+# ── Safe string helper (fpdf2 Helvetica only supports Latin-1) ────────────────
+
+_UNICODE_MAP = {
+    '–': '-',    # en dash
+    '—': '-',    # em dash
+    '‘': "'",    # left single quote
+    '’': "'",    # right single quote
+    '“': '"',    # left double quote
+    '”': '"',    # right double quote
+    '•': '-',    # bullet
+    '…': '...', # ellipsis
+    '→': '->',  # right arrow
+    '←': '<-',  # left arrow
+    ' ': ' ',   # non-breaking space
+    '−': '-',   # minus sign
+    '×': 'x',   # multiplication sign
+    '·': '.',   # middle dot
+    '♥': '',    # heart (drop it)
+    '✓': 'v',   # check mark
+    '✕': 'x',   # cross mark
+}
+
+
+def _safe_str(val, maxlen: int = 0) -> str:
+    """Convert any value to a Latin-1–safe string for fpdf2 built-in fonts."""
+    if val is None:
+        return '-'
+    s = str(val)
+    for orig, rep in _UNICODE_MAP.items():
+        s = s.replace(orig, rep)
+    # Final fallback: drop anything still outside Latin-1
+    s = s.encode('latin-1', errors='replace').decode('latin-1')
+    return s[:maxlen] if maxlen else s
+
+
+def _deep_sanitize(obj):
+    """Recursively replace all strings in a dict/list with Latin-1-safe versions."""
+    if isinstance(obj, str):
+        return _safe_str(obj)
+    if isinstance(obj, dict):
+        return {k: _deep_sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_deep_sanitize(i) for i in obj]
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
+    return obj
 
 
 # ── Colour palette ────────────────────────────────────────────────────────────
@@ -388,6 +437,9 @@ class ReportGenerator:
     # ── Portfolio-only PDF ────────────────────────────────────────────────────
 
     def _write_pdf(self, tools, duplications, assessments, dest):
+        tools        = _deep_sanitize(tools)
+        duplications = _deep_sanitize(duplications)
+        assessments  = _deep_sanitize(assessments)
         pdf = EAPdf()
         pdf.set_margins(14, 14, 14)
         pdf.set_auto_page_break(True, margin=18)
@@ -490,6 +542,7 @@ class ReportGenerator:
 
     def generate_pipeline_pdf(self, pipeline: Dict, output_dir: str = "reports") -> str:
         Path(output_dir).mkdir(parents=True, exist_ok=True)
+        pipeline = _deep_sanitize(pipeline)
         ts   = datetime.now().strftime("%Y%m%d_%H%M%S")
         path = Path(output_dir) / f"ea_full_intelligence_report_{ts}.pdf"
 

@@ -1,5 +1,16 @@
 import json
+import math
 from services.claude_service import call_claude
+
+
+def _json_default(obj):
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
+    try:
+        return obj.item()
+    except AttributeError:
+        pass
+    return str(obj)
 from services.supabase_service import (
     fetch_recent_decisions,
     fetch_applications,
@@ -31,7 +42,7 @@ def run_insights(input_data: dict) -> dict:
     user_message = (
         f"Generate executive-level strategic insights and recommendations based on "
         f"the following EA agent outputs and data. Return a structured JSON result:\n"
-        f"{json.dumps(input_data, indent=2)}"
+        f"{json.dumps(input_data, indent=2, default=_json_default)}"
     )
 
     # 4. Call Claude
@@ -45,6 +56,6 @@ def run_insights(input_data: dict) -> dict:
         result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
 
     # 6. Persist
-    store_decision(input_data, json.dumps(result), agent="INSIGHTS")
+    store_decision(input_data, json.dumps(result, default=_json_default), agent="INSIGHTS")
 
     return result

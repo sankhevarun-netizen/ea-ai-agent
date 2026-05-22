@@ -1,5 +1,16 @@
 import json
+import math
 from services.claude_service import call_claude
+
+
+def _json_default(obj):
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
+    try:
+        return obj.item()
+    except AttributeError:
+        pass
+    return str(obj)
 from services.supabase_service import (
     fetch_applications,
     fetch_dependencies,
@@ -69,7 +80,7 @@ def run_mapping(input_data: dict) -> dict:
     # 3. User message
     user_message = (
         f"Analyze the dependencies and impact for the following system/change request. "
-        f"Return a structured JSON result:\n{json.dumps(input_data, indent=2)}"
+        f"Return a structured JSON result:\n{json.dumps(input_data, indent=2, default=_json_default)}"
     )
 
     # 4. Call Claude
@@ -83,7 +94,7 @@ def run_mapping(input_data: dict) -> dict:
         result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
 
     # 6. Persist
-    store_decision(input_data, json.dumps(result), agent="MAPPING")
+    store_decision(input_data, json.dumps(result, default=_json_default), agent="MAPPING")
 
     return result
 
@@ -131,7 +142,7 @@ def run_mapping_batch(input_data: dict) -> dict:
     user_message = (
         f"Analyze migration risk and dependencies for these {len(flagged_apps)} "
         f"ELIMINATE/MIGRATE applications. Return a batch JSON analysis:\n"
-        f"{json.dumps(flagged_summary, indent=2)}"
+        f"{json.dumps(flagged_summary, indent=2, default=_json_default)}"
     )
 
     result_str = call_claude(enriched_prompt, user_message)
@@ -141,5 +152,5 @@ def run_mapping_batch(input_data: dict) -> dict:
     except json.JSONDecodeError:
         result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
 
-    store_decision({"flagged_apps": len(flagged_apps)}, json.dumps(result), agent="MAPPING_BATCH")
+    store_decision({"flagged_apps": len(flagged_apps)}, json.dumps(result, default=_json_default), agent="MAPPING_BATCH")
     return result
