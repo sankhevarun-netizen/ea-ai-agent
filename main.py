@@ -19,7 +19,7 @@ except Exception:
 from models.schemas import EARequest, EAResponse
 from orchestrator import route_request, resolve_agents
 from agents.arb_agent import run_arb
-from agents.time_agent import run_time, _score_tools, _extract_tools_from_text
+from agents.time_agent import run_time, _score_tools, _extract_tools_from_text, _extract_tools_from_image
 from agents.mapping_agent import run_mapping
 from agents.maturity_agent import run_maturity
 from agents.insights_agent import run_insights
@@ -154,8 +154,40 @@ async def time_ingest(
             tools_raw = df.to_dict("records")
             os.unlink(tmp_path)
 
+        elif ext == ".pdf":
+            import pypdf, io as _io
+            reader = pypdf.PdfReader(_io.BytesIO(content))
+            extracted = "\n".join(page.extract_text() or "" for page in reader.pages)
+            if extracted.strip():
+                tools_raw = _extract_tools_from_text(extracted)
+            else:
+                # Scanned/image-only PDF — use vision on each page image
+                page_tools: list = []
+                for page in reader.pages:
+                    for img_obj in page.images:
+                        page_tools.extend(_extract_tools_from_image(img_obj.data, "image/png"))
+                tools_raw = page_tools
+
+        elif ext in (".pptx", ".ppt"):
+            from pptx import Presentation
+            import io as _io
+            prs = Presentation(_io.BytesIO(content))
+            slide_texts = []
+            for slide in prs.slides:
+                for shape in slide.shapes:
+                    if hasattr(shape, "text") and shape.text.strip():
+                        slide_texts.append(shape.text)
+            tools_raw = _extract_tools_from_text("\n".join(slide_texts))
+
+        elif ext in (".png", ".jpg", ".jpeg", ".gif", ".webp"):
+            media_map = {
+                ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+                ".gif": "image/gif", ".webp": "image/webp",
+            }
+            tools_raw = _extract_tools_from_image(content, media_map[ext])
+
         else:
-            # Treat as free text (e.g. PDF extracted text, plain text)
+            # Plain text fallback
             tools_raw = _extract_tools_from_text(content.decode("utf-8", errors="replace"))
 
     elif free_text:

@@ -8,3 +8,5 @@ fpdf2
 pandas
 openpyxl
 python-multipart
+pypdf
+python-pptx

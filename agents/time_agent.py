@@ -2,7 +2,7 @@ import json
 import uuid
 from typing import List, Dict, Any
 
-from services.claude_service import call_claude
+from services.claude_service import call_claude, call_claude_vision
 from services.supabase_service import (
     fetch_applications,
     fetch_recent_decisions,
@@ -127,6 +127,27 @@ def _extract_tools_from_text(text: str) -> List[Dict]:
     """Ask Claude to parse free-text descriptions into structured tool records."""
     user_msg = f"Extract all applications and tools from this text:\n\n{text[:6000]}"
     result_str = call_claude(EXTRACT_TOOLS_PROMPT, user_msg)
+    result_str = result_str.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
+    try:
+        data = json.loads(result_str)
+        if isinstance(data, list):
+            return data
+        for v in data.values():
+            if isinstance(v, list):
+                return v
+    except (json.JSONDecodeError, AttributeError):
+        pass
+    return []
+
+
+def _extract_tools_from_image(image_data: bytes, media_type: str) -> List[Dict]:
+    """Use Claude vision to extract tool records from an image or slide screenshot."""
+    prompt_text = (
+        "This image may contain an architecture diagram, portfolio slide, technology landscape, "
+        "or list of enterprise applications. Extract every application, tool, or system you can identify. "
+        "Return ONLY a valid JSON object with a 'tools' array."
+    )
+    result_str = call_claude_vision(EXTRACT_TOOLS_PROMPT, image_data, media_type, prompt_text)
     result_str = result_str.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
     try:
         data = json.loads(result_str)

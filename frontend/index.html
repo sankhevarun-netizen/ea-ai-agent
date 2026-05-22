@@ -502,9 +502,10 @@ Example (TIME): We have 45 apps including Salesforce ($120K/yr), legacy Oracle b
         <div id="portfolio-drop" class="border-2 border-dashed border-slate-border rounded-xl p-10 text-center cursor-pointer hover:border-blue-brand hover:bg-blue-50 transition" onclick="document.getElementById('port-file').click()">
           <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
           <p class="text-sm font-semibold text-gray-600">Click to upload or drag & drop</p>
-          <p class="text-xs text-gray-400 mt-1">CSV, JSON, Excel (.xlsx/.xls) supported</p>
+          <p class="text-xs text-gray-400 mt-1">CSV · JSON · Excel · PDF · PowerPoint (.pptx) · Images (PNG / JPG)</p>
+          <p class="text-xs text-gray-300 mt-1">PDFs and images are scanned by Claude AI to extract all tools automatically</p>
         </div>
-        <input type="file" id="port-file" class="hidden" accept=".csv,.json,.xlsx,.xls"/>
+        <input type="file" id="port-file" class="hidden" accept=".csv,.json,.xlsx,.xls,.pdf,.pptx,.ppt,.png,.jpg,.jpeg,.gif,.webp"/>
         <p class="text-xs text-gray-400 mt-2" id="port-filename"></p>
         <div class="mt-4">
           <p class="text-xs text-gray-400 mb-2">— or describe your portfolio in plain text —</p>
