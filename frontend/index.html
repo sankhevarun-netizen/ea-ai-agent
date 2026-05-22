@@ -513,8 +513,8 @@ Example (TIME): We have 45 apps including Salesforce ($120K/yr), legacy Oracle b
         </div>
         <div class="mt-4 flex gap-3 flex-wrap">
           <button onclick="runPortfolio()" class="bg-kpmg text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition">Analyse Portfolio</button>
-          <button onclick="downloadPortfolioPDF()" id="port-pdf-btn" class="hidden border border-kpmg text-kpmg text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition">📄 Download PDF</button>
-          <button onclick="runFullPipeline()" class="border border-blue-brand text-blue-brand text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition">⚡ Run Full Pipeline</button>
+          <button onclick="downloadPortfolioPDF()" id="port-pdf-btn" class="hidden border border-kpmg text-kpmg text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition">Download PDF</button>
+          <button onclick="runFullPipeline()" class="border border-blue-brand text-blue-brand text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition">Run Full Pipeline</button>
         </div>
       </div>
       <div id="portfolio-results" class="hidden"></div>
@@ -687,7 +687,7 @@ document.getElementById('api-badge').textContent = API.replace(/https?:\/\//, ''
 // Portfolio file input
 document.getElementById('port-file').addEventListener('change', e => {
   const f = e.target.files[0];
-  if (f) document.getElementById('port-filename').textContent = '📎 ' + f.name;
+  if (f) document.getElementById('port-filename').textContent = f.name;
 });
 
 // Portfolio drag & drop
@@ -702,7 +702,7 @@ if (portDrop) {
     if (f) {
       const dt = new DataTransfer(); dt.items.add(f);
       document.getElementById('port-file').files = dt.files;
-      document.getElementById('port-filename').textContent = '📎 ' + f.name;
+      document.getElementById('port-filename').textContent = f.name;
     }
   });
 }
@@ -959,13 +959,13 @@ function renderResult(agent, result) {
   // Risks tab
   const risks = result.risks || result.risk_areas || [];
   document.getElementById('tab-risks').innerHTML = risks.length
-    ? `<ul class="space-y-2">${risks.map(r => `<li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-red-400 mt-0.5 flex-shrink-0">⚠</span>${esc(typeof r === 'object' ? JSON.stringify(r) : r)}</li>`).join('')}</ul>`
+    ? `<ul class="space-y-2">${risks.map(r => `<li class="flex items-start gap-2 text-sm text-gray-700"><span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 flex-shrink-0"></span>${esc(typeof r === 'object' ? JSON.stringify(r) : r)}</li>`).join('')}</ul>`
     : '<p class="text-sm text-gray-400 text-center py-6">No risks identified</p>';
 
   // Recommendations tab
   const recs = result.recommendations || result.top_recommendations || result.strategic_recommendations || [];
   document.getElementById('tab-recs').innerHTML = recs.length
-    ? `<ul class="space-y-2">${recs.map(r => `<li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5 flex-shrink-0">✓</span>${esc(typeof r === 'object' ? r.description || r.title || JSON.stringify(r) : r)}</li>`).join('')}</ul>`
+    ? `<ul class="space-y-2">${recs.map(r => `<li class="flex items-start gap-2 text-sm text-gray-700"><span class="w-1.5 h-1.5 rounded-full bg-green-500 mt-2 flex-shrink-0"></span>${esc(typeof r === 'object' ? r.description || r.title || JSON.stringify(r) : r)}</li>`).join('')}</ul>`
     : '<p class="text-sm text-gray-400 text-center py-6">No recommendations</p>';
 
   switchResultTab('summary');
@@ -1099,8 +1099,8 @@ async function submitARB() {
           <div class="text-2xl font-black">${dec}</div>
           ${result.confidence_score ? `<div class="text-sm mt-1 opacity-80">Confidence: ${result.confidence_score}/100 · Compliance: ${result.compliance_score||'—'}/100</div>` : ''}
         </div>
-        ${(result.risks||[]).length ? `<div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Risks (${result.risks.length})</p><ul class="space-y-1.5">${result.risks.slice(0,4).map(r=>`<li class="text-xs text-gray-600 flex gap-2"><span class="text-red-400">⚠</span>${esc(r)}</li>`).join('')}</ul></div>` : ''}
-        ${(result.recommendations||[]).length ? `<div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Recommendations</p><ul class="space-y-1.5">${result.recommendations.slice(0,3).map(r=>`<li class="text-xs text-gray-600 flex gap-2"><span class="text-green-500">✓</span>${esc(typeof r==='object'?r.description||r.title||JSON.stringify(r):r)}</li>`).join('')}</ul></div>` : ''}
+        ${(result.risks||[]).length ? `<div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Risks (${result.risks.length})</p><ul class="space-y-1.5">${result.risks.slice(0,4).map(r=>`<li class="text-xs text-gray-600 flex gap-2"><span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1 flex-shrink-0"></span>${esc(r)}</li>`).join('')}</ul></div>` : ''}
+        ${(result.recommendations||[]).length ? `<div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Recommendations</p><ul class="space-y-1.5">${result.recommendations.slice(0,3).map(r=>`<li class="text-xs text-gray-600 flex gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500 mt-1 flex-shrink-0"></span>${esc(typeof r==='object'?r.description||r.title||JSON.stringify(r):r)}</li>`).join('')}</ul></div>` : ''}
       </div>`;
     sessionARBCount++;
     document.getElementById('kpi-arb').textContent = sessionARBCount;
@@ -1126,7 +1126,7 @@ async function runMaturityPage() {
       <div class="space-y-4">
         ${score ? `<div class="text-center py-4 bg-purple-50 rounded-xl"><div class="text-5xl font-black text-purple-700">${Number(score).toFixed(1)}</div><div class="text-base font-semibold text-purple-600 mt-1">${level}</div><div class="text-xs text-gray-400 mt-1">out of 5.0</div></div>` : ''}
         ${Object.keys(dims).length ? `<div class="space-y-2">${Object.entries(dims).map(([k,v])=>{const s=v.score||v;return`<div><div class="flex justify-between text-xs mb-1"><span class="font-semibold text-gray-600">${k}</span><span class="text-gray-500">${Number(s).toFixed(1)}/5</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-purple-500 h-2 rounded-full" style="width:${(s/5)*100}%"></div></div></div>`;}).join('')}</div>` : ''}
-        ${(result.top_priorities||[]).length ? `<div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Top Priorities</p><ul class="space-y-1.5">${result.top_priorities.slice(0,3).map(p=>`<li class="text-xs text-gray-600 flex gap-2"><span class="text-purple-400">→</span>${esc(p)}</li>`).join('')}</ul></div>` : ''}
+        ${(result.top_priorities||[]).length ? `<div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Top Priorities</p><ul class="space-y-1.5">${result.top_priorities.slice(0,3).map(p=>`<li class="text-xs text-gray-600 flex gap-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-1 flex-shrink-0"></span>${esc(p)}</li>`).join('')}</ul></div>` : ''}
       </div>`;
     document.getElementById('kpi-maturity').innerHTML = `${Number(score||0).toFixed(1)}<span class="text-sm text-gray-400 font-normal"> /5</span>`;
     document.getElementById('kpi-maturity-level').textContent = level;
@@ -1242,53 +1242,252 @@ async function triggerFullPipeline(body) {
   const btn = document.getElementById('full-pipeline-btn');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Running Full Pipeline…'; }
   const statusEl = document.getElementById('full-pipeline-status');
-  if (statusEl) { statusEl.classList.remove('hidden'); statusEl.textContent = 'Stage 1/4 — TIME Portfolio Rationalization…'; }
+  const stages = ['Stage 1/4 — TIME: Portfolio Rationalization…','Stage 2/4 — MAPPING: Dependency Analysis…','Stage 3/4 — MATURITY: EA Capability Assessment…','Stage 4/4 — INSIGHTS: Executive Synthesis…'];
+  let si = 0;
+  const stageTimer = setInterval(() => { if (statusEl && si < stages.length) { statusEl.classList.remove('hidden'); statusEl.textContent = stages[si++]; } }, 12000);
 
   try {
-    const res = await fetch(API + '/ea-full', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+    const res = await fetch(API + '/ea-full', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    clearInterval(stageTimer);
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
     pipelineReportFilename = data.report_filename;
-    const ps = data.pipeline_summary || {};
     if (statusEl) statusEl.classList.add('hidden');
 
-    // Show results card in reports page
-    let resultsHtml = `
-      <div class="bg-white rounded-xl shadow-card p-6 mt-5" id="pipeline-output">
-        <h3 class="font-bold text-navy text-base mb-4">Full EA Pipeline — Complete</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
-          <div class="bg-slate-ui rounded-lg p-3 text-center"><div class="text-xl font-bold text-navy">${ps.total_apps_assessed||0}</div><div class="text-xs text-gray-400 mt-1">Apps Assessed</div></div>
-          <div class="bg-slate-ui rounded-lg p-3 text-center"><div class="text-xl font-bold text-navy">$${fmtNum(ps.total_annual_cost||0)}</div><div class="text-xs text-gray-400 mt-1">Annual Spend</div></div>
-          <div class="bg-green-50 rounded-lg p-3 text-center"><div class="text-xl font-bold text-green-600">$${fmtNum(ps.potential_savings||0)}</div><div class="text-xs text-gray-400 mt-1">Potential Savings</div></div>
-          <div class="bg-slate-ui rounded-lg p-3 text-center"><div class="text-xl font-bold text-yellow-600">${ps.flagged_for_action||0}</div><div class="text-xs text-gray-400 mt-1">Flagged Apps</div></div>
-          <div class="bg-slate-ui rounded-lg p-3 text-center"><div class="text-xl font-bold text-purple-600">${ps.maturity_score||'—'}/5</div><div class="text-xs text-gray-400 mt-1">Maturity Score</div></div>
-          <div class="bg-red-50 rounded-lg p-3 text-center"><div class="text-xl font-bold text-red-500">${ps.overall_risk||'—'}</div><div class="text-xs text-gray-400 mt-1">Risk Level</div></div>
+    const ps  = data.pipeline_summary || {};
+    const td  = data.TIME || {};
+    const md  = data.MATURITY || {};
+    const ins = data.INSIGHTS || {};
+    const ta  = td.assessment || {};
+    const apps = td.applications || [];
+    const dups = td.duplications || [];
+    const fin  = ins.financial_impact || {};
+    const recs = ins.strategic_recommendations || ta.top_recommendations || [];
+    const rm   = ta.roadmap || {};
+    const dims = md.dimensions || {};
+    const risks= (ins.risk_profile||{}).top_risks || [];
+    const qw   = ins.quick_wins || [];
+    const execSum = ins.executive_summary || ta.executive_summary || '';
+    const timeBd  = (td.portfolio_summary||{}).time_breakdown || {};
+
+    // Build TIME badge helper
+    const timeCls = {'INVEST':'#155724,#d4edda','TOLERATE':'#004085,#cce5ff','MIGRATE':'#856404,#fff3cd','ELIMINATE':'#721c24,#f8d7da'};
+    const actCls  = {'Retain':'#155724,#d4edda','Rehost':'#004085,#cce5ff','Replatform':'#856404,#fff3cd','Refactor':'#7d3c00,#fde8d8','Replace':'#721c24,#f8d7da','Retire':'#383d41,#e2e3e5'};
+    function badge(txt, map) {
+      const k = Object.keys(map).find(k=>k.toLowerCase()===txt.toLowerCase()) || Object.keys(map)[0];
+      const [fg,bg] = (map[k]||'#383d41,#e2e3e5').split(',');
+      return `<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.3px;color:${fg};background:${bg}">${txt.toUpperCase()}</span>`;
+    }
+
+    // App rows
+    let appRows = apps.slice(0,30).map((a,i)=>{
+      const cost = a.annual_cost ? '$'+Number(a.annual_cost).toLocaleString() : '-';
+      const bg = i%2===0?'#f8fbff':'#fff';
+      return `<tr style="background:${bg}">
+        <td style="padding:8px 12px;font-weight:600">${esc(a.name||'-')}</td>
+        <td style="padding:8px 12px">${esc(a.vendor||'-')}</td>
+        <td style="padding:8px 12px">${esc(a.category||'-')}</td>
+        <td style="padding:8px 12px">${cost}</td>
+        <td style="padding:8px 12px">${a.user_count||'-'}</td>
+        <td style="padding:8px 12px;font-weight:700">${a.composite_score||'-'}/10</td>
+        <td style="padding:8px 12px">${badge(a.time_classification||'TOLERATE',timeCls)}</td>
+        <td style="padding:8px 12px">${badge(a.rationalization_action||'TBD',actCls)}</td>
+      </tr>`;
+    }).join('');
+
+    // Dup rows
+    let dupRows = dups.slice(0,8).map((d,i)=>`<tr style="background:${i%2===0?'#f8fbff':'#fff'}">
+      <td style="padding:8px 12px">${esc(d.category||'-')}</td>
+      <td style="padding:8px 12px;font-weight:600">${esc(d.tool_a||'-')}</td>
+      <td style="padding:8px 12px">${esc(d.tool_b||'-')}</td>
+      <td style="padding:8px 12px"><strong>${d.overlap_percentage||0}%</strong></td>
+      <td style="padding:8px 12px">${d.retain_candidate||'-'}</td>
+      <td style="padding:8px 12px;color:#155724;font-weight:600">$${Number(d.potential_annual_savings||0).toLocaleString()}</td>
+    </tr>`).join('');
+
+    // Rec cards
+    let recCards = recs.slice(0,5).map((r,i)=>{
+      const prio = r.priority||r.effort||'Medium';
+      const [fg,bg] = (actCls[prio]||'#856404,#fff3cd').split(',');
+      return `<div style="border:1px solid #dde4f0;border-left:4px solid #0063DC;padding:16px 20px;margin-bottom:10px;background:#f8fbff;border-radius:4px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="background:#0a1628;color:#fff;width:24px;height:24px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${i+1}</span>
+          <strong style="color:#0a1628;font-size:14px">${esc(r.title||r.recommendation||'')}</strong>
+          <span style="color:${fg};background:${bg};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;flex-shrink:0">${prio}</span>
         </div>
-        <div class="flex gap-3 flex-wrap">
-          ${pipelineReportFilename ? `<a href="${API}/ea-full/report/${pipelineReportFilename}" target="_blank" download class="flex items-center gap-2 bg-kpmg text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-kpmg-dark transition">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            Download Full EA Report (PDF)
-          </a>` : ''}
-          <button onclick="this.closest('#pipeline-output').querySelector('pre').classList.toggle('hidden')" class="border border-slate-border text-gray-500 text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-gray-50 transition">Toggle JSON</button>
-        </div>
-        <pre class="result-pre text-xs text-gray-600 bg-gray-50 rounded-lg p-4 mt-4 overflow-auto max-h-60 hidden">${esc(JSON.stringify(ps, null, 2))}</pre>
+        <p style="color:#444;font-size:13px;line-height:1.6;margin-bottom:4px">${esc(r.description||r.business_value||'')}</p>
+        ${r.impact||r.timeline?`<p style="color:#0063DC;font-size:12px;font-style:italic">Impact: ${esc(r.impact||'')} &nbsp;|&nbsp; Timeline: ${esc(r.timeline||'')}</p>`:''}
       </div>`;
+    }).join('');
+
+    // Roadmap columns
+    function rmCol(title, items, color) {
+      if (!items||!items.length) return '';
+      const lis = (Array.isArray(items)?items:[items]).slice(0,5).map(i=>`<li style="margin-bottom:5px;font-size:13px">${esc(i)}</li>`).join('');
+      return `<div style="border-top:4px solid ${color};padding:16px;background:#f8fbff;flex:1">
+        <strong style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#0a1628">${title}</strong>
+        <ul style="margin-top:10px;padding-left:18px">${lis}</ul>
+      </div>`;
+    }
+
+    // Maturity dim rows
+    let dimRows = Object.entries(dims).map(([k,v],i)=>{
+      if(typeof v!=='object') return '';
+      const bg = i%2===0?'#f8fbff':'#fff';
+      const gaps = (v.gaps||[]).slice(0,2).join(', ')||'-';
+      return `<tr style="background:${bg}"><td style="padding:8px 12px;font-weight:500">${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</td><td style="padding:8px 12px;font-weight:700;text-align:center">${v.score||'-'}/5</td><td style="padding:8px 12px;color:#666;font-size:12px">${esc(gaps)}</td></tr>`;
+    }).join('');
+
+    // Risk rows
+    let riskRows = risks.slice(0,5).map((r,i)=>`<tr style="background:${i%2===0?'#f8fbff':'#fff'}">
+      <td style="padding:8px 12px">${esc(r.risk||r)}</td>
+      <td style="padding:8px 12px">${esc(r.impact||'-')}</td>
+      <td style="padding:8px 12px;color:#444">${esc(r.mitigation||'-')}</td>
+    </tr>`).join('');
+
+    // Financial impact rows
+    let finRows = Object.entries(fin).filter(([,v])=>v).map(([k,v],i)=>`<tr style="background:${i%2===0?'#f8fbff':'#fff'}">
+      <td style="padding:8px 12px;font-weight:500">${k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</td>
+      <td style="padding:8px 12px;font-weight:700;color:#0a1628">${esc(v)}</td>
+    </tr>`).join('');
+
+    // TIME breakdown summary
+    let timeSummary = Object.entries(timeBd).map(([k,v])=>badge(k,timeCls)+` <strong>${v}</strong> apps`).join(' &nbsp; ');
+
+    const S = (s) => `<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:18px;font-weight:700;color:#0a1628;padding:20px 0 10px;border-bottom:2px solid #0063DC;margin-bottom:16px;display:flex;align-items:center;gap:10px">${s}</div>`;
+
+    let reportPreview = `
+    <div id="pipeline-output" style="font-family:'Segoe UI',Arial,sans-serif;color:#1a2340">
+
+      <!-- Report Cover Header -->
+      <div style="background:#0a1628;color:#fff;padding:40px;border-top:5px solid #0063DC;margin-bottom:0">
+        <div style="font-size:11px;font-weight:700;color:#0063DC;letter-spacing:2px;margin-bottom:12px">EA AI INTELLIGENCE  |  ENTERPRISE ARCHITECTURE ADVISORY</div>
+        <div style="font-size:26px;font-weight:700;line-height:1.3;margin-bottom:8px">Full Enterprise Architecture Intelligence Report</div>
+        <div style="font-size:13px;opacity:.7;margin-bottom:16px">Portfolio Rationalization  |  Dependency Analysis  |  Maturity Assessment  |  Executive Intelligence</div>
+        <div style="display:grid;grid-template-columns:repeat(3,auto);gap:24px;font-size:12px;opacity:.6">
+          <span>Date: ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</span>
+          <span>Applications: ${apps.length}</span>
+          <span>Classification: CONFIDENTIAL</span>
+        </div>
+      </div>
+
+      <!-- KPI Strip -->
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:#e0e7f0;margin-bottom:24px">
+        ${[
+          [apps.length, 'Apps Assessed'],
+          ['$'+fmtNum(ps.total_annual_cost||0), 'Annual Spend'],
+          ['$'+fmtNum(ps.potential_savings||0), 'Potential Savings'],
+          [ps.flagged_for_action||0, 'Flagged for Action'],
+          [(ps.maturity_score||'—')+'/5', 'EA Maturity'],
+          [ps.overall_risk||'—', 'Risk Level'],
+        ].map(([v,l])=>`<div style="background:#fff;padding:20px 12px;text-align:center;border-top:3px solid #0063DC"><div style="font-size:22px;font-weight:700;color:#0a1628">${v}</div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#666;margin-top:4px">${l}</div></div>`).join('')}
+      </div>
+
+      <div style="padding:0 24px 24px">
+
+      <!-- Executive Summary -->
+      ${execSum ? `<div style="margin-bottom:28px">${S('1. Executive Summary')}<div style="background:#f8fbff;border-left:4px solid #0063DC;padding:20px 24px;line-height:1.8;font-size:13px;white-space:pre-line">${esc(execSum)}</div></div>` : ''}
+
+      <!-- Financial Impact -->
+      ${finRows ? `<div style="margin-bottom:28px">${S('2. Financial Impact')}
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="background:#0a1628;color:#fff"><th style="padding:10px 12px;text-align:left;font-weight:600">Metric</th><th style="padding:10px 12px;text-align:left;font-weight:600">Value</th></tr></thead>
+          <tbody>${finRows}</tbody>
+        </table></div>` : ''}
+
+      <!-- Portfolio Classification -->
+      <div style="margin-bottom:28px">${S('3. Portfolio Classification')}
+        <div style="margin-bottom:12px;font-size:13px">${timeSummary}</div>
+        ${apps.length?`<table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead style="background:#0a1628;color:#fff"><tr>
+            <th style="padding:10px 12px;text-align:left">Application</th>
+            <th style="padding:10px 12px">Vendor</th>
+            <th style="padding:10px 12px">Category</th>
+            <th style="padding:10px 12px">Annual Cost</th>
+            <th style="padding:10px 12px">Users</th>
+            <th style="padding:10px 12px">Score</th>
+            <th style="padding:10px 12px">TIME</th>
+            <th style="padding:10px 12px">6R Action</th>
+          </tr></thead>
+          <tbody>${appRows}</tbody>
+        </table>`:'<p style="color:#666;font-style:italic">No application data available.</p>'}
+      </div>
+
+      <!-- Duplication Analysis -->
+      ${dupRows ? `<div style="margin-bottom:28px">${S('4. Duplication & Consolidation Opportunities')}
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="background:#0a1628;color:#fff"><th style="padding:10px 12px;text-align:left">Category</th><th style="padding:10px 12px">Tool A</th><th style="padding:10px 12px">Tool B</th><th style="padding:10px 12px">Overlap</th><th style="padding:10px 12px">Retain</th><th style="padding:10px 12px">Est. Savings</th></tr></thead>
+          <tbody>${dupRows}</tbody>
+        </table></div>` : ''}
+
+      <!-- Strategic Recommendations -->
+      ${recCards ? `<div style="margin-bottom:28px">${S('5. Strategic Recommendations')}${recCards}</div>` : ''}
+
+      <!-- Roadmap -->
+      ${(rm.short_term||rm.medium_term||rm.long_term) ? `<div style="margin-bottom:28px">${S('6. Transformation Roadmap')}
+        <div style="display:flex;gap:12px">
+          ${rmCol('Phase 1 — 0-3 Months', rm.short_term, '#00A651')}
+          ${rmCol('Phase 2 — 3-12 Months', rm.medium_term, '#0063DC')}
+          ${rmCol('Phase 3 — 12-24 Months', rm.long_term, '#7B2FBE')}
+        </div></div>` : ''}
+
+      <!-- EA Maturity -->
+      ${dimRows ? `<div style="margin-bottom:28px">${S('7. EA Maturity Assessment')}
+        <div style="display:inline-flex;gap:0;margin-bottom:16px">
+          <div style="background:#0a1628;color:#fff;padding:10px 20px;font-size:16px;font-weight:700">Overall Score: ${ps.maturity_score||'—'}/5</div>
+          <div style="background:#0063DC;color:#fff;padding:10px 20px;font-size:14px;font-weight:700">${md.maturity_level||'—'}</div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="background:#0a1628;color:#fff"><th style="padding:10px 12px;text-align:left">Dimension</th><th style="padding:10px 12px;text-align:center">Score</th><th style="padding:10px 12px;text-align:left">Key Gaps</th></tr></thead>
+          <tbody>${dimRows}</tbody>
+        </table></div>` : ''}
+
+      <!-- Risk Register -->
+      ${riskRows ? `<div style="margin-bottom:28px">${S('8. Risk Register')}
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="background:#0a1628;color:#fff"><th style="padding:10px 12px;text-align:left">Risk</th><th style="padding:10px 12px;text-align:left">Impact</th><th style="padding:10px 12px;text-align:left">Mitigation</th></tr></thead>
+          <tbody>${riskRows}</tbody>
+        </table></div>` : ''}
+
+      <!-- Quick Wins -->
+      ${qw.length ? `<div style="margin-bottom:28px">${S('9. Quick Wins')}
+        <ul style="padding-left:20px;line-height:2;font-size:13px">${qw.slice(0,6).map(w=>`<li>${esc(w)}</li>`).join('')}</ul></div>` : ''}
+
+      <!-- Download -->
+      <div style="border-top:2px solid #0063DC;padding-top:24px;margin-top:8px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#0a1628;margin-bottom:4px">Report ready for download</div>
+          <div style="font-size:12px;color:#666">Full consulting-grade PDF with all sections, tables, and methodology</div>
+        </div>
+        ${pipelineReportFilename ? `<a href="${API}/ea-full/report/${pipelineReportFilename}" target="_blank" download
+          style="display:inline-flex;align-items:center;gap:8px;background:#0a1628;color:#fff;font-weight:700;font-size:13px;padding:12px 24px;border-radius:4px;text-decoration:none;letter-spacing:.3px;flex-shrink:0">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Download Full EA Report (PDF)
+        </a>` : ''}
+        <button onclick="document.getElementById('pipeline-raw').classList.toggle('hidden')"
+          style="background:transparent;border:1px solid #dde4f0;color:#666;font-size:12px;padding:10px 16px;border-radius:4px;cursor:pointer">
+          View Raw JSON
+        </button>
+      </div>
+      <pre id="pipeline-raw" class="result-pre text-xs text-gray-600 bg-gray-50 rounded-lg p-4 mt-4 overflow-auto max-h-60 hidden">${esc(JSON.stringify(ps, null, 2))}</pre>
+
+      </div><!-- /padding wrapper -->
+    </div>`;
 
     const existing = document.getElementById('pipeline-output');
     if (existing) existing.remove();
-    document.getElementById('page-reports').insertAdjacentHTML('beforeend', resultsHtml);
+    document.getElementById('page-reports').insertAdjacentHTML('beforeend',
+      `<div class="bg-white rounded-xl shadow-card overflow-hidden mt-5">${reportPreview}</div>`);
 
-    addActivity('TIME', 'Pipeline Done', 'success');
-    toast('Full EA Pipeline complete — ' + (ps.stages_completed || []).length + ' stages done', 'success');
+    updateKPIsFromResult({ pipeline_summary: ps, TIME: td, MATURITY: md, INSIGHTS: ins });
+    addActivity('PIPELINE', 'Full Analysis Complete', 'success');
+    toast('Full EA analysis complete — ' + (ps.stages_completed||[]).length + ' stages done', 'success');
   } catch(e) {
+    clearInterval(stageTimer);
     if (statusEl) { statusEl.textContent = 'Pipeline failed: ' + e.message; }
     toast('Pipeline error: ' + e.message, 'error');
   }
-  if (btn) { btn.disabled = false; btn.innerHTML = 'Run Pipeline →'; }
+  if (btn) { btn.disabled = false; btn.innerHTML = 'Run Pipeline'; }
 }
 
 // ── HEALTH CHECK ─────────────────────────────────────────────
@@ -1299,12 +1498,12 @@ async function checkHealth() {
     const data = await res.json();
     document.getElementById('status-pill').textContent = 'All agents online';
     document.getElementById('status-pill').parentElement.className = 'flex items-center gap-2 bg-green-50 border border-green-200 px-3 py-1.5 rounded-full';
-    document.getElementById('settings-conn-label').textContent = '✓ Connected to API — v' + (data.version || '1.0.0');
+    document.getElementById('settings-conn-label').textContent = 'Connected to API — v' + (data.version || '1.0.0');
     document.getElementById('settings-conn-label').className = 'text-xs text-green-600 font-medium';
   } catch {
     document.getElementById('status-pill').textContent = 'API Offline';
     document.getElementById('status-pill').parentElement.className = 'flex items-center gap-2 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full';
-    document.getElementById('settings-conn-label').textContent = '✗ Cannot connect to API';
+    document.getElementById('settings-conn-label').textContent = 'Cannot connect to API';
     document.getElementById('settings-conn-label').className = 'text-xs text-red-500 font-medium';
   }
 }
@@ -1314,7 +1513,7 @@ function saveApiUrl() {
   API = document.getElementById('settings-api-url').value.replace(/\/$/, '');
   localStorage.setItem('ea_api', API);
   document.getElementById('api-badge').textContent = API.replace(/https?:\/\//, '');
-  checkHealth().then(() => { document.getElementById('settings-status').textContent = '✓ Saved and connected'; toast('API URL saved', 'success'); });
+  checkHealth().then(() => { document.getElementById('settings-status').textContent = 'Saved and connected'; toast('API URL saved', 'success'); });
 }
 function resetApiUrl() {
   API = window.location.origin;
@@ -1326,7 +1525,7 @@ function resetApiUrl() {
 // ── TOAST ─────────────────────────────────────────────────────
 function toast(msg, type = 'info') {
   const colors = { success: 'border-l-green-500 bg-white', error: 'border-l-red-500 bg-white', warn: 'border-l-yellow-400 bg-white', info: 'border-l-blue-brand bg-white' };
-  const icons  = { success: '✓', error: '✗', warn: '⚠', info: 'ℹ' };
+  const icons  = { success: '', error: '', warn: '', info: '' };
   const el = document.createElement('div');
   el.className = `flex items-center gap-3 px-4 py-3 rounded-xl shadow-modal border-l-4 text-sm font-medium text-gray-700 min-w-[260px] fade-in ${colors[type] || colors.info}`;
   el.innerHTML = `<span class="text-base">${icons[type]||'ℹ'}</span><span>${esc(msg)}</span>`;
@@ -1337,6 +1536,156 @@ function toast(msg, type = 'info') {
 // ── UTILS ─────────────────────────────────────────────────────
 function esc(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function fmtNum(n) { n=Number(n)||0; if(n>=1e6) return(n/1e6).toFixed(1)+'M'; if(n>=1e3) return(n/1e3).toFixed(0)+'K'; return n.toFixed(0); }
+
+// ── AI ASSISTANT CHATBOT ──────────────────────────────────────────────────────
+let chatHistory = [];
+let chatOpen = false;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  const panel = document.getElementById('chat-panel');
+  const btn   = document.getElementById('chat-toggle-btn');
+  if (chatOpen) {
+    panel.classList.remove('hidden');
+    btn.classList.add('bg-navy-light');
+    document.getElementById('chat-input').focus();
+    if (chatHistory.length === 0) appendChatMsg('assistant',
+      'Welcome to EA AI Intelligence. I\'m your EA assistant — here to guide you through every step of the analysis.\n\nTo get started: go to the Portfolio page, upload your application inventory (CSV, Excel, PDF, PowerPoint, or image), then click Analyse Portfolio.\n\nWhat would you like help with?');
+  } else {
+    panel.classList.add('hidden');
+    btn.classList.remove('bg-navy-light');
+  }
+}
+
+function appendChatMsg(role, text) {
+  const feed = document.getElementById('chat-feed');
+  const isBot = role === 'assistant';
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (isBot ? 'chat-bot' : 'chat-user');
+  div.innerHTML = `<div class="chat-bubble">${esc(text).replace(/\n/g,'<br>')}</div>`;
+  feed.appendChild(div);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function showTyping() {
+  const feed = document.getElementById('chat-feed');
+  const div  = document.createElement('div');
+  div.id = 'chat-typing';
+  div.className = 'chat-msg chat-bot';
+  div.innerHTML = '<div class="chat-bubble" style="padding:10px 14px"><span class="chat-dot"></span><span class="chat-dot"></span><span class="chat-dot"></span></div>';
+  feed.appendChild(div);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('chat-typing');
+  if (t) t.remove();
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg   = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  appendChatMsg('user', msg);
+  chatHistory.push({ role: 'user', content: msg });
+  showTyping();
+
+  try {
+    const res = await fetch(API + '/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatHistory.slice(-12) }),
+    });
+    hideTyping();
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const reply = data.response || 'No response received.';
+    chatHistory.push({ role: 'assistant', content: reply });
+    appendChatMsg('assistant', reply);
+  } catch(e) {
+    hideTyping();
+    appendChatMsg('assistant', 'Unable to reach the assistant right now. Please check your connection and try again.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('chat-input');
+  if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
+});
 </script>
+
+<!-- ═══ FLOATING AI ASSISTANT ═══════════════════════════════════════════ -->
+<style>
+  #chat-panel {
+    width: 360px; height: 520px; max-height: 80vh;
+    display: flex; flex-direction: column;
+    border-radius: 16px; overflow: hidden;
+    box-shadow: 0 12px 48px rgba(0,0,0,.22);
+  }
+  .chat-msg { display: flex; margin-bottom: 8px; }
+  .chat-bot  { justify-content: flex-start; }
+  .chat-user { justify-content: flex-end; }
+  .chat-bubble {
+    max-width: 82%; padding: 10px 14px; border-radius: 12px;
+    font-size: 13px; line-height: 1.6;
+  }
+  .chat-bot  .chat-bubble { background: #f0f4fa; color: #1a2340; border-bottom-left-radius: 4px; }
+  .chat-user .chat-bubble { background: #0063DC; color: #fff; border-bottom-right-radius: 4px; }
+  .chat-dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: #99aabb; margin: 0 2px;
+    animation: chatBounce .9s infinite ease-in-out;
+  }
+  .chat-dot:nth-child(2) { animation-delay: .2s; }
+  .chat-dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes chatBounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+</style>
+
+<div id="chat-widget" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:12px">
+
+  <!-- Chat Panel -->
+  <div id="chat-panel" class="hidden">
+    <!-- Header -->
+    <div style="background:#0C233C;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;border-radius:8px;background:#0063DC;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+        </div>
+        <div>
+          <div style="color:#fff;font-size:13px;font-weight:700;font-family:'Inter',sans-serif">EA Intelligence Assistant</div>
+          <div style="color:#8899cc;font-size:11px;font-family:'Inter',sans-serif">Always here to guide you</div>
+        </div>
+      </div>
+      <button onclick="toggleChat()" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;color:#8899cc" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#8899cc'">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div id="chat-feed" style="flex:1;overflow-y:auto;padding:16px;background:#fff;display:flex;flex-direction:column"></div>
+
+    <!-- Input -->
+    <div style="border-top:1px solid #e4eaf0;padding:12px;background:#fff;display:flex;gap:8px;flex-shrink:0">
+      <input id="chat-input" type="text" placeholder="Ask anything about the platform…"
+        style="flex:1;border:1px solid #e4eaf0;border-radius:8px;padding:9px 12px;font-size:13px;font-family:'Inter',sans-serif;outline:none;color:#1a2340"
+        onfocus="this.style.borderColor='#0063DC'" onblur="this.style.borderColor='#e4eaf0'"/>
+      <button onclick="sendChat()"
+        style="background:#0063DC;border:none;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"
+        onmouseover="this.style.background='#0047BF'" onmouseout="this.style.background='#0063DC'">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.5"><path stroke-linecap="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Toggle Button -->
+  <button id="chat-toggle-btn" onclick="toggleChat()"
+    style="width:54px;height:54px;border-radius:50%;background:#0C233C;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.25);transition:transform .15s"
+    onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+    <svg id="chat-icon-open" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="1.8"><path stroke-linecap="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+  </button>
+</div>
+
 </body>
 </html>
