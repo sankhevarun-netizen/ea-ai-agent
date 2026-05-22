@@ -7,10 +7,10 @@
       "config": {
         "includeFiles": [
           "frontend/**",
-          "prompts/**",
           "agents/**",
           "services/**",
           "models/**",
+          "prompts/**",
           "utils/**",
           "orchestrator.py"
         ]
@@ -18,9 +18,6 @@
     }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "main.py"
-    }
+    {"src": "/(.*)", "dest": "main.py"}
   ]
 }

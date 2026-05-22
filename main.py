@@ -55,10 +55,20 @@ if _FRONTEND_DIR.exists() and not _on_vercel:
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def serve_ui():
-    index = _FRONTEND_DIR / "index.html"
-    if index.exists():
-        return HTMLResponse(content=index.read_text(encoding="utf-8"))
-    return HTMLResponse(content="<h2>EA AI Intelligence API is running. See <a href='/docs'>/docs</a>.</h2>")
+    candidates = [
+        Path(__file__).parent / "frontend" / "index.html",  # local & Vercel /var/task/
+        Path("/var/task/frontend/index.html"),               # Vercel explicit
+        Path("frontend/index.html"),                         # cwd fallback
+    ]
+    for candidate in candidates:
+        try:
+            if candidate.exists():
+                return HTMLResponse(content=candidate.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+    return HTMLResponse(
+        content="<h2>EA AI Intelligence API is running. See <a href='/docs'>/docs</a>.</h2>"
+    )
 
 
 # ─── Core EA Agent endpoint ───────────────────────────────────────────────────
