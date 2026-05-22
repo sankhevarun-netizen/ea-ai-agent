@@ -185,7 +185,7 @@
         <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-brand rounded-full hidden"></span>
       </button>
       <!-- API status badge -->
-      <span id="api-badge" class="text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full font-mono hidden sm:block">localhost:8000</span>
+      <span id="api-badge" class="text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full font-mono hidden sm:block">connected</span>
     </div>
   </header>
 
@@ -649,7 +649,7 @@ Example (TIME): We have 45 apps including Salesforce ($120K/yr), legacy Oracle b
           <p class="text-sm text-gray-500 leading-relaxed">
             <strong class="text-navy">EA AI Intelligence</strong> — Multi-agent Enterprise Architecture platform powered by Anthropic Claude.<br/><br/>
             Agents: <strong>ARB</strong> · <strong>TIME</strong> · <strong>MAPPING</strong> · <strong>MATURITY</strong> · <strong>INSIGHTS</strong><br/>
-            Stack: FastAPI · Supabase · Claude claude-sonnet-4-6 · xhtml2pdf
+            Stack: FastAPI · Supabase · Claude claude-sonnet-4-6 · fpdf2
           </p>
           <div class="mt-4 flex items-center gap-2">
             <span class="online-dot"></span>
@@ -670,7 +670,7 @@ Example (TIME): We have 45 apps including Salesforce ($120K/yr), legacy Oracle b
 ════════════════════════════════════════════════════════════ -->
 <script>
 // ── CONFIG ────────────────────────────────────────────────────
-let API = localStorage.getItem('ea_api') || 'http://localhost:8000';
+let API = localStorage.getItem('ea_api') || window.location.origin;
 let selectedAgent = 'ARB';
 let selectedAgentPage = 'ARB';
 let lastResult = null;
@@ -1316,7 +1316,7 @@ function saveApiUrl() {
   checkHealth().then(() => { document.getElementById('settings-status').textContent = '✓ Saved and connected'; toast('API URL saved', 'success'); });
 }
 function resetApiUrl() {
-  API = 'http://localhost:8000';
+  API = window.location.origin;
   document.getElementById('settings-api-url').value = API;
   localStorage.setItem('ea_api', API);
   checkHealth();
