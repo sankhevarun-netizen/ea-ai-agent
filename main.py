@@ -30,13 +30,7 @@ app = FastAPI(
     description="Multi-agent Enterprise Architecture AI platform — ARB, TIME, Mapping, Maturity, Insights",
     version="1.0.0",
 )
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
 
-@app.get("/")
-def serve_frontend():
-    return FileResponse("frontend/index.html")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -187,7 +181,7 @@ async def time_ingest(
 @app.post("/time/report")
 async def time_report(body: Dict[str, Any]):
     """
-    Generate an HTML portfolio rationalization report.
+    Generate a PDF portfolio rationalization report.
 
     Body:
       applications  — list of scored tool dicts (from /time/ingest)
@@ -242,14 +236,6 @@ async def ea_full(body: Dict[str, Any]):
       - report_url: path to the downloadable PDF report
     """
     pipeline = run_full_pipeline(body)
-
-    # Generate the comprehensive PDF
-    apps = pipeline.get("TIME", {}).get("applications", [])
-    dups = pipeline.get("TIME", {}).get("duplications", [])
-    assessments = []
-    time_assessment = pipeline.get("TIME", {}).get("assessment")
-    if time_assessment:
-        assessments.append(time_assessment)
 
     report_path = _reporter.generate_pipeline_pdf(
         pipeline=pipeline,
