@@ -4,13 +4,23 @@
     {
       "src": "main.py",
       "use": "@vercel/python",
-      "config": { "maxLambdaSize": "50mb" }
+      "config": {
+        "includeFiles": [
+          "frontend/**",
+          "prompts/**",
+          "agents/**",
+          "services/**",
+          "models/**",
+          "utils/**",
+          "orchestrator.py"
+        ]
+      }
     }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "main.py" }
-  ],
-  "env": {
-    "VERCEL": "1"
-  }
+    {
+      "src": "/(.*)",
+      "dest": "main.py"
+    }
+  ]
 }
