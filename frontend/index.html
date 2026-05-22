@@ -27,6 +27,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     /* Scrollbar */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -73,6 +74,37 @@
 </head>
 
 <body class="bg-slate-ui font-sans text-gray-800 flex h-screen overflow-hidden">
+
+<!-- ═══ LOGIN SCREEN ════════════════════════════════════════════ -->
+<div id="login-screen" style="position:fixed;inset:0;z-index:10000;background:#0C233C;display:flex;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-family:'Inter',sans-serif;font-size:22px;font-weight:800;color:#0C233C;letter-spacing:-.4px">EA AI Intelligence</div>
+      <div style="font-family:'Inter',sans-serif;font-size:13px;color:#64748b;margin-top:5px">Enterprise Architecture Platform</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Email</label>
+        <input id="login-email" type="email" placeholder="you@company.com" autocomplete="email"
+          style="width:100%;border:1px solid #e4eaf0;border-radius:8px;padding:10px 12px;font-size:14px;font-family:'Inter',sans-serif;outline:none;color:#1a2340;box-sizing:border-box"
+          onfocus="this.style.borderColor='#0063DC'" onblur="this.style.borderColor='#e4eaf0'"/>
+      </div>
+      <div>
+        <label style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px">Password</label>
+        <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password"
+          style="width:100%;border:1px solid #e4eaf0;border-radius:8px;padding:10px 12px;font-size:14px;font-family:'Inter',sans-serif;outline:none;color:#1a2340;box-sizing:border-box"
+          onfocus="this.style.borderColor='#0063DC'" onblur="this.style.borderColor='#e4eaf0'"
+          onkeydown="if(event.key==='Enter')doSignIn()"/>
+      </div>
+      <div id="login-error" style="display:none;color:#dc2626;font-size:12px;font-family:'Inter',sans-serif;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:8px 10px"></div>
+      <button id="login-btn" onclick="doSignIn()"
+        style="background:#0063DC;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;margin-top:2px;transition:background .15s"
+        onmouseover="this.style.background='#0047BF'" onmouseout="this.style.background='#0063DC'">
+        Sign In
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════════
      SIDEBAR
@@ -149,7 +181,7 @@
       <div class="w-8 h-8 rounded-full bg-navy-light border border-blue-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">EA</div>
       <div class="flex-1 min-w-0">
         <div class="text-white text-sm font-semibold truncate">EA Architect</div>
-        <div class="text-blue-300 text-xs font-medium opacity-70 truncate">Super Admin</div>
+        <div id="sidebar-user-email" class="text-blue-300 text-xs font-medium opacity-70 truncate">Super Admin</div>
       </div>
       <div class="flex items-center gap-2 flex-shrink-0">
         <div class="online-dot"></div>
@@ -157,6 +189,11 @@
           <svg class="w-3.5 h-3.5 text-blue-300 opacity-60 hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
             <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+        <button onclick="doSignOut()" class="p-1 rounded hover:bg-navy-light transition" title="Sign Out">
+          <svg class="w-3.5 h-3.5 text-blue-300 opacity-60 hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
           </svg>
         </button>
       </div>
@@ -1694,6 +1731,86 @@ document.addEventListener('DOMContentLoaded', () => {
     <svg id="chat-icon-open" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="1.8"><path stroke-linecap="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
   </button>
 </div>
+
+
+<!-- ═══ SUPABASE AUTH ═══════════════════════════════════════════ -->
+<script>
+(function() {
+  const { createClient } = supabase;
+  const _supabase = createClient(
+    'https://rrsjtunnyupnbzsxiuam.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyc2p0dW5ueXVwbmJ6c3hpdWFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NDk0ODcsImV4cCI6MjA5NTAyNTQ4N30.D3RnWLYKHsucliXe8It4_3B9TkplweY8m0jMLVo1EjM'
+  );
+
+  window._supabase = _supabase;
+
+  function _showDashboard(email) {
+    document.getElementById('login-screen').style.display = 'none';
+    if (email) {
+      const el = document.getElementById('sidebar-user-email');
+      if (el) el.textContent = email;
+    }
+  }
+
+  function _showLogin() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-error').style.display = 'none';
+  }
+
+  async function checkAuth() {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (session) {
+      _showDashboard(session.user.email);
+    }
+    // If no session, login screen is already visible (display:flex by default)
+  }
+
+  window.doSignIn = async function() {
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const btn      = document.getElementById('login-btn');
+    const errEl    = document.getElementById('login-error');
+
+    if (!email || !password) {
+      errEl.textContent = 'Please enter your email and password.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+    errEl.style.display = 'none';
+
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+
+    btn.textContent = 'Sign In';
+    btn.disabled = false;
+
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+    } else {
+      _showDashboard(data.session.user.email);
+    }
+  };
+
+  window.doSignOut = async function() {
+    await _supabase.auth.signOut();
+    // Reset chat state
+    if (typeof chatHistory !== 'undefined') { chatHistory = []; }
+    const feed = document.getElementById('chat-feed');
+    if (feed) feed.innerHTML = '';
+    const panel = document.getElementById('chat-panel');
+    if (panel) panel.classList.add('hidden');
+    if (typeof chatOpen !== 'undefined') { chatOpen = false; }
+    _showLogin();
+  };
+
+  document.addEventListener('DOMContentLoaded', checkAuth);
+})();
+</script>
 
 </body>
 </html>
