@@ -207,7 +207,7 @@ def run_time(input_data: dict) -> dict:
 
     # 5. Ask Claude for narrative + recommendations (memory-enriched)
     enriched_prompt = (
-        TIME_SYSTEM_PROMPT
+        ASSESSMENT_NARRATIVE_PROMPT
         + f"\n\n### Recent Decisions (memory):\n{json.dumps(past_decisions, indent=2)}"
     )
     tool_summary = [
