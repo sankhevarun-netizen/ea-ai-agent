@@ -352,7 +352,7 @@ class ReportGenerator:
         mat_score    = maturity_data.get("overall_maturity_score", "-")
         overall_risk = insights_data.get("risk_profile", {}).get("overall_risk", "-")
  
-        stages = " → ".join(summary.get("stages_completed", []))
+        stages = " > ".join(summary.get("stages_completed", []))
         pdf.cover_header(
             "EA AI Intelligence - Full Enterprise Architecture Report",
             "Portfolio Rationalization  |  Dependency Analysis  |  Maturity Assessment  |  Executive Intelligence",
@@ -503,8 +503,8 @@ class ReportGenerator:
             pdf.set_font("Helvetica", "B", 7)
             pdf.cell(32, 6, t.get("name", "-")[:20], fill=True)
             pdf.set_font("Helvetica", "", 7)
-            pdf.cell(22, 6, t.get("vendor", "-")[:14], fill=True)
-            pdf.cell(22, 6, t.get("category", "-")[:14], fill=True)
+            pdf.cell(22, 6, (t.get("vendor") or "-")[:14], fill=True)
+            pdf.cell(22, 6, (t.get("category") or "-")[:14], fill=True)
             pdf.cell(18, 6, cost, fill=True)
             pdf.cell(14, 6, users, fill=True)
             pdf.cell(12, 6, f"{score}/10", fill=True)
@@ -582,7 +582,7 @@ class ReportGenerator:
                 pdf.set_font("Helvetica", "", 8)
                 pdf.set_text_color(*BLACK)
                 pdf.set_x(14)
-                pdf.cell(3, 5, chr(149))  # bullet
+                pdf.cell(3, 5, ">")
                 pdf.cell(0, 5, str(item)[:110], ln=True)
  
     def _pdf_pipeline_insights(self, pdf: EAPdf, insights: Dict):
