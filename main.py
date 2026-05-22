@@ -30,7 +30,13 @@ app = FastAPI(
     description="Multi-agent Enterprise Architecture AI platform — ARB, TIME, Mapping, Maturity, Insights",
     version="1.0.0",
 )
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
+@app.get("/")
+def serve_frontend():
+    return FileResponse("frontend/index.html")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
