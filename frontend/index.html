@@ -1,556 +1,1341 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EA AI Intelligence — Enterprise Architecture Platform</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  * { font-family: 'Inter', sans-serif; }
-  :root {
-    --navy: #0C233C;
-    --navy-light: #122B4E;
-    --kblue: #00338D;
-    --blue: #0063DC;
-    --blue-light: #E6F1FB;
-    --green: #00A651;
-    --amber: #FFC200;
-    --red: #E31837;
-    --grey: #F0F3F8;
-    --border: #E5E7EB;
-    --text: #1F2937;
-    --muted: #6B7280;
-  }
-  body { background: var(--grey); color: var(--text); }
-  .sidebar { width: 240px; min-width: 240px; background: var(--navy); }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; margin: 1px 8px; border-radius: 8px; cursor: pointer; color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500; transition: all 0.15s; text-decoration: none; }
-  .nav-item:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); }
-  .nav-item.active { background: rgba(0,99,220,0.3); color: #fff; }
-  .nav-item svg { width: 16px; height: 16px; min-width: 16px; }
-  .kpi-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-  .agent-card { border: 1.5px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.15s; background: white; }
-  .agent-card:hover { border-color: var(--blue); }
-  .agent-card.selected { border-color: var(--blue); background: var(--blue-light); }
-  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
-  .badge-green { background: #ECFDF5; color: #065F46; }
-  .badge-blue { background: #EFF6FF; color: #1D4ED8; }
-  .badge-amber { background: #FFFBEB; color: #92400E; }
-  .badge-red { background: #FEF2F2; color: #991B1B; }
-  .badge-grey { background: #F3F4F6; color: #374151; }
-  .activity-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: white; }
-  .btn-primary { background: var(--navy); color: white; border: none; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
-  .btn-primary:hover { background: var(--kblue); }
-  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; box-shadow: 0 0 0 2px rgba(0,166,81,0.25); }
-  textarea { border: 1.5px solid var(--border); border-radius: 8px; padding: 12px; font-size: 13px; font-family: 'Inter', sans-serif; resize: none; width: 100%; transition: border-color 0.15s; outline: none; background: white; }
-  textarea:focus { border-color: var(--blue); }
-  .response-box { background: #F8FBFF; border: 1.5px solid #BFDBFE; border-radius: 10px; padding: 16px; font-size: 13px; line-height: 1.6; color: var(--text); max-height: 280px; overflow-y: auto; white-space: pre-wrap; }
-  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.35); padding: 14px 16px 4px; }
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-  @media (max-width: 768px) {
-    .sidebar { display: none; }
-    .two-col { flex-direction: column !important; }
-    .kpi-row { grid-template-columns: 1fr 1fr !important; }
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EA AI Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:  { DEFAULT: '#0C233C', light: '#153350', dark: '#08192b' },
+            kpmg:  { DEFAULT: '#00338D', light: '#0047BF', dark: '#002570' },
+            blue:  { brand: '#0063DC', light: '#3385E8' },
+            teal:  { brand: '#00A3A1' },
+            slate: { ui: '#F5F7FA', border: '#E4EAF0' },
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          boxShadow: {
+            card: '0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06)',
+            modal: '0 8px 40px rgba(0,0,0,.18)',
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
+
+    /* Sidebar active glow */
+    .nav-active { background: rgba(0,99,220,.18); border-left: 3px solid #0063DC; }
+    .nav-item   { border-left: 3px solid transparent; transition: all .15s; }
+    .nav-item:hover { background: rgba(255,255,255,.06); }
+
+    /* Agent card selected */
+    .agent-card { transition: all .2s; cursor: pointer; }
+    .agent-card.selected { ring: 2px; }
+    .agent-card:hover { transform: translateY(-2px); }
+
+    /* Skeleton pulse */
+    .skeleton { background: linear-gradient(90deg, #e4eaf0 25%, #f5f7fa 50%, #e4eaf0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Spinner */
+    .spin { animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Fade in */
+    .fade-in { animation: fadeIn .25s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+    /* Result pre */
+    .result-pre { font-family: 'Fira Mono', 'Courier New', monospace; font-size: 12px; line-height: 1.7; }
+
+    /* Notification dot */
+    .online-dot { width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.25); }
+
+    /* Tooltip */
+    [data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+      background: #1e293b; color: #e2e8f0; font-size: 11px; padding: 4px 8px;
+      border-radius: 5px; white-space: nowrap; pointer-events: none; z-index: 50;
+    }
+    [data-tip] { position: relative; }
+  </style>
 </head>
-<body>
 
-<div style="display:flex; height:100vh; overflow:hidden;">
+<body class="bg-slate-ui font-sans text-gray-800 flex h-screen overflow-hidden">
 
-  <!-- ── SIDEBAR ─────────────────────────────────────────────────────────── -->
-  <div class="sidebar" style="display:flex; flex-direction:column; overflow:hidden;">
+<!-- ═══════════════════════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════════════════════════ -->
+<aside id="sidebar" class="w-64 flex-shrink-0 bg-navy flex flex-col h-screen overflow-y-auto transition-all duration-300 z-50">
 
-    <!-- Logo -->
-    <div style="padding: 20px 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.07);">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div style="width:32px; height:32px; background: var(--blue); border-radius:8px; display:flex; align-items:center; justify-content:center;">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-        </div>
-        <div>
-          <div style="color:white; font-size:13px; font-weight:700; letter-spacing:-0.2px;">EA AI Intelligence</div>
-          <div style="color:rgba(255,255,255,0.4); font-size:10px; margin-top:1px;">Enterprise Architecture</div>
-        </div>
+  <!-- Logo -->
+  <div class="px-5 py-5 border-b border-navy-light">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-blue-brand flex items-center justify-center flex-shrink-0">
+        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
       </div>
-    </div>
-
-    <!-- Nav -->
-    <div style="flex:1; overflow-y:auto; padding: 8px 0;">
-      <div class="section-label">Workspace</div>
-
-      <a class="nav-item active" onclick="setPage('dashboard')">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
-      </a>
-      <a class="nav-item" onclick="setPage('agents')">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>
-        AI Agents
-        <span style="margin-left:auto; background:var(--blue); color:white; font-size:10px; padding:1px 6px; border-radius:10px; font-weight:700;">5</span>
-      </a>
-      <a class="nav-item" onclick="setPage('reports')">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Reports
-      </a>
-      <a class="nav-item" onclick="setPage('portfolio')">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-        Portfolio
-      </a>
-
-      <div class="section-label">Governance</div>
-
-      <a class="nav-item" onclick="setPage('arb')">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        ARB Decisions
-      </a>
-      <a class="nav-item" onclick="setPage('maturity')">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-        Maturity Scores
-      </a>
-      <a class="nav-item" onclick="setPage('mapping')">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-        Dependency Map
-      </a>
-      <a class="nav-item" onclick="setPage('settings')">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
-        Settings
-      </a>
-    </div>
-
-    <!-- User -->
-    <div style="padding: 12px 10px; border-top: 1px solid rgba(255,255,255,0.07);">
-      <div style="display:flex; align-items:center; gap:10px; padding: 8px 10px;">
-        <div style="width:32px; height:32px; border-radius:50%; background:var(--blue); display:flex; align-items:center; justify-content:center; color:white; font-size:12px; font-weight:700;">SV</div>
-        <div>
-          <div style="color:rgba(255,255,255,0.8); font-size:12px; font-weight:600;">Sankhe Varun</div>
-          <div style="color:rgba(255,255,255,0.35); font-size:11px;">EA Lead</div>
-        </div>
-        <div style="margin-left:auto; width:7px; height:7px; border-radius:50%; background:var(--green);"></div>
+      <div>
+        <div class="text-white font-bold text-sm leading-tight">EA AI Intelligence</div>
+        <div class="text-blue-300 text-xs opacity-70">Enterprise Architecture</div>
       </div>
     </div>
   </div>
 
-  <!-- ── MAIN CONTENT ────────────────────────────────────────────────────── -->
-  <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+  <!-- Nav -->
+  <nav class="flex-1 px-3 py-4 space-y-0.5">
+    <p class="text-xs font-semibold text-blue-300 opacity-50 uppercase tracking-widest px-3 pt-1 pb-2">Main</p>
 
-    <!-- Top bar -->
-    <div style="background:white; border-bottom:1px solid var(--border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-      <div>
-        <div style="font-size:15px; font-weight:700; color:var(--navy);" id="page-title">EA Intelligence Dashboard</div>
-        <div style="font-size:12px; color:var(--muted); margin-top:1px;">Multi-agent architecture analysis platform</div>
+    <a class="nav-item nav-active flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('dashboard')">
+      <svg class="w-4.5 h-4.5 text-blue-brand flex-shrink-0 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span class="text-white text-sm font-medium">Dashboard</span>
+    </a>
+
+    <p class="text-xs font-semibold text-blue-300 opacity-50 uppercase tracking-widest px-3 pt-3 pb-2">Agents</p>
+
+    <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('agents')">
+      <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span class="text-blue-100 text-sm font-medium">AI Agents</span>
+    </a>
+
+    <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('portfolio')">
+      <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      <span class="text-blue-100 text-sm font-medium">Portfolio</span>
+    </a>
+
+    <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('arb')">
+      <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      <span class="text-blue-100 text-sm font-medium">ARB Decisions</span>
+    </a>
+
+    <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('maturity')">
+      <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      <span class="text-blue-100 text-sm font-medium">Maturity Scores</span>
+    </a>
+
+    <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('mapping')">
+      <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+      <span class="text-blue-100 text-sm font-medium">Dependency Map</span>
+    </a>
+
+    <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('reports')">
+      <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <span class="text-blue-100 text-sm font-medium">Reports</span>
+    </a>
+
+    <p class="text-xs font-semibold text-blue-300 opacity-50 uppercase tracking-widest px-3 pt-3 pb-2">System</p>
+
+    <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('settings')">
+      <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="text-blue-100 text-sm font-medium">Settings</span>
+    </a>
+  </nav>
+
+  <!-- User Profile -->
+  <div class="px-4 py-4 border-t border-navy-light">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-kpmg flex items-center justify-center text-white text-xs font-bold flex-shrink-0">EA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-white text-sm font-medium truncate">EA Architect</div>
+        <div class="text-blue-300 text-xs opacity-60 truncate">sankhevarun@gmail.com</div>
       </div>
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div style="display:flex; align-items:center; gap:6px; background:#ECFDF5; color:#065F46; font-size:11px; font-weight:600; padding:5px 12px; border-radius:20px;">
-          <span class="status-dot"></span> All agents online
-        </div>
-        <button onclick="document.getElementById('uploadModal').style.display='flex'" style="background:white; border:1.5px solid var(--border); border-radius:8px; padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--text); display:flex; align-items:center; gap:6px;">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-          Upload Portfolio
-        </button>
+      <div class="online-dot flex-shrink-0"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════════════════════════════ -->
+<div class="flex-1 flex flex-col overflow-hidden">
+
+  <!-- Top Bar -->
+  <header class="bg-white border-b border-slate-border px-6 py-3.5 flex items-center justify-between flex-shrink-0 shadow-sm">
+    <div class="flex items-center gap-3">
+      <!-- Mobile hamburger -->
+      <button class="lg:hidden p-1.5 rounded-lg hover:bg-gray-100" onclick="document.getElementById('sidebar').classList.toggle('hidden')">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div>
+        <h1 id="page-title" class="text-lg font-bold text-navy">Dashboard</h1>
+        <p id="page-subtitle" class="text-xs text-gray-400 mt-0.5">Overview of your EA Intelligence platform</p>
       </div>
     </div>
+    <div class="flex items-center gap-3">
+      <!-- Agents online pill -->
+      <div class="flex items-center gap-2 bg-green-50 border border-green-200 px-3 py-1.5 rounded-full">
+        <span class="online-dot w-2 h-2"></span>
+        <span class="text-green-700 text-xs font-semibold" id="status-pill">All agents online</span>
+      </div>
+      <!-- Notification bell -->
+      <button class="relative p-2 rounded-lg hover:bg-gray-100 text-gray-500">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-brand rounded-full hidden"></span>
+      </button>
+      <!-- API status badge -->
+      <span id="api-badge" class="text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full font-mono hidden sm:block">localhost:8000</span>
+    </div>
+  </header>
 
-    <!-- Page content -->
-    <div style="flex:1; overflow-y:auto; padding:20px 24px;">
+  <!-- Page Content -->
+  <main class="flex-1 overflow-y-auto bg-slate-ui">
+
+    <!-- ══ DASHBOARD PAGE ══════════════════════════════════════ -->
+    <div id="page-dashboard" class="page p-6 fade-in">
 
       <!-- KPI Row -->
-      <div class="kpi-row" style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px;">
-        <div class="kpi-card">
-          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:8px;">Applications</div>
-          <div style="font-size:28px; font-weight:700; color:var(--blue); line-height:1;" id="kpi-apps">—</div>
-          <div style="font-size:11px; color:var(--muted); margin-top:6px;">Assessed in portfolio</div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+        <div class="bg-white rounded-xl shadow-card p-5 flex items-start gap-4">
+          <div class="w-11 h-11 rounded-xl bg-kpmg bg-opacity-10 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-kpmg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path stroke-linecap="round" d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Applications</p>
+            <p class="text-2xl font-bold text-navy mt-1" id="kpi-apps">—</p>
+            <p class="text-xs text-gray-400 mt-0.5">in portfolio</p>
+          </div>
         </div>
-        <div class="kpi-card">
-          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:8px;">ARB Decisions</div>
-          <div style="font-size:28px; font-weight:700; color:var(--kblue); line-height:1;">38</div>
-          <div style="font-size:11px; color:var(--muted); margin-top:6px;"><span style="color:var(--green); font-weight:600;">31 approved</span> this quarter</div>
+
+        <div class="bg-white rounded-xl shadow-card p-5 flex items-start gap-4">
+          <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-blue-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">ARB Decisions</p>
+            <p class="text-2xl font-bold text-navy mt-1" id="kpi-arb">—</p>
+            <p class="text-xs text-gray-400 mt-0.5">this session</p>
+          </div>
         </div>
-        <div class="kpi-card">
-          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:8px;">Projected Savings</div>
-          <div style="font-size:28px; font-weight:700; color:var(--green); line-height:1;">$2.4M</div>
-          <div style="font-size:11px; color:var(--muted); margin-top:6px;">From TIME analysis</div>
+
+        <div class="bg-white rounded-xl shadow-card p-5 flex items-start gap-4">
+          <div class="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Projected Savings</p>
+            <p class="text-2xl font-bold text-navy mt-1" id="kpi-savings">$0</p>
+            <p class="text-xs text-green-500 mt-0.5">from rationalisation</p>
+          </div>
         </div>
-        <div class="kpi-card">
-          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:8px;">Maturity Score</div>
-          <div style="font-size:28px; font-weight:700; color:var(--amber); line-height:1;">3.8<span style="font-size:14px; color:var(--muted);">/5</span></div>
-          <div style="font-size:11px; color:var(--muted); margin-top:6px;"><span style="color:var(--green); font-weight:600;">+0.4</span> vs last cycle</div>
+
+        <div class="bg-white rounded-xl shadow-card p-5 flex items-start gap-4">
+          <div class="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Maturity Score</p>
+            <p class="text-2xl font-bold text-navy mt-1" id="kpi-maturity">—<span class="text-sm text-gray-400 font-normal"> /5</span></p>
+            <p class="text-xs text-gray-400 mt-0.5" id="kpi-maturity-level">Not assessed</p>
+          </div>
         </div>
       </div>
 
-      <!-- Two-column layout -->
-      <div class="two-col" style="display:flex; gap:16px;">
+      <!-- Two-column main area -->
+      <div class="grid grid-cols-1 xl:grid-cols-5 gap-5">
 
-        <!-- LEFT: Agent Panel -->
-        <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:14px;">
+        <!-- LEFT: Agent Selector + Query -->
+        <div class="xl:col-span-3 space-y-4">
 
-          <!-- Agent selector -->
-          <div style="background:white; border:1px solid var(--border); border-radius:12px; padding:18px;">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
-              <div style="font-size:13px; font-weight:700; color:var(--navy);">Ask the EA Agent</div>
-              <div style="font-size:11px; color:var(--blue); cursor:pointer;">View history →</div>
+          <!-- Agent Grid -->
+          <div class="bg-white rounded-xl shadow-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-bold text-navy text-sm">Select Agent</h2>
+              <span class="text-xs text-gray-400">Click to select, then run query below</span>
             </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
 
-            <!-- Agent grid -->
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
-
-              <div class="agent-card selected" id="agent-ARB" onclick="selectAgent('ARB')">
-                <div style="width:32px; height:32px; background:#EFF6FF; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:8px;">
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#0063DC" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <div class="agent-card selected border-2 border-blue-brand rounded-xl p-4 text-center bg-blue-50" data-agent="ARB" onclick="selectAgent(this)">
+                <div class="w-10 h-10 rounded-xl bg-blue-brand mx-auto flex items-center justify-center mb-2">
+                  <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                 </div>
-                <div style="font-size:12px; font-weight:700; color:var(--navy);">ARB Agent</div>
-                <div style="font-size:11px; color:var(--muted); margin-top:2px; line-height:1.4;">Architecture governance & approval</div>
-                <span class="badge badge-green" style="margin-top:6px;">Ready</span>
+                <p class="text-xs font-bold text-navy">ARB</p>
+                <p class="text-xs text-gray-400 mt-0.5">Review Board</p>
               </div>
 
-              <div class="agent-card" id="agent-TIME" onclick="selectAgent('TIME')">
-                <div style="width:32px; height:32px; background:#ECFDF5; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:8px;">
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#00A651" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div class="agent-card border-2 border-transparent rounded-xl p-4 text-center hover:border-kpmg hover:bg-blue-50" data-agent="TIME" onclick="selectAgent(this)">
+                <div class="w-10 h-10 rounded-xl bg-kpmg mx-auto flex items-center justify-center mb-2">
+                  <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 </div>
-                <div style="font-size:12px; font-weight:700; color:var(--navy);">TIME Agent</div>
-                <div style="font-size:11px; color:var(--muted); margin-top:2px; line-height:1.4;">Portfolio rationalization</div>
-                <span class="badge badge-green" style="margin-top:6px;">Ready</span>
+                <p class="text-xs font-bold text-navy">TIME</p>
+                <p class="text-xs text-gray-400 mt-0.5">Portfolio</p>
               </div>
 
-              <div class="agent-card" id="agent-MAPPING" onclick="selectAgent('MAPPING')">
-                <div style="width:32px; height:32px; background:#FFFBEB; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:8px;">
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#D97706" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              <div class="agent-card border-2 border-transparent rounded-xl p-4 text-center hover:border-teal-brand hover:bg-teal-50" data-agent="MAPPING" onclick="selectAgent(this)">
+                <div class="w-10 h-10 rounded-xl bg-teal-brand mx-auto flex items-center justify-center mb-2">
+                  <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
                 </div>
-                <div style="font-size:12px; font-weight:700; color:var(--navy);">Mapping Agent</div>
-                <div style="font-size:11px; color:var(--muted); margin-top:2px; line-height:1.4;">Dependencies & impact analysis</div>
-                <span class="badge badge-green" style="margin-top:6px;">Ready</span>
+                <p class="text-xs font-bold text-navy">MAPPING</p>
+                <p class="text-xs text-gray-400 mt-0.5">Dependencies</p>
               </div>
 
-              <div class="agent-card" id="agent-MATURITY" onclick="selectAgent('MATURITY')">
-                <div style="width:32px; height:32px; background:#F5F3FF; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:8px;">
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#7C3AED" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+              <div class="agent-card border-2 border-transparent rounded-xl p-4 text-center hover:border-purple-500 hover:bg-purple-50" data-agent="MATURITY" onclick="selectAgent(this)">
+                <div class="w-10 h-10 rounded-xl bg-purple-600 mx-auto flex items-center justify-center mb-2">
+                  <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
                 </div>
-                <div style="font-size:12px; font-weight:700; color:var(--navy);">Maturity Agent</div>
-                <div style="font-size:11px; color:var(--muted); margin-top:2px; line-height:1.4;">EA capability assessment</div>
-                <span class="badge badge-green" style="margin-top:6px;">Ready</span>
+                <p class="text-xs font-bold text-navy">MATURITY</p>
+                <p class="text-xs text-gray-400 mt-0.5">Assessment</p>
               </div>
 
+              <div class="agent-card border-2 border-transparent rounded-xl p-4 text-center hover:border-orange-400 hover:bg-orange-50" data-agent="INSIGHTS" onclick="selectAgent(this)">
+                <div class="w-10 h-10 rounded-xl bg-orange-500 mx-auto flex items-center justify-center mb-2">
+                  <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                </div>
+                <p class="text-xs font-bold text-navy">INSIGHTS</p>
+                <p class="text-xs text-gray-400 mt-0.5">Executive</p>
+              </div>
             </div>
+          </div>
 
-            <!-- Query input -->
-            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:6px;">Your Query</div>
-            <textarea id="queryInput" rows="4" placeholder="e.g. Should we approve migration of CRM to Salesforce Cloud? Analyse risks, dependencies and provide a recommendation..."></textarea>
+          <!-- Query Box -->
+          <div class="bg-white rounded-xl shadow-card p-5">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="font-bold text-navy text-sm">Query</h2>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-400">Agent:</span>
+                <span id="selected-agent-label" class="text-xs font-bold text-blue-brand bg-blue-50 px-2.5 py-1 rounded-full">ARB</span>
+              </div>
+            </div>
+            <textarea
+              id="query-input"
+              rows="5"
+              placeholder="Describe your architecture proposal, portfolio, or question…
 
-            <div style="display:flex; gap:8px; margin-top:10px;">
-              <button class="btn-primary" id="runBtn" onclick="runAgent()">
-                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+Example (ARB): Migrate our legacy billing system to AWS microservices using Kubernetes and Aurora PostgreSQL. Estimated cost $240K, 12-month timeline.
+
+Example (TIME): We have 45 apps including Salesforce ($120K/yr), legacy Oracle billing ($80K/yr, EOL soon), Jira ($24K/yr), and a custom Python ETL tool."
+              class="w-full border border-slate-border rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-300 resize-none focus:outline-none focus:ring-2 focus:ring-blue-brand focus:border-transparent transition"
+            ></textarea>
+
+            <div class="flex items-center justify-between mt-3">
+              <div class="flex items-center gap-2">
+                <button onclick="clearQuery()" class="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg> Clear
+                </button>
+                <button onclick="loadSample()" class="text-xs text-kpmg hover:text-blue-brand flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Load Sample
+                </button>
+              </div>
+              <button
+                id="run-btn"
+                onclick="runAgent()"
+                class="flex items-center gap-2 bg-blue-brand hover:bg-blue-light text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition shadow-sm disabled:opacity-50"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 Run Agent
               </button>
-              <button onclick="clearResponse()" style="background:white; border:1.5px solid var(--border); border-radius:8px; padding:9px 14px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted);">Clear</button>
             </div>
           </div>
 
-          <!-- Response panel -->
-          <div id="responsePanel" style="display:none; background:white; border:1px solid var(--border); border-radius:12px; padding:18px;">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-              <div style="font-size:13px; font-weight:700; color:var(--navy);">Agent Response</div>
-              <span id="responseAgent" class="badge badge-blue">ARB</span>
+          <!-- Result Panel -->
+          <div id="result-panel" class="bg-white rounded-xl shadow-card overflow-hidden hidden fade-in">
+            <div class="px-5 py-4 border-b border-slate-border flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div id="result-agent-dot" class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                <h3 class="font-bold text-navy text-sm" id="result-title">Agent Result</h3>
+                <span id="result-badge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700"></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="copyResult()" class="text-xs text-gray-400 hover:text-gray-700 flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-gray-100 transition">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg> Copy
+                </button>
+                <button onclick="closeResult()" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
             </div>
-            <div class="response-box" id="responseContent"></div>
-          </div>
 
+            <!-- Result Tabs -->
+            <div class="border-b border-slate-border px-5">
+              <div class="flex gap-0 -mb-px">
+                <button class="result-tab active px-4 py-2.5 text-xs font-semibold text-blue-brand border-b-2 border-blue-brand" data-tab="summary" onclick="switchResultTab('summary')">Summary</button>
+                <button class="result-tab px-4 py-2.5 text-xs font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-700" data-tab="risks" onclick="switchResultTab('risks')">Risks</button>
+                <button class="result-tab px-4 py-2.5 text-xs font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-700" data-tab="recs" onclick="switchResultTab('recs')">Recommendations</button>
+                <button class="result-tab px-4 py-2.5 text-xs font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-700" data-tab="json" onclick="switchResultTab('json')">JSON</button>
+              </div>
+            </div>
+
+            <div class="p-5 max-h-80 overflow-y-auto">
+              <div id="tab-summary"></div>
+              <div id="tab-risks" class="hidden"></div>
+              <div id="tab-recs" class="hidden"></div>
+              <div id="tab-json" class="hidden">
+                <pre class="result-pre text-gray-700 bg-gray-50 rounded-lg p-4 overflow-x-auto" id="result-json"></pre>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- RIGHT: Activity feed -->
-        <div style="width:340px; min-width:280px; display:flex; flex-direction:column; gap:14px;">
+        <!-- RIGHT: Activity Feed -->
+        <div class="xl:col-span-2 space-y-4">
 
-          <div style="background:white; border:1px solid var(--border); border-radius:12px; padding:18px; flex:1;">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
-              <div style="font-size:13px; font-weight:700; color:var(--navy);">Recent Activity</div>
-              <div style="font-size:11px; color:var(--blue); cursor:pointer;">View all →</div>
-            </div>
-
-            <div style="display:flex; flex-direction:column; gap:8px;" id="activityFeed">
-
-              <div class="activity-item">
-                <div style="width:30px; height:30px; background:#ECFDF5; border-radius:8px; display:flex; align-items:center; justify-content:center; min-width:30px;">
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#00A651" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                </div>
-                <div style="flex:1; min-width:0;">
-                  <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                    <div style="font-size:12px; font-weight:600; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">SAP S/4HANA Migration</div>
-                    <span class="badge badge-green" style="white-space:nowrap;">Approved</span>
+          <!-- Agent Status Cards -->
+          <div class="bg-white rounded-xl shadow-card p-5">
+            <h2 class="font-bold text-navy text-sm mb-4">Agent Status</h2>
+            <div class="space-y-3" id="agent-status-list">
+              <div class="flex items-center justify-between py-2 border-b border-slate-border last:border-0">
+                <div class="flex items-center gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-blue-brand flex items-center justify-center flex-shrink-0">
+                    <span class="text-white text-xs font-bold">A</span>
                   </div>
-                  <div style="font-size:11px; color:var(--muted); margin-top:2px;">ARB Agent · 2 hours ago</div>
-                </div>
-              </div>
-
-              <div class="activity-item">
-                <div style="width:30px; height:30px; background:#EFF6FF; border-radius:8px; display:flex; align-items:center; justify-content:center; min-width:30px;">
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#0063DC" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                </div>
-                <div style="flex:1; min-width:0;">
-                  <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                    <div style="font-size:12px; font-weight:600; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Q4 Portfolio Report</div>
-                    <span class="badge badge-blue" style="white-space:nowrap;">Generated</span>
+                  <div>
+                    <p class="text-xs font-semibold text-navy">ARB Agent</p>
+                    <p class="text-xs text-gray-400">Architecture Review</p>
                   </div>
-                  <div style="font-size:11px; color:var(--muted); margin-top:2px;">TIME Agent · 5 hours ago</div>
                 </div>
+                <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Online</span>
               </div>
-
-              <div class="activity-item">
-                <div style="width:30px; height:30px; background:#FEF2F2; border-radius:8px; display:flex; align-items:center; justify-content:center; min-width:30px;">
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                </div>
-                <div style="flex:1; min-width:0;">
-                  <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                    <div style="font-size:12px; font-weight:600; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Legacy COBOL Risk Flag</div>
-                    <span class="badge badge-red" style="white-space:nowrap;">High Risk</span>
+              <div class="flex items-center justify-between py-2 border-b border-slate-border last:border-0">
+                <div class="flex items-center gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-kpmg flex items-center justify-center flex-shrink-0">
+                    <span class="text-white text-xs font-bold">T</span>
                   </div>
-                  <div style="font-size:11px; color:var(--muted); margin-top:2px;">Mapping Agent · Yesterday</div>
-                </div>
-              </div>
-
-              <div class="activity-item">
-                <div style="width:30px; height:30px; background:#F5F3FF; border-radius:8px; display:flex; align-items:center; justify-content:center; min-width:30px;">
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#7C3AED" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                </div>
-                <div style="flex:1; min-width:0;">
-                  <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                    <div style="font-size:12px; font-weight:600; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">EA Maturity Assessment</div>
-                    <span class="badge badge-blue" style="white-space:nowrap;">Score: 3.8</span>
+                  <div>
+                    <p class="text-xs font-semibold text-navy">TIME Agent</p>
+                    <p class="text-xs text-gray-400">Portfolio Rationalization</p>
                   </div>
-                  <div style="font-size:11px; color:var(--muted); margin-top:2px;">Maturity Agent · 2 days ago</div>
                 </div>
+                <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Online</span>
               </div>
-
-              <div class="activity-item">
-                <div style="width:30px; height:30px; background:#ECFDF5; border-radius:8px; display:flex; align-items:center; justify-content:center; min-width:30px;">
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#00A651" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                </div>
-                <div style="flex:1; min-width:0;">
-                  <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                    <div style="font-size:12px; font-weight:600; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Executive Insights Report</div>
-                    <span class="badge badge-green" style="white-space:nowrap;">Delivered</span>
+              <div class="flex items-center justify-between py-2 border-b border-slate-border last:border-0">
+                <div class="flex items-center gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-teal-brand flex items-center justify-center flex-shrink-0">
+                    <span class="text-white text-xs font-bold">M</span>
                   </div>
-                  <div style="font-size:11px; color:var(--muted); margin-top:2px;">Insights Agent · 3 days ago</div>
+                  <div>
+                    <p class="text-xs font-semibold text-navy">Mapping Agent</p>
+                    <p class="text-xs text-gray-400">Dependency Analysis</p>
+                  </div>
                 </div>
+                <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Online</span>
               </div>
-
-            </div>
-          </div>
-
-          <!-- Quick stats card -->
-          <div style="background:var(--navy); border-radius:12px; padding:18px;">
-            <div style="font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;">Portfolio Health</div>
-            <div style="display:flex; flex-direction:column; gap:10px;">
-              <div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                  <span style="font-size:12px; color:rgba(255,255,255,0.7);">INVEST</span>
-                  <span style="font-size:12px; font-weight:700; color:#00A651;">42%</span>
+              <div class="flex items-center justify-between py-2">
+                <div class="flex items-center gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center flex-shrink-0">
+                    <span class="text-white text-xs font-bold">M</span>
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-navy">Maturity Agent</p>
+                    <p class="text-xs text-gray-400">EA Assessment</p>
+                  </div>
                 </div>
-                <div style="height:5px; background:rgba(255,255,255,0.1); border-radius:3px;"><div style="height:100%; width:42%; background:#00A651; border-radius:3px;"></div></div>
-              </div>
-              <div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                  <span style="font-size:12px; color:rgba(255,255,255,0.7);">TOLERATE</span>
-                  <span style="font-size:12px; font-weight:700; color:#3B82F6;">28%</span>
-                </div>
-                <div style="height:5px; background:rgba(255,255,255,0.1); border-radius:3px;"><div style="height:100%; width:28%; background:#3B82F6; border-radius:3px;"></div></div>
-              </div>
-              <div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                  <span style="font-size:12px; color:rgba(255,255,255,0.7);">MIGRATE</span>
-                  <span style="font-size:12px; font-weight:700; color:#FFC200;">18%</span>
-                </div>
-                <div style="height:5px; background:rgba(255,255,255,0.1); border-radius:3px;"><div style="height:100%; width:18%; background:#FFC200; border-radius:3px;"></div></div>
-              </div>
-              <div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                  <span style="font-size:12px; color:rgba(255,255,255,0.7);">ELIMINATE</span>
-                  <span style="font-size:12px; font-weight:700; color:#E31837;">12%</span>
-                </div>
-                <div style="height:5px; background:rgba(255,255,255,0.1); border-radius:3px;"><div style="height:100%; width:12%; background:#E31837; border-radius:3px;"></div></div>
+                <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Online</span>
               </div>
             </div>
           </div>
 
+          <!-- Recent Activity Feed -->
+          <div class="bg-white rounded-xl shadow-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-bold text-navy text-sm">Recent Activity</h2>
+              <button onclick="clearActivity()" class="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded hover:bg-gray-100 transition">Clear</button>
+            </div>
+            <div id="activity-feed" class="space-y-3 max-h-80 overflow-y-auto">
+              <!-- Empty state -->
+              <div id="activity-empty" class="text-center py-8">
+                <div class="w-12 h-12 rounded-full bg-gray-100 mx-auto flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <p class="text-xs text-gray-400">No activity yet</p>
+                <p class="text-xs text-gray-300 mt-1">Run an agent to see results here</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Metrics (from last run) -->
+          <div class="bg-white rounded-xl shadow-card p-5" id="quick-metrics" style="display:none">
+            <h2 class="font-bold text-navy text-sm mb-3">Last Run Metrics</h2>
+            <div id="quick-metrics-content"></div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
+    <!-- ══ AI AGENTS PAGE ══════════════════════════════════════ -->
+    <div id="page-agents" class="page p-6 hidden fade-in">
+      <div class="bg-white rounded-xl shadow-card p-6">
+        <h2 class="font-bold text-navy text-base mb-1">AI Agent Chat</h2>
+        <p class="text-sm text-gray-400 mb-5">Select an agent and run queries below</p>
+        <!-- Reuse same agent grid + query -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div class="agent-card-p selected border-2 border-blue-brand rounded-xl p-4 text-center bg-blue-50 cursor-pointer" data-agent="ARB" onclick="selectAgentPage(this)">
+            <div class="w-10 h-10 rounded-xl bg-blue-brand mx-auto flex items-center justify-center mb-2"><span class="text-white font-bold">ARB</span></div>
+            <p class="text-xs text-gray-500">Review Board</p>
+          </div>
+          <div class="agent-card-p border-2 border-transparent rounded-xl p-4 text-center hover:border-kpmg cursor-pointer" data-agent="TIME" onclick="selectAgentPage(this)">
+            <div class="w-10 h-10 rounded-xl bg-kpmg mx-auto flex items-center justify-center mb-2"><span class="text-white font-bold">T</span></div>
+            <p class="text-xs text-gray-500">Portfolio</p>
+          </div>
+          <div class="agent-card-p border-2 border-transparent rounded-xl p-4 text-center hover:border-teal-500 cursor-pointer" data-agent="MAPPING" onclick="selectAgentPage(this)">
+            <div class="w-10 h-10 rounded-xl bg-teal-brand mx-auto flex items-center justify-center mb-2"><span class="text-white font-bold">M</span></div>
+            <p class="text-xs text-gray-500">Dependencies</p>
+          </div>
+          <div class="agent-card-p border-2 border-transparent rounded-xl p-4 text-center hover:border-purple-500 cursor-pointer" data-agent="MATURITY" onclick="selectAgentPage(this)">
+            <div class="w-10 h-10 rounded-xl bg-purple-600 mx-auto flex items-center justify-center mb-2"><span class="text-white font-bold">M</span></div>
+            <p class="text-xs text-gray-500">Assessment</p>
+          </div>
+        </div>
+        <textarea id="query-input-p" rows="4" placeholder="Type your query…" class="w-full border border-slate-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand mb-3 resize-none"></textarea>
+        <button onclick="runAgentPage()" class="bg-blue-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-light transition">Run Agent</button>
+        <div id="agents-page-result" class="mt-5 hidden">
+          <pre class="result-pre bg-gray-50 rounded-xl p-4 text-sm text-gray-700 overflow-auto max-h-96" id="agents-page-json"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PORTFOLIO PAGE ════════════════════════════════════ -->
+    <div id="page-portfolio" class="page p-6 hidden fade-in">
+      <div class="bg-white rounded-xl shadow-card p-6 mb-5">
+        <h2 class="font-bold text-navy text-base mb-4">Upload Portfolio for TIME Analysis</h2>
+        <div id="portfolio-drop" class="border-2 border-dashed border-slate-border rounded-xl p-10 text-center cursor-pointer hover:border-blue-brand hover:bg-blue-50 transition" onclick="document.getElementById('port-file').click()">
+          <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          <p class="text-sm font-semibold text-gray-600">Click to upload or drag & drop</p>
+          <p class="text-xs text-gray-400 mt-1">CSV, JSON, Excel (.xlsx/.xls) supported</p>
+        </div>
+        <input type="file" id="port-file" class="hidden" accept=".csv,.json,.xlsx,.xls"/>
+        <p class="text-xs text-gray-400 mt-2" id="port-filename"></p>
+        <div class="mt-4">
+          <p class="text-xs text-gray-400 mb-2">— or describe your portfolio in plain text —</p>
+          <textarea id="port-free-text" rows="3" placeholder="e.g. We use Salesforce CRM ($120K/yr, 500 users), legacy Oracle billing ($80K/yr, EOL soon), Jira ($24K/yr, 300 users)…" class="w-full border border-slate-border rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-kpmg resize-none"></textarea>
+        </div>
+        <div class="mt-4 flex gap-3 flex-wrap">
+          <button onclick="runPortfolio()" class="bg-kpmg text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition">Analyse Portfolio</button>
+          <button onclick="downloadPortfolioPDF()" id="port-pdf-btn" class="hidden border border-kpmg text-kpmg text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition">📄 Download PDF</button>
+          <button onclick="runFullPipeline()" class="border border-blue-brand text-blue-brand text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition">⚡ Run Full Pipeline</button>
+        </div>
+      </div>
+      <div id="portfolio-results" class="hidden"></div>
+    </div>
+
+    <!-- ══ ARB DECISIONS PAGE ════════════════════════════════ -->
+    <div id="page-arb" class="page p-6 hidden fade-in">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="bg-white rounded-xl shadow-card p-6">
+          <h2 class="font-bold text-navy text-base mb-4">Submit ARB Proposal</h2>
+          <div class="space-y-3">
+            <div><label class="text-xs text-gray-500 font-semibold">Proposal Title</label><input type="text" id="arb-title" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand" placeholder="e.g. Migrate Billing to Microservices"/></div>
+            <div><label class="text-xs text-gray-500 font-semibold">Description</label><textarea id="arb-desc" rows="4" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand resize-none" placeholder="Describe the architecture change…"></textarea></div>
+            <div class="grid grid-cols-2 gap-3">
+              <div><label class="text-xs text-gray-500 font-semibold">Technology Stack</label><input type="text" id="arb-tech" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand" placeholder="AWS, Kubernetes, Kafka"/></div>
+              <div><label class="text-xs text-gray-500 font-semibold">Timeline</label><input type="text" id="arb-timeline" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand" placeholder="12 months"/></div>
+              <div><label class="text-xs text-gray-500 font-semibold">One-off Cost ($)</label><input type="text" id="arb-cost" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand" placeholder="240000"/></div>
+              <div><label class="text-xs text-gray-500 font-semibold">Annual Cost ($)</label><input type="text" id="arb-annual" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand" placeholder="85000"/></div>
+            </div>
+            <div><label class="text-xs text-gray-500 font-semibold">Business Case</label><textarea id="arb-biz" rows="2" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand resize-none" placeholder="Why is this needed?"></textarea></div>
+            <button onclick="submitARB()" class="w-full bg-blue-brand text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-blue-light transition">Submit for ARB Review</button>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-card p-6">
+          <h2 class="font-bold text-navy text-base mb-4">ARB Result</h2>
+          <div id="arb-page-result">
+            <div class="text-center py-12 text-gray-300">
+              <svg class="w-12 h-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              <p class="text-sm">Submit a proposal to see the ARB decision</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MATURITY PAGE ════════════════════════════════════ -->
+    <div id="page-maturity" class="page p-6 hidden fade-in">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="bg-white rounded-xl shadow-card p-6">
+          <h2 class="font-bold text-navy text-base mb-4">EA Maturity Assessment</h2>
+          <div class="space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div><label class="text-xs text-gray-500 font-semibold">Portfolio Size</label><input type="number" id="mat-size" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand" placeholder="45"/></div>
+              <div><label class="text-xs text-gray-500 font-semibold">Annual Spend ($)</label><input type="number" id="mat-cost" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand" placeholder="2400000"/></div>
+              <div><label class="text-xs text-gray-500 font-semibold">% to Eliminate</label><input type="number" id="mat-elim" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand" placeholder="15"/></div>
+              <div><label class="text-xs text-gray-500 font-semibold">Duplications Found</label><input type="number" id="mat-dups" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand" placeholder="4"/></div>
+            </div>
+            <div><label class="text-xs text-gray-500 font-semibold">Context / Notes</label><textarea id="mat-ctx" rows="3" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand resize-none" placeholder="Describe your EA maturity context…"></textarea></div>
+            <button onclick="runMaturityPage()" class="w-full bg-purple-600 text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-purple-700 transition">Run Maturity Assessment</button>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-card p-6">
+          <h2 class="font-bold text-navy text-base mb-4">Assessment Result</h2>
+          <div id="maturity-page-result">
+            <div class="text-center py-12 text-gray-300">
+              <svg class="w-12 h-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+              <p class="text-sm">Fill in the fields and run the assessment</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MAPPING PAGE ════════════════════════════════════ -->
+    <div id="page-mapping" class="page p-6 hidden fade-in">
+      <div class="bg-white rounded-xl shadow-card p-6 mb-5">
+        <h2 class="font-bold text-navy text-base mb-4">Dependency Mapping</h2>
+        <div class="space-y-3 max-w-lg">
+          <div><label class="text-xs text-gray-500 font-semibold">Application Name</label><input type="text" id="map-app" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand" placeholder="e.g. Legacy Billing System"/></div>
+          <div><label class="text-xs text-gray-500 font-semibold">Context</label><textarea id="map-ctx" rows="3" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand resize-none" placeholder="Known integrations, planned changes…"></textarea></div>
+          <button onclick="runMappingPage()" class="bg-teal-brand text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:opacity-90 transition">Analyse Dependencies</button>
+        </div>
+      </div>
+      <div id="mapping-result" class="hidden bg-white rounded-xl shadow-card p-6">
+        <h3 class="font-bold text-navy text-sm mb-3">Dependency Analysis</h3>
+        <pre class="result-pre text-sm text-gray-700 bg-gray-50 rounded-lg p-4 overflow-auto max-h-96" id="mapping-json"></pre>
+      </div>
+    </div>
+
+    <!-- ══ REPORTS PAGE ════════════════════════════════════ -->
+    <div id="page-reports" class="page p-6 hidden fade-in">
+      <div class="bg-white rounded-xl shadow-card p-6">
+        <h2 class="font-bold text-navy text-base mb-5">Generate Reports</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="border border-slate-border rounded-xl p-5 hover:border-kpmg hover:shadow-card cursor-pointer transition" onclick="showPage('portfolio')">
+            <div class="w-10 h-10 rounded-lg bg-kpmg bg-opacity-10 flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-kpmg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <p class="text-sm font-bold text-navy">Portfolio Report</p>
+            <p class="text-xs text-gray-400 mt-1">TIME framework analysis with duplication risks and cost breakdown</p>
+            <span class="mt-3 inline-block text-xs font-semibold text-kpmg">Generate PDF →</span>
+          </div>
+          <div class="border border-slate-border rounded-xl p-5 hover:border-blue-brand hover:shadow-card transition">
+            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-blue-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <p class="text-sm font-bold text-navy">Full EA Intelligence</p>
+            <p class="text-xs text-gray-400 mt-1">Complete 4-stage pipeline: TIME → Mapping → Maturity → Insights</p>
+            <p class="text-xs text-gray-300 mt-1" id="full-pipeline-status" style="display:none">Running…</p>
+            <button id="full-pipeline-btn" onclick="runFullPipeline()" class="mt-3 text-xs font-semibold text-blue-brand hover:underline">Run Pipeline →</button>
+          </div>
+          <div class="border border-slate-border rounded-xl p-5 hover:border-purple-500 hover:shadow-card cursor-pointer transition" onclick="showPage('maturity')">
+            <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+            <p class="text-sm font-bold text-navy">Maturity Report</p>
+            <p class="text-xs text-gray-400 mt-1">6-dimension EA maturity scoring with improvement roadmap</p>
+            <span class="mt-3 inline-block text-xs font-semibold text-purple-600">Assess →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS PAGE ════════════════════════════════════ -->
+    <div id="page-settings" class="page p-6 hidden fade-in">
+      <div class="max-w-lg space-y-5">
+        <div class="bg-white rounded-xl shadow-card p-6">
+          <h2 class="font-bold text-navy text-base mb-4">API Configuration</h2>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-gray-500 font-semibold">Backend API URL</label>
+              <input type="url" id="settings-api-url" class="mt-1 w-full border border-slate-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand font-mono" placeholder="http://localhost:8000"/>
+            </div>
+            <div class="flex gap-3">
+              <button onclick="saveApiUrl()" class="bg-blue-brand text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-light transition">Save & Test</button>
+              <button onclick="resetApiUrl()" class="border border-slate-border text-gray-500 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-50 transition">Reset</button>
+            </div>
+            <p id="settings-status" class="text-xs text-gray-400"></p>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-card p-6">
+          <h2 class="font-bold text-navy text-base mb-2">About</h2>
+          <p class="text-sm text-gray-500 leading-relaxed">
+            <strong class="text-navy">EA AI Intelligence</strong> — Multi-agent Enterprise Architecture platform powered by Anthropic Claude.<br/><br/>
+            Agents: <strong>ARB</strong> · <strong>TIME</strong> · <strong>MAPPING</strong> · <strong>MATURITY</strong> · <strong>INSIGHTS</strong><br/>
+            Stack: FastAPI · Supabase · Claude claude-sonnet-4-6 · xhtml2pdf
+          </p>
+          <div class="mt-4 flex items-center gap-2">
+            <span class="online-dot"></span>
+            <span class="text-xs text-green-600 font-medium" id="settings-conn-label">Checking connection…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
 </div>
 
-<!-- Upload Modal -->
-<div id="uploadModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:100; align-items:center; justify-content:center;">
-  <div style="background:white; border-radius:16px; padding:28px; width:460px; max-width:90vw;">
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-      <div style="font-size:16px; font-weight:700; color:var(--navy);">Upload Portfolio</div>
-      <button onclick="document.getElementById('uploadModal').style.display='none'" style="background:none; border:none; cursor:pointer; color:var(--muted);">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <div style="border:2px dashed var(--border); border-radius:10px; padding:32px; text-align:center; margin-bottom:16px; cursor:pointer;" onclick="document.getElementById('fileInput').click()">
-      <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 10px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-      <div style="font-size:13px; font-weight:600; color:var(--navy);">Drop files here or click to browse</div>
-      <div style="font-size:12px; color:var(--muted); margin-top:4px;">CSV, Excel, PDF supported</div>
-      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.pdf" style="display:none" onchange="handleFileUpload(this)">
-    </div>
-    <button class="btn-primary" style="width:100%; justify-content:center;" onclick="document.getElementById('uploadModal').style.display='none'">Upload & Analyse</button>
-  </div>
-</div>
+<!-- ── TOAST ──────────────────────────────────────────────────── -->
+<div id="toast-area" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
+<!-- ════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════ -->
 <script>
-  // ── State ──────────────────────────────────────────────────────────────────
-  let selectedAgent = 'ARB';
-  const API_BASE = window.location.origin;
+// ── CONFIG ────────────────────────────────────────────────────
+let API = localStorage.getItem('ea_api') || 'http://localhost:8000';
+let selectedAgent = 'ARB';
+let selectedAgentPage = 'ARB';
+let lastResult = null;
+let sessionARBCount = 0;
+let sessionSavings = 0;
+let portIngestData = null;
+let pipelineReportFilename = null;
 
-  // ── Agent selection ────────────────────────────────────────────────────────
-  function selectAgent(name) {
-    selectedAgent = name;
-    document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('selected'));
-    document.getElementById('agent-' + name).classList.add('selected');
-  }
+// ── INIT ──────────────────────────────────────────────────────
+document.getElementById('settings-api-url').value = API;
+document.getElementById('api-badge').textContent = API.replace(/https?:\/\//, '');
 
-  // ── Page nav ───────────────────────────────────────────────────────────────
-  function setPage(name) {
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    const titles = {
-      dashboard: 'EA Intelligence Dashboard',
-      agents: 'AI Agents',
-      reports: 'Reports',
-      portfolio: 'Application Portfolio',
-      arb: 'ARB Decisions',
-      maturity: 'Maturity Scores',
-      mapping: 'Dependency Map',
-      settings: 'Settings'
-    };
-    document.getElementById('page-title').textContent = titles[name] || 'Dashboard';
-  }
+// Portfolio file input
+document.getElementById('port-file').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) document.getElementById('port-filename').textContent = '📎 ' + f.name;
+});
 
-  // ── Run agent ──────────────────────────────────────────────────────────────
-  async function runAgent() {
-    const query = document.getElementById('queryInput').value.trim();
-    if (!query) {
-      alert('Please enter a query first.');
-      return;
+// Portfolio drag & drop
+const portDrop = document.getElementById('portfolio-drop');
+if (portDrop) {
+  portDrop.addEventListener('dragover', e => { e.preventDefault(); portDrop.classList.add('border-blue-brand', 'bg-blue-50'); });
+  portDrop.addEventListener('dragleave', () => portDrop.classList.remove('border-blue-brand', 'bg-blue-50'));
+  portDrop.addEventListener('drop', e => {
+    e.preventDefault();
+    portDrop.classList.remove('border-blue-brand', 'bg-blue-50');
+    const f = e.dataTransfer.files[0];
+    if (f) {
+      const dt = new DataTransfer(); dt.items.add(f);
+      document.getElementById('port-file').files = dt.files;
+      document.getElementById('port-filename').textContent = '📎 ' + f.name;
     }
-
-    const btn = document.getElementById('runBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<div class="spinner"></div> Running...';
-
-    document.getElementById('responsePanel').style.display = 'block';
-    document.getElementById('responseContent').textContent = 'Processing your query...';
-    document.getElementById('responseAgent').textContent = selectedAgent;
-
-    try {
-      const res = await fetch(API_BASE + '/ea-agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: query,
-          agent_override: selectedAgent,
-          data: {}
-        })
-      });
-
-      if (!res.ok) throw new Error('API error: ' + res.status);
-
-      const data = await res.json();
-
-      // Format response
-      let output = '';
-      if (data.result) {
-        const agentResult = data.result[selectedAgent] || data.result;
-        if (typeof agentResult === 'string') {
-          output = agentResult;
-        } else {
-          output = JSON.stringify(agentResult, null, 2);
-        }
-      } else {
-        output = JSON.stringify(data, null, 2);
-      }
-
-      document.getElementById('responseContent').textContent = output;
-
-      // Add to activity feed
-      addActivity(selectedAgent, query.substring(0, 40) + '...', 'Completed');
-
-    } catch (err) {
-      document.getElementById('responseContent').textContent =
-        'Error: ' + err.message + '\n\nMake sure the EA AI Agent server is running at ' + API_BASE;
-    }
-
-    btn.disabled = false;
-    btn.innerHTML = '<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Run Agent';
-  }
-
-  // ── Clear response ─────────────────────────────────────────────────────────
-  function clearResponse() {
-    document.getElementById('queryInput').value = '';
-    document.getElementById('responsePanel').style.display = 'none';
-    document.getElementById('responseContent').textContent = '';
-  }
-
-  // ── Add activity item ──────────────────────────────────────────────────────
-  function addActivity(agent, title, status) {
-    const feed = document.getElementById('activityFeed');
-    const now = 'Just now';
-    const colors = { ARB: '#0063DC', TIME: '#00A651', MAPPING: '#D97706', MATURITY: '#7C3AED', INSIGHTS: '#059669' };
-    const bgs = { ARB: '#EFF6FF', TIME: '#ECFDF5', MAPPING: '#FFFBEB', MATURITY: '#F5F3FF', INSIGHTS: '#ECFDF5' };
-    const color = colors[agent] || '#0063DC';
-    const bg = bgs[agent] || '#EFF6FF';
-
-    const item = document.createElement('div');
-    item.className = 'activity-item';
-    item.style.cssText = 'animation: fadeIn 0.3s ease;';
-    item.innerHTML = `
-      <div style="width:30px;height:30px;background:${bg};border-radius:8px;display:flex;align-items:center;justify-content:center;min-width:30px;">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="${color}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-      </div>
-      <div style="flex:1;min-width:0;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
-          <div style="font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</div>
-          <span class="badge badge-green" style="white-space:nowrap;">${status}</span>
-        </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${agent} Agent · ${now}</div>
-      </div>
-    `;
-    feed.insertBefore(item, feed.firstChild);
-  }
-
-  // ── File upload handler ────────────────────────────────────────────────────
-  function handleFileUpload(input) {
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      document.getElementById('uploadModal').style.display = 'none';
-      document.getElementById('queryInput').value = `Analyse the uploaded portfolio file: ${file.name}`;
-      selectAgent('TIME');
-    }
-  }
-
-  // ── Health check on load ───────────────────────────────────────────────────
-  async function checkHealth() {
-    try {
-      const res = await fetch(API_BASE + '/health');
-      const data = await res.json();
-      if (data.status) {
-        document.getElementById('kpi-apps').textContent = '142';
-      }
-    } catch (e) {
-      console.log('Agent server not reachable — running in demo mode');
-    }
-  }
-
-  // ── Enter key support ─────────────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', () => {
-    checkHealth();
-    document.getElementById('queryInput').addEventListener('keydown', e => {
-      if (e.ctrlKey && e.key === 'Enter') runAgent();
-    });
   });
-</script>
+}
 
+checkHealth();
+
+// ── NAVIGATION ───────────────────────────────────────────────
+const PAGE_META = {
+  dashboard: { title: 'Dashboard', sub: 'Overview of your EA Intelligence platform' },
+  agents:    { title: 'AI Agents', sub: 'Run queries against individual agents' },
+  portfolio: { title: 'Portfolio', sub: 'Upload and analyse your application portfolio' },
+  arb:       { title: 'ARB Decisions', sub: 'Architecture Review Board proposal evaluation' },
+  maturity:  { title: 'Maturity Scores', sub: '6-dimension EA maturity assessment' },
+  mapping:   { title: 'Dependency Map', sub: 'Analyse application dependencies and impact' },
+  reports:   { title: 'Reports', sub: 'Generate PDF reports from agent outputs' },
+  settings:  { title: 'Settings', sub: 'Configure API connection and preferences' },
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
+
+  const page = document.getElementById('page-' + id);
+  if (page) { page.classList.remove('hidden'); page.classList.add('fade-in'); }
+
+  const navEl = document.querySelector(`.nav-item[onclick*="'${id}'"]`);
+  if (navEl) navEl.classList.add('nav-active');
+
+  const meta = PAGE_META[id] || {};
+  document.getElementById('page-title').textContent = meta.title || id;
+  document.getElementById('page-subtitle').textContent = meta.sub || '';
+  if (id === 'settings') checkHealth();
+}
+
+// ── AGENT SELECTION ───────────────────────────────────────────
+function selectAgent(el) {
+  document.querySelectorAll('.agent-card').forEach(c => {
+    c.classList.remove('selected', 'border-blue-brand', 'border-kpmg', 'border-teal-brand', 'border-purple-500', 'bg-blue-50', 'bg-teal-50', 'bg-purple-50');
+    c.classList.add('border-transparent');
+  });
+  el.classList.remove('border-transparent');
+  selectedAgent = el.dataset.agent;
+  const colors = { ARB: ['border-blue-brand','bg-blue-50'], TIME: ['border-kpmg','bg-blue-50'], MAPPING: ['border-teal-brand','bg-teal-50'], MATURITY: ['border-purple-500','bg-purple-50'], INSIGHTS: ['border-orange-400','bg-orange-50'] };
+  (colors[selectedAgent] || ['border-blue-brand','bg-blue-50']).forEach(c => el.classList.add(c));
+  el.classList.add('selected');
+  document.getElementById('selected-agent-label').textContent = selectedAgent;
+  const samples = {
+    ARB: 'Migrate our legacy billing system to AWS microservices using Kubernetes and Aurora PostgreSQL. Estimated cost $240K one-off, $85K annual. 12-month timeline. Current system is end-of-support in 18 months.',
+    TIME: 'Analyse our portfolio: Salesforce CRM ($120K/yr, 500 users), Legacy Oracle Billing ($80K/yr, end-of-support in 12 months), Jira ($24K/yr, 300 users), Custom Python Analytics (in-house, $0 licence), ServiceNow ITSM ($60K/yr).',
+    MAPPING: 'Analyse dependencies for our Legacy Billing System which integrates with Salesforce CRM via REST API, Oracle ERP via database link, and the mobile app via SOAP web service.',
+    MATURITY: 'Assess EA maturity for an organisation with 45 applications, $2.4M annual spend, 15% flagged for elimination, 4 known duplications, and no formal CMDB in place.',
+  };
+  document.getElementById('query-input').placeholder = samples[selectedAgent] || 'Type your query…';
+}
+
+function selectAgentPage(el) {
+  document.querySelectorAll('.agent-card-p').forEach(c => {
+    c.classList.remove('selected', 'border-blue-brand', 'border-kpmg', 'border-teal-500', 'border-purple-500', 'bg-blue-50');
+    c.classList.add('border-transparent');
+  });
+  el.classList.remove('border-transparent');
+  el.classList.add('selected', 'border-blue-brand', 'bg-blue-50');
+  selectedAgentPage = el.dataset.agent;
+}
+
+// ── SAMPLE LOADER ─────────────────────────────────────────────
+function loadSample() {
+  const samples = {
+    ARB: 'Migrate our legacy billing system to AWS microservices using Kubernetes, Aurora PostgreSQL, and Kafka. Estimated one-off cost $240,000 with $85,000 annual running costs. 12-month delivery. Current system has 40% downtime risk and reaches end-of-support in 18 months.',
+    TIME: 'Portfolio: Salesforce CRM $120K/yr 500 users, Legacy Oracle Billing $80K/yr EOL soon, Jira $24K/yr 300 users, Custom Python ETL $0 licence 5 users, ServiceNow ITSM $60K/yr, Tableau $36K/yr, AWS Infrastructure $200K/yr.',
+    MAPPING: 'Legacy Billing System — integrates with Salesforce CRM via REST API, Oracle ERP via direct database link, mobile app via SOAP, and data warehouse via nightly ETL batch.',
+    MATURITY: 'Our organisation has 45 applications, $2.4M annual technology spend. 15% of apps are flagged for elimination. We have 4 known duplications. No formal CMDB exists. EA governance is informal with no published standards.',
+    INSIGHTS: 'We have 40 applications, $2.1M annual spend, maturity score 2.5/5, 8 apps flagged for elimination, 3 duplications found, estimated $340K savings potential. What are the top 5 strategic priorities for our EA transformation?',
+  };
+  document.getElementById('query-input').value = samples[selectedAgent] || '';
+}
+function clearQuery() { document.getElementById('query-input').value = ''; }
+
+// ── BUILD AGENT DATA — routes query text into the right data shape per agent ──
+function buildAgentData(agent, query) {
+  switch (agent) {
+    case 'ARB':
+      return { proposal_title: query.substring(0, 120), description: query };
+    case 'TIME':
+      return { free_text: query };
+    case 'MAPPING':
+      return { target_system: query.split('—')[0].trim(), context: query };
+    case 'MATURITY':
+      return { context: query };
+    case 'INSIGHTS':
+      return { context: query };
+    default:
+      return { context: query };
+  }
+}
+
+// ── RUN AGENT ─────────────────────────────────────────────────
+async function runAgent() {
+  const query = document.getElementById('query-input').value.trim();
+  if (!query) { toast('Please enter a query first', 'warn'); return; }
+
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span> Running…';
+
+  try {
+    const agentData = buildAgentData(selectedAgent, query);
+    const data = await callAgent(selectedAgent, query, agentData);
+    lastResult = data;
+    const result = data.result?.[selectedAgent] || data.result || {};
+    renderResult(selectedAgent, result);
+    updateKPIsFromResult(selectedAgent, result);
+    addActivity(selectedAgent, 'Completed', 'success');
+    toast(`${selectedAgent} agent completed`, 'success');
+  } catch(e) {
+    addActivity(selectedAgent, 'Failed', 'error');
+    toast('Error: ' + e.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Run Agent';
+}
+
+async function callAgent(agent, query, data = {}) {
+  const res = await fetch(API + '/ea-agent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, agent_override: agent, data }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  return res.json();
+}
+
+// ── RENDER RESULT ─────────────────────────────────────────────
+function renderResult(agent, result) {
+  document.getElementById('result-panel').classList.remove('hidden');
+  document.getElementById('result-title').textContent = agent + ' — Agent Result';
+  document.getElementById('result-json').textContent = JSON.stringify(result, null, 2);
+
+  // Summary tab
+  let summary = '';
+  if (agent === 'ARB') {
+    const dec = result.decision || '—';
+    const badge = { APPROVED: 'bg-green-100 text-green-700', REJECTED: 'bg-red-100 text-red-700', CONDITIONAL: 'bg-yellow-100 text-yellow-700' }[dec] || 'bg-gray-100 text-gray-600';
+    summary = `
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-sm font-bold text-gray-500 uppercase tracking-wider">Decision</span>
+        <span class="px-3 py-1 rounded-full text-sm font-bold ${badge}">${dec}</span>
+        ${result.confidence_score ? `<span class="text-sm text-gray-500">Confidence: <strong>${result.confidence_score}/100</strong></span>` : ''}
+      </div>
+      ${result.conditions_for_approval ? `<p class="text-sm text-gray-600 mb-3"><strong>Conditions:</strong> ${typeof result.conditions_for_approval === 'object' ? JSON.stringify(result.conditions_for_approval) : result.conditions_for_approval}</p>` : ''}
+      ${result.compliance_score ? `<div class="flex items-center gap-2 text-sm text-gray-600"><span>Compliance Score:</span><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-blue-brand h-2 rounded-full" style="width:${result.compliance_score}%"></div></div><span class="font-bold">${result.compliance_score}%</span></div>` : ''}
+    `;
+    document.getElementById('result-badge').className = `text-xs font-bold px-2 py-0.5 rounded-full ${{ APPROVED: 'bg-green-100 text-green-700', REJECTED: 'bg-red-100 text-red-700', CONDITIONAL: 'bg-yellow-100 text-yellow-700' }[dec] || 'bg-gray-100 text-gray-600'}`;
+    document.getElementById('result-badge').textContent = dec;
+    sessionARBCount++;
+    document.getElementById('kpi-arb').textContent = sessionARBCount;
+  } else if (agent === 'TIME') {
+    const apps = result.applications || [];
+    const ps = result.portfolio_summary || {};
+    const tc = {};
+    apps.forEach(a => { const k = a.time_classification || 'TOLERATE'; tc[k] = (tc[k] || 0) + 1; });
+    const tcCols = { INVEST:'text-green-700 bg-green-50', TOLERATE:'text-blue-700 bg-blue-50', MIGRATE:'text-yellow-700 bg-yellow-50', ELIMINATE:'text-red-700 bg-red-50' };
+    summary = `
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        ${Object.entries(tc).map(([k,v]) => `<div class="rounded-lg p-3 ${tcCols[k]||'text-gray-600 bg-gray-50'} text-center"><div class="text-2xl font-bold">${v}</div><div class="text-xs font-semibold mt-0.5">${k}</div></div>`).join('')}
+      </div>
+      ${ps.total_annual_cost ? `<div class="grid grid-cols-3 gap-3 mb-4 text-center">
+        <div class="bg-gray-50 rounded-lg p-3"><div class="text-base font-bold text-navy">$${fmtNum(ps.total_annual_cost)}</div><div class="text-xs text-gray-400 mt-0.5">Annual Spend</div></div>
+        <div class="bg-gray-50 rounded-lg p-3"><div class="text-base font-bold text-red-500">${ps.duplications_found||0}</div><div class="text-xs text-gray-400 mt-0.5">Duplications</div></div>
+        <div class="bg-green-50 rounded-lg p-3"><div class="text-base font-bold text-green-600">$${fmtNum(ps.potential_savings||0)}</div><div class="text-xs text-gray-400 mt-0.5">Savings</div></div>
+      </div>` : ''}
+      ${apps.length ? `<div class="overflow-x-auto rounded-lg border border-slate-border">
+        <table class="w-full text-xs"><thead class="bg-slate-ui"><tr>
+          <th class="text-left px-3 py-2 font-semibold text-gray-400 uppercase">App</th>
+          <th class="text-left px-3 py-2 font-semibold text-gray-400 uppercase">TIME</th>
+          <th class="text-left px-3 py-2 font-semibold text-gray-400 uppercase">6R</th>
+          <th class="text-left px-3 py-2 font-semibold text-gray-400 uppercase">Score</th>
+        </tr></thead><tbody class="divide-y divide-slate-border">
+          ${apps.slice(0,8).map(a => {
+            const t = a.time_classification||'TOLERATE';
+            const bc = {INVEST:'bg-green-100 text-green-700',TOLERATE:'bg-blue-100 text-blue-700',MIGRATE:'bg-yellow-100 text-yellow-700',ELIMINATE:'bg-red-100 text-red-700'}[t]||'bg-gray-100 text-gray-600';
+            return `<tr class="hover:bg-slate-ui"><td class="px-3 py-2 font-semibold text-navy">${esc(a.name||'—')}</td><td class="px-3 py-2"><span class="px-1.5 py-0.5 rounded-full text-xs font-bold ${bc}">${t}</span></td><td class="px-3 py-2 text-gray-500">${esc(a.rationalization_action||'—')}</td><td class="px-3 py-2 font-semibold">${a.composite_score!=null?Number(a.composite_score).toFixed(1):'—'}</td></tr>`;
+          }).join('')}
+        </tbody></table>
+      </div>` : ''}
+      ${result.assessment?.executive_summary ? `<p class="text-xs text-gray-600 mt-3 leading-relaxed line-clamp-4">${esc(result.assessment.executive_summary)}</p>` : ''}
+    `;
+    document.getElementById('result-badge').className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700';
+    document.getElementById('result-badge').textContent = apps.length + ' apps';
+    document.getElementById('kpi-apps').textContent = apps.length;
+    const savings = ps.potential_savings || 0;
+    if (savings > 0) { sessionSavings += savings; document.getElementById('kpi-savings').textContent = '$' + fmtNum(sessionSavings); }
+
+  } else if (agent === 'MATURITY') {
+    const score = result.overall_maturity_score;
+    const level = result.maturity_level || '';
+    const dims = result.dimensions || {};
+    summary = `
+      ${score ? `<div class="text-center py-3 bg-purple-50 rounded-xl mb-4"><div class="text-4xl font-black text-purple-700">${Number(score).toFixed(1)}<span class="text-lg text-gray-400 font-normal">/5</span></div><div class="text-sm font-semibold text-purple-600 mt-1">${level}</div></div>` : ''}
+      ${Object.keys(dims).length ? `<div class="space-y-2">${Object.entries(dims).map(([k,v]) => {
+        const s = v.score != null ? v.score : (typeof v === 'number' ? v : 0);
+        return `<div><div class="flex justify-between text-xs mb-1"><span class="font-semibold text-gray-600">${esc(k)}</span><span class="text-gray-500">${Number(s).toFixed(1)}/5</span></div><div class="w-full bg-gray-200 rounded-full h-1.5"><div class="bg-purple-500 h-1.5 rounded-full transition-all" style="width:${Math.min((s/5)*100,100)}%"></div></div></div>`;
+      }).join('')}</div>` : ''}
+    `;
+    if (score) {
+      document.getElementById('kpi-maturity').innerHTML = `${Number(score).toFixed(1)}<span class="text-sm text-gray-400 font-normal"> /5</span>`;
+      document.getElementById('kpi-maturity-level').textContent = level;
+    }
+    document.getElementById('result-badge').className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700';
+    document.getElementById('result-badge').textContent = level || 'Assessed';
+
+  } else if (agent === 'MAPPING') {
+    const deps = result.direct_dependencies || result.dependencies || [];
+    const impact = result.impact_level || result.overall_impact_level || '—';
+    const impactCol = { LOW:'text-green-600 bg-green-50', MEDIUM:'text-yellow-600 bg-yellow-50', HIGH:'text-red-600 bg-red-50', CRITICAL:'text-red-800 bg-red-100' }[impact] || 'text-gray-600 bg-gray-50';
+    summary = `
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-sm font-semibold text-gray-500">Impact Level:</span>
+        <span class="px-3 py-1 rounded-full text-sm font-bold ${impactCol}">${impact}</span>
+        ${result.coupling_score != null ? `<span class="text-sm text-gray-500">Coupling: <strong>${result.coupling_score}/10</strong></span>` : ''}
+      </div>
+      ${deps.length ? `<div class="mb-3"><p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Direct Dependencies (${deps.length})</p><div class="flex flex-wrap gap-2">${deps.slice(0,10).map(d=>`<span class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 rounded-lg">${esc(d)}</span>`).join('')}</div></div>` : ''}
+      ${(result.indirect_dependencies||[]).length ? `<div class="mb-3"><p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Indirect Dependencies</p><div class="flex flex-wrap gap-2">${(result.indirect_dependencies||[]).slice(0,8).map(d=>`<span class="text-xs bg-gray-50 text-gray-600 border border-gray-200 px-2 py-1 rounded-lg">${esc(d)}</span>`).join('')}</div></div>` : ''}
+      ${result.removal_risk ? `<div class="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-700"><strong>Removal Risk:</strong> ${esc(result.removal_risk)}</div>` : ''}
+      ${result.pipeline_context ? `<p class="text-xs text-gray-600 mt-3 leading-relaxed">${esc(result.pipeline_context)}</p>` : ''}
+    `;
+    document.getElementById('result-badge').className = `text-xs font-bold px-2 py-0.5 rounded-full ${impactCol}`;
+    document.getElementById('result-badge').textContent = impact;
+
+  } else if (agent === 'INSIGHTS') {
+    const recs = result.strategic_recommendations || result.recommendations || [];
+    const risk = result.risk_profile?.overall_risk || result.overall_risk || '—';
+    const riskCol = { LOW:'text-green-600', MEDIUM:'text-yellow-600', HIGH:'text-red-500', CRITICAL:'text-red-700' }[risk] || 'text-gray-600';
+    summary = `
+      ${result.executive_summary ? `<p class="text-sm text-gray-700 leading-relaxed mb-4">${esc(result.executive_summary)}</p>` : ''}
+      ${risk !== '—' ? `<div class="flex items-center gap-2 mb-4"><span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Overall Risk:</span><span class="text-sm font-bold ${riskCol}">${risk}</span></div>` : ''}
+      ${recs.length ? `<div><p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Strategic Recommendations</p><ul class="space-y-2">${recs.slice(0,5).map((r,i)=>`<li class="flex items-start gap-2 text-sm text-gray-700"><span class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center mt-0.5">${i+1}</span>${esc(typeof r==='string'?r:r.recommendation||r.title||r.description||JSON.stringify(r))}</li>`).join('')}</ul></div>` : ''}
+      ${result.financial_impact ? `<div class="mt-4 bg-green-50 border border-green-200 rounded-lg p-3"><p class="text-xs font-bold text-green-700 uppercase tracking-wide mb-1">Financial Impact</p><p class="text-xs text-green-700">${esc(typeof result.financial_impact==='object'?JSON.stringify(result.financial_impact):result.financial_impact)}</p></div>` : ''}
+    `;
+    document.getElementById('result-badge').className = `text-xs font-bold px-2 py-0.5 rounded-full ${riskCol.replace('text-','bg-').replace('-600','bg-opacity-10')} ${riskCol}`;
+    document.getElementById('result-badge').textContent = risk !== '—' ? risk + ' Risk' : 'Insights';
+
+  } else {
+    summary = `<pre class="result-pre text-xs text-gray-700 bg-gray-50 rounded-lg p-3 overflow-auto">${esc(JSON.stringify(result, null, 2).slice(0, 1200))}</pre>`;
+    document.getElementById('result-badge').className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600';
+    document.getElementById('result-badge').textContent = 'Done';
+  }
+  document.getElementById('tab-summary').innerHTML = summary || '<p class="text-sm text-gray-400 text-center py-6">No summary available</p>';
+
+  // Risks tab
+  const risks = result.risks || result.risk_areas || [];
+  document.getElementById('tab-risks').innerHTML = risks.length
+    ? `<ul class="space-y-2">${risks.map(r => `<li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-red-400 mt-0.5 flex-shrink-0">⚠</span>${esc(typeof r === 'object' ? JSON.stringify(r) : r)}</li>`).join('')}</ul>`
+    : '<p class="text-sm text-gray-400 text-center py-6">No risks identified</p>';
+
+  // Recommendations tab
+  const recs = result.recommendations || result.top_recommendations || result.strategic_recommendations || [];
+  document.getElementById('tab-recs').innerHTML = recs.length
+    ? `<ul class="space-y-2">${recs.map(r => `<li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5 flex-shrink-0">✓</span>${esc(typeof r === 'object' ? r.description || r.title || JSON.stringify(r) : r)}</li>`).join('')}</ul>`
+    : '<p class="text-sm text-gray-400 text-center py-6">No recommendations</p>';
+
+  switchResultTab('summary');
+
+  // Quick metrics
+  const qm = document.getElementById('quick-metrics');
+  const qmc = document.getElementById('quick-metrics-content');
+  const metrics = [];
+  if (result.confidence_score) metrics.push({ label: 'Confidence', val: result.confidence_score + '/100' });
+  if (result.compliance_score) metrics.push({ label: 'Compliance', val: result.compliance_score + '/100' });
+  if (result.overall_maturity_score) metrics.push({ label: 'Maturity', val: result.overall_maturity_score + '/5' });
+  if (result.portfolio_summary?.total_apps) metrics.push({ label: 'Apps', val: result.portfolio_summary.total_apps });
+  if (metrics.length) {
+    qmc.innerHTML = metrics.map(m => `<div class="flex justify-between items-center py-2 border-b border-slate-border last:border-0"><span class="text-xs text-gray-500">${m.label}</span><span class="text-sm font-bold text-navy">${m.val}</span></div>`).join('');
+    qm.style.display = '';
+  }
+}
+
+function closeResult() { document.getElementById('result-panel').classList.add('hidden'); }
+function copyResult() {
+  navigator.clipboard.writeText(document.getElementById('result-json').textContent);
+  toast('Copied to clipboard', 'success');
+}
+
+function switchResultTab(tab) {
+  document.querySelectorAll('.result-tab').forEach(t => {
+    const active = t.dataset.tab === tab;
+    t.classList.toggle('text-blue-brand', active);
+    t.classList.toggle('border-blue-brand', active);
+    t.classList.toggle('text-gray-400', !active);
+    t.classList.toggle('border-transparent', !active);
+  });
+  ['summary', 'risks', 'recs', 'json'].forEach(id => {
+    document.getElementById('tab-' + id)?.classList.toggle('hidden', id !== tab);
+  });
+}
+
+// ── ACTIVITY FEED ─────────────────────────────────────────────
+const activity = [];
+function addActivity(agent, status, type) {
+  document.getElementById('activity-empty').style.display = 'none';
+  document.getElementById('notif-dot').classList.remove('hidden');
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  activity.unshift({ agent, status, type, time });
+  const feed = document.getElementById('activity-feed');
+  const colors = { ARB: 'bg-blue-brand', TIME: 'bg-kpmg', MAPPING: 'bg-teal-brand', MATURITY: 'bg-purple-600', INSIGHTS: 'bg-orange-500' };
+  const badge = { success: 'bg-green-100 text-green-700', error: 'bg-red-100 text-red-700', pending: 'bg-yellow-100 text-yellow-700' }[type];
+  const item = document.createElement('div');
+  item.className = 'flex items-center gap-3 py-2.5 border-b border-slate-border last:border-0 fade-in';
+  item.innerHTML = `
+    <div class="w-8 h-8 rounded-lg ${colors[agent] || 'bg-gray-400'} flex items-center justify-center flex-shrink-0">
+      <span class="text-white text-xs font-bold">${agent[0]}</span>
+    </div>
+    <div class="flex-1 min-w-0">
+      <p class="text-xs font-semibold text-navy truncate">${agent} Agent</p>
+      <p class="text-xs text-gray-400">${time}</p>
+    </div>
+    <span class="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${badge}">${status}</span>
+  `;
+  const empty = document.getElementById('activity-empty');
+  feed.insertBefore(item, empty.nextSibling);
+}
+function clearActivity() {
+  document.getElementById('activity-feed').innerHTML = `<div id="activity-empty" class="text-center py-8"><div class="w-12 h-12 rounded-full bg-gray-100 mx-auto flex items-center justify-center mb-3"><svg class="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><p class="text-xs text-gray-400">No activity yet</p></div>`;
+}
+
+// ── KPI UPDATES ───────────────────────────────────────────────
+function updateKPIsFromResult(agent, result) {
+  if (agent === 'ARB') {
+    sessionARBCount++;
+    document.getElementById('kpi-arb').textContent = sessionARBCount;
+  }
+  if (agent === 'TIME') {
+    const apps = result.applications || [];
+    if (apps.length) document.getElementById('kpi-apps').textContent = apps.length;
+    const savings = result.portfolio_summary?.potential_savings || 0;
+    if (savings > 0) { sessionSavings += savings; document.getElementById('kpi-savings').textContent = '$' + fmtNum(sessionSavings); }
+  }
+  if (agent === 'MATURITY') {
+    const score = result.overall_maturity_score;
+    if (score) {
+      document.getElementById('kpi-maturity').innerHTML = `${Number(score).toFixed(1)}<span class="text-sm text-gray-400 font-normal"> /5</span>`;
+      document.getElementById('kpi-maturity-level').textContent = result.maturity_level || '';
+    }
+  }
+}
+
+// ── PAGE-SPECIFIC AGENT CALLS ─────────────────────────────────
+async function runAgentPage() {
+  const query = document.getElementById('query-input-p').value.trim();
+  if (!query) { toast('Enter a query', 'warn'); return; }
+  const btn = document.querySelector('#page-agents button[onclick="runAgentPage()"]');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Running…'; }
+  try {
+    const agentData = buildAgentData(selectedAgentPage, query);
+    const data = await callAgent(selectedAgentPage, query, agentData);
+    const result = data.result?.[selectedAgentPage] || data.result || {};
+    document.getElementById('agents-page-result').classList.remove('hidden');
+    document.getElementById('agents-page-json').textContent = JSON.stringify(result, null, 2);
+    addActivity(selectedAgentPage, 'Completed', 'success');
+    toast('Agent completed', 'success');
+  } catch(e) {
+    addActivity(selectedAgentPage, 'Failed', 'error');
+    toast(e.message, 'error');
+  }
+  if (btn) { btn.disabled = false; btn.innerHTML = 'Run Agent'; }
+}
+
+async function submitARB() {
+  const title = document.getElementById('arb-title').value.trim();
+  const desc  = document.getElementById('arb-desc').value.trim();
+  if (!title || !desc) { toast('Title and description required', 'warn'); return; }
+  try {
+    const data = await callAgent('ARB', title, {
+      proposal_title: title,
+      description: desc,
+      technology_stack: document.getElementById('arb-tech').value.split(',').map(s=>s.trim()).filter(Boolean),
+      timeline: document.getElementById('arb-timeline').value,
+      estimated_cost: parseFloat(document.getElementById('arb-cost').value) || null,
+      annual_running_cost: parseFloat(document.getElementById('arb-annual').value) || null,
+      business_case: document.getElementById('arb-biz').value,
+    });
+    const result = data.result?.ARB || data.result || {};
+    const dec = result.decision || '—';
+    const badge = { APPROVED: 'bg-green-100 text-green-700 border-green-200', REJECTED: 'bg-red-100 text-red-700 border-red-200', CONDITIONAL: 'bg-yellow-100 text-yellow-700 border-yellow-200' }[dec] || 'bg-gray-100 text-gray-600 border-gray-200';
+    document.getElementById('arb-page-result').innerHTML = `
+      <div class="space-y-4">
+        <div class="rounded-xl border p-4 ${badge}">
+          <div class="text-xs font-semibold uppercase tracking-wider opacity-60 mb-1">Decision</div>
+          <div class="text-2xl font-black">${dec}</div>
+          ${result.confidence_score ? `<div class="text-sm mt-1 opacity-80">Confidence: ${result.confidence_score}/100 · Compliance: ${result.compliance_score||'—'}/100</div>` : ''}
+        </div>
+        ${(result.risks||[]).length ? `<div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Risks (${result.risks.length})</p><ul class="space-y-1.5">${result.risks.slice(0,4).map(r=>`<li class="text-xs text-gray-600 flex gap-2"><span class="text-red-400">⚠</span>${esc(r)}</li>`).join('')}</ul></div>` : ''}
+        ${(result.recommendations||[]).length ? `<div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Recommendations</p><ul class="space-y-1.5">${result.recommendations.slice(0,3).map(r=>`<li class="text-xs text-gray-600 flex gap-2"><span class="text-green-500">✓</span>${esc(typeof r==='object'?r.description||r.title||JSON.stringify(r):r)}</li>`).join('')}</ul></div>` : ''}
+      </div>`;
+    sessionARBCount++;
+    document.getElementById('kpi-arb').textContent = sessionARBCount;
+    addActivity('ARB', dec, dec === 'APPROVED' ? 'success' : dec === 'REJECTED' ? 'error' : 'pending');
+    toast('ARB review complete: ' + dec, dec === 'APPROVED' ? 'success' : 'warn');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function runMaturityPage() {
+  try {
+    const data = await callAgent('MATURITY', 'EA maturity assessment', {
+      portfolio_size: parseInt(document.getElementById('mat-size').value) || null,
+      total_annual_cost: parseFloat(document.getElementById('mat-cost').value) || null,
+      eliminate_percentage: parseFloat(document.getElementById('mat-elim').value) || null,
+      duplications_found: parseInt(document.getElementById('mat-dups').value) || null,
+      context: document.getElementById('mat-ctx').value,
+    });
+    const result = data.result?.MATURITY || data.result || {};
+    const score = result.overall_maturity_score;
+    const level = result.maturity_level || '';
+    const dims = result.dimensions || {};
+    document.getElementById('maturity-page-result').innerHTML = `
+      <div class="space-y-4">
+        ${score ? `<div class="text-center py-4 bg-purple-50 rounded-xl"><div class="text-5xl font-black text-purple-700">${Number(score).toFixed(1)}</div><div class="text-base font-semibold text-purple-600 mt-1">${level}</div><div class="text-xs text-gray-400 mt-1">out of 5.0</div></div>` : ''}
+        ${Object.keys(dims).length ? `<div class="space-y-2">${Object.entries(dims).map(([k,v])=>{const s=v.score||v;return`<div><div class="flex justify-between text-xs mb-1"><span class="font-semibold text-gray-600">${k}</span><span class="text-gray-500">${Number(s).toFixed(1)}/5</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-purple-500 h-2 rounded-full" style="width:${(s/5)*100}%"></div></div></div>`;}).join('')}</div>` : ''}
+        ${(result.top_priorities||[]).length ? `<div><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Top Priorities</p><ul class="space-y-1.5">${result.top_priorities.slice(0,3).map(p=>`<li class="text-xs text-gray-600 flex gap-2"><span class="text-purple-400">→</span>${esc(p)}</li>`).join('')}</ul></div>` : ''}
+      </div>`;
+    document.getElementById('kpi-maturity').innerHTML = `${Number(score||0).toFixed(1)}<span class="text-sm text-gray-400 font-normal"> /5</span>`;
+    document.getElementById('kpi-maturity-level').textContent = level;
+    addActivity('MATURITY', 'Completed', 'success');
+    toast('Maturity assessment complete', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function runMappingPage() {
+  const app = document.getElementById('map-app').value.trim();
+  if (!app) { toast('Enter an application name', 'warn'); return; }
+  try {
+    const data = await callAgent('MAPPING', 'dependency analysis for ' + app, { target_system: app, context: document.getElementById('map-ctx').value });
+    const result = data.result?.MAPPING || data.result || {};
+    document.getElementById('mapping-result').classList.remove('hidden');
+    document.getElementById('mapping-json').textContent = JSON.stringify(result, null, 2);
+    addActivity('MAPPING', 'Completed', 'success');
+    toast('Mapping complete', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function runPortfolio() {
+  const file = document.getElementById('port-file').files[0];
+  const freeText = document.getElementById('port-free-text')?.value?.trim();
+  if (!file && !freeText) { toast('Please upload a file or enter a portfolio description', 'warn'); return; }
+
+  const btn = document.querySelector('#page-portfolio button[onclick="runPortfolio()"]');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Analysing…'; }
+
+  try {
+    let res;
+    if (file) {
+      const fd = new FormData(); fd.append('file', file);
+      res = await fetch(API + '/time/ingest', { method: 'POST', body: fd });
+    } else {
+      const fd = new FormData(); fd.append('free_text', freeText);
+      res = await fetch(API + '/time/ingest', { method: 'POST', body: fd });
+    }
+    if (!res.ok) throw new Error(await res.text());
+    portIngestData = await res.json();
+    const apps = portIngestData.applications || [];
+    const dups = portIngestData.duplications || [];
+    const summary = portIngestData.summary || {};
+    const tc = {};
+    apps.forEach(a => { tc[a.time_classification || 'TOLERATE'] = (tc[a.time_classification || 'TOLERATE'] || 0) + 1; });
+    document.getElementById('portfolio-results').innerHTML = `
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+        <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-navy">${apps.length}</div><div class="text-xs text-gray-400 mt-1">Total Apps</div></div>
+        <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-navy">$${fmtNum(summary.total_annual_cost||0)}</div><div class="text-xs text-gray-400 mt-1">Annual Spend</div></div>
+        <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-red-500">${dups.length}</div><div class="text-xs text-gray-400 mt-1">Duplications</div></div>
+        <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-green-600">$${fmtNum(summary.potential_savings||0)}</div><div class="text-xs text-gray-400 mt-1">Potential Savings</div></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-card overflow-hidden mb-5">
+        <div class="px-5 py-3.5 border-b border-slate-border"><h3 class="font-bold text-navy text-sm">Application Portfolio</h3></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-ui"><tr>
+              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Application</th>
+              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Category</th>
+              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">TIME</th>
+              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">6R Action</th>
+              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Score</th>
+              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Annual Cost</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-border">${apps.map(a => {
+              const tc = a.time_classification || 'TOLERATE';
+              const tcColor = { INVEST: 'bg-green-100 text-green-700', TOLERATE: 'bg-blue-100 text-blue-700', MIGRATE: 'bg-yellow-100 text-yellow-700', ELIMINATE: 'bg-red-100 text-red-700' }[tc] || 'bg-gray-100 text-gray-600';
+              return `<tr class="hover:bg-slate-ui transition"><td class="px-4 py-3 font-semibold text-navy">${esc(a.name)}</td><td class="px-4 py-3 text-gray-500">${esc(a.category||'—')}</td><td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${tcColor}">${tc}</span></td><td class="px-4 py-3 text-xs text-gray-500">${esc(a.rationalization_action||'—')}</td><td class="px-4 py-3 font-semibold">${a.composite_score ? Number(a.composite_score).toFixed(1) : '—'}</td><td class="px-4 py-3 text-gray-500">${a.annual_cost ? '$'+fmtNum(a.annual_cost) : '—'}</td></tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+    document.getElementById('portfolio-results').classList.remove('hidden');
+    document.getElementById('port-pdf-btn').classList.remove('hidden');
+    document.getElementById('kpi-apps').textContent = apps.length;
+    if (summary.potential_savings > 0) { sessionSavings += summary.potential_savings; document.getElementById('kpi-savings').textContent = '$' + fmtNum(sessionSavings); }
+    addActivity('TIME', 'Completed', 'success');
+    toast('Portfolio analysed — ' + apps.length + ' apps', 'success');
+  } catch(e) {
+    addActivity('TIME', 'Failed', 'error');
+    toast('Error: ' + e.message, 'error');
+  }
+  if (btn) { btn.disabled = false; btn.innerHTML = 'Analyse Portfolio'; }
+}
+
+async function downloadPortfolioPDF() {
+  if (!portIngestData) { toast('Run analysis first', 'warn'); return; }
+  try {
+    const res = await fetch(API + '/time/report', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ applications: portIngestData.applications, duplications: portIngestData.duplications || [], assessments: [] }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const blob = await res.blob();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ea_portfolio_report.pdf'; a.click();
+    toast('PDF downloaded', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function runFullPipeline() {
+  // If we already have ingested portfolio data, run the pipeline with it
+  if (portIngestData && portIngestData.applications && portIngestData.applications.length > 0) {
+    showPage('reports');
+    await triggerFullPipeline({ applications: portIngestData.applications });
+  } else {
+    // No data yet — prompt user to upload on Portfolio page
+    toast('Upload a portfolio first on the Portfolio page, then come back to run the full pipeline.', 'info');
+    showPage('portfolio');
+  }
+}
+
+async function triggerFullPipeline(body) {
+  const btn = document.getElementById('full-pipeline-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Running Full Pipeline…'; }
+  const statusEl = document.getElementById('full-pipeline-status');
+  if (statusEl) { statusEl.classList.remove('hidden'); statusEl.textContent = 'Stage 1/4 — TIME Portfolio Rationalization…'; }
+
+  try {
+    const res = await fetch(API + '/ea-full', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    pipelineReportFilename = data.report_filename;
+    const ps = data.pipeline_summary || {};
+    if (statusEl) statusEl.classList.add('hidden');
+
+    // Show results card in reports page
+    let resultsHtml = `
+      <div class="bg-white rounded-xl shadow-card p-6 mt-5" id="pipeline-output">
+        <h3 class="font-bold text-navy text-base mb-4">Full EA Pipeline — Complete</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+          <div class="bg-slate-ui rounded-lg p-3 text-center"><div class="text-xl font-bold text-navy">${ps.total_apps_assessed||0}</div><div class="text-xs text-gray-400 mt-1">Apps Assessed</div></div>
+          <div class="bg-slate-ui rounded-lg p-3 text-center"><div class="text-xl font-bold text-navy">$${fmtNum(ps.total_annual_cost||0)}</div><div class="text-xs text-gray-400 mt-1">Annual Spend</div></div>
+          <div class="bg-green-50 rounded-lg p-3 text-center"><div class="text-xl font-bold text-green-600">$${fmtNum(ps.potential_savings||0)}</div><div class="text-xs text-gray-400 mt-1">Potential Savings</div></div>
+          <div class="bg-slate-ui rounded-lg p-3 text-center"><div class="text-xl font-bold text-yellow-600">${ps.flagged_for_action||0}</div><div class="text-xs text-gray-400 mt-1">Flagged Apps</div></div>
+          <div class="bg-slate-ui rounded-lg p-3 text-center"><div class="text-xl font-bold text-purple-600">${ps.maturity_score||'—'}/5</div><div class="text-xs text-gray-400 mt-1">Maturity Score</div></div>
+          <div class="bg-red-50 rounded-lg p-3 text-center"><div class="text-xl font-bold text-red-500">${ps.overall_risk||'—'}</div><div class="text-xs text-gray-400 mt-1">Risk Level</div></div>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+          ${pipelineReportFilename ? `<a href="${API}/ea-full/report/${pipelineReportFilename}" target="_blank" download class="flex items-center gap-2 bg-kpmg text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-kpmg-dark transition">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Download Full EA Report (PDF)
+          </a>` : ''}
+          <button onclick="this.closest('#pipeline-output').querySelector('pre').classList.toggle('hidden')" class="border border-slate-border text-gray-500 text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-gray-50 transition">Toggle JSON</button>
+        </div>
+        <pre class="result-pre text-xs text-gray-600 bg-gray-50 rounded-lg p-4 mt-4 overflow-auto max-h-60 hidden">${esc(JSON.stringify(ps, null, 2))}</pre>
+      </div>`;
+
+    const existing = document.getElementById('pipeline-output');
+    if (existing) existing.remove();
+    document.getElementById('page-reports').insertAdjacentHTML('beforeend', resultsHtml);
+
+    addActivity('TIME', 'Pipeline Done', 'success');
+    toast('Full EA Pipeline complete — ' + (ps.stages_completed || []).length + ' stages done', 'success');
+  } catch(e) {
+    if (statusEl) { statusEl.textContent = 'Pipeline failed: ' + e.message; }
+    toast('Pipeline error: ' + e.message, 'error');
+  }
+  if (btn) { btn.disabled = false; btn.innerHTML = 'Run Pipeline →'; }
+}
+
+// ── HEALTH CHECK ─────────────────────────────────────────────
+async function checkHealth() {
+  try {
+    const res = await fetch(API + '/health');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    document.getElementById('status-pill').textContent = 'All agents online';
+    document.getElementById('status-pill').parentElement.className = 'flex items-center gap-2 bg-green-50 border border-green-200 px-3 py-1.5 rounded-full';
+    document.getElementById('settings-conn-label').textContent = '✓ Connected to API — v' + (data.version || '1.0.0');
+    document.getElementById('settings-conn-label').className = 'text-xs text-green-600 font-medium';
+  } catch {
+    document.getElementById('status-pill').textContent = 'API Offline';
+    document.getElementById('status-pill').parentElement.className = 'flex items-center gap-2 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full';
+    document.getElementById('settings-conn-label').textContent = '✗ Cannot connect to API';
+    document.getElementById('settings-conn-label').className = 'text-xs text-red-500 font-medium';
+  }
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────
+function saveApiUrl() {
+  API = document.getElementById('settings-api-url').value.replace(/\/$/, '');
+  localStorage.setItem('ea_api', API);
+  document.getElementById('api-badge').textContent = API.replace(/https?:\/\//, '');
+  checkHealth().then(() => { document.getElementById('settings-status').textContent = '✓ Saved and connected'; toast('API URL saved', 'success'); });
+}
+function resetApiUrl() {
+  API = 'http://localhost:8000';
+  document.getElementById('settings-api-url').value = API;
+  localStorage.setItem('ea_api', API);
+  checkHealth();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const colors = { success: 'border-l-green-500 bg-white', error: 'border-l-red-500 bg-white', warn: 'border-l-yellow-400 bg-white', info: 'border-l-blue-brand bg-white' };
+  const icons  = { success: '✓', error: '✗', warn: '⚠', info: 'ℹ' };
+  const el = document.createElement('div');
+  el.className = `flex items-center gap-3 px-4 py-3 rounded-xl shadow-modal border-l-4 text-sm font-medium text-gray-700 min-w-[260px] fade-in ${colors[type] || colors.info}`;
+  el.innerHTML = `<span class="text-base">${icons[type]||'ℹ'}</span><span>${esc(msg)}</span>`;
+  document.getElementById('toast-area').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function esc(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtNum(n) { n=Number(n)||0; if(n>=1e6) return(n/1e6).toFixed(1)+'M'; if(n>=1e3) return(n/1e3).toFixed(0)+'K'; return n.toFixed(0); }
+</script>
 </body>
 </html>
