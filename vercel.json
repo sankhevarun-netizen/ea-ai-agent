@@ -5,6 +5,7 @@
       "src": "main.py",
       "use": "@vercel/python",
       "config": {
+        "maxDuration": 300,
         "includeFiles": [
           "frontend/**",
           "agents/**",
@@ -17,11 +18,6 @@
       }
     }
   ],
-  "functions": {
-    "main.py": {
-      "maxDuration": 300
-    }
-  },
   "routes": [
     {"src": "/(.*)", "dest": "main.py"}
   ]
