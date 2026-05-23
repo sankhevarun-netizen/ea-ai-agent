@@ -17,6 +17,7 @@ from services.supabase_service import (
     store_decision,
 )
 from prompts.insights_prompt import INSIGHTS_SYSTEM_PROMPT
+from prompts.industry_context import get_industry_context
 
 
 def run_insights(input_data: dict) -> dict:
@@ -37,6 +38,12 @@ def run_insights(input_data: dict) -> dict:
 ### Current Application Portfolio:
 {json.dumps(portfolio, indent=2)}
 """
+
+    # Inject industry context
+    industry = input_data.get("industry", "")
+    sub_sector = input_data.get("sub_sector", "")
+    if industry:
+        enriched_prompt += get_industry_context(industry, sub_sector)
 
     # 3. Build user message — input_data may contain outputs from other agents
     user_message = (

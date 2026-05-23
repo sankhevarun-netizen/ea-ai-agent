@@ -18,6 +18,7 @@ from services.supabase_service import (
     store_decision,
 )
 from prompts.mapping_prompt import MAPPING_SYSTEM_PROMPT
+from prompts.industry_context import get_industry_context
 
 BATCH_MAPPING_PROMPT = """
 You are an EA Mapping and Dependency Analysis AI Agent.
@@ -78,6 +79,12 @@ def run_mapping(input_data: dict) -> dict:
 """
 
     # 3. User message
+    # Inject industry context
+    industry = input_data.get("industry", "")
+    sub_sector = input_data.get("sub_sector", "")
+    if industry:
+        enriched_prompt += get_industry_context(industry, sub_sector)
+
     user_message = (
         f"Analyze the dependencies and impact for the following system/change request. "
         f"Return a structured JSON result:\n{json.dumps(input_data, indent=2, default=_json_default)}"
@@ -138,6 +145,12 @@ def run_mapping_batch(input_data: dict) -> dict:
         }
         for a in flagged_apps
     ]
+
+    # Inject industry context
+    industry = input_data.get("industry", "")
+    sub_sector = input_data.get("sub_sector", "")
+    if industry:
+        enriched_prompt += get_industry_context(industry, sub_sector)
 
     user_message = (
         f"Analyze migration risk and dependencies for these {len(flagged_apps)} "

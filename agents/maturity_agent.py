@@ -7,6 +7,7 @@ from services.supabase_service import (
     store_decision,
 )
 from prompts.maturity_prompt import MATURITY_SYSTEM_PROMPT
+from prompts.industry_context import get_industry_context
 
 
 def run_maturity(input_data: dict) -> dict:
@@ -31,6 +32,12 @@ def run_maturity(input_data: dict) -> dict:
 ### Existing Standards & Governance Rules (maturity indicator):
 {json.dumps(standards, indent=2)}
 """
+
+    # Inject industry context
+    industry = input_data.get("industry", "")
+    sub_sector = input_data.get("sub_sector", "")
+    if industry:
+        enriched_prompt += get_industry_context(industry, sub_sector)
 
     # 3. User message
     user_message = (

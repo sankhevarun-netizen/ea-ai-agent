@@ -1,9 +1,12 @@
+import base64
 import os
+import zlib
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -40,6 +43,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -123,6 +127,8 @@ async def time_ingest(
     file: Optional[UploadFile] = File(None),
     free_text: Optional[str] = Form(None),
     applications: Optional[str] = Form(None),  # JSON string of tool list
+    industry: Optional[str] = Form(None),
+    sub_sector: Optional[str] = Form(None),
 ):
     """
     Ingest portfolio data (file upload, free text, or JSON body),
@@ -207,6 +213,8 @@ async def time_ingest(
     return {
         "success": True,
         "tools_scored": len(scored),
+        "industry": industry or "",
+        "sub_sector": sub_sector or "",
         "applications": scored,
         "duplications": duplications,
         "summary": {
@@ -288,9 +296,16 @@ async def ea_full(body: Dict[str, Any]):
         )
         pipeline["report_path"] = report_path
         pipeline["report_filename"] = Path(report_path).name
+        # Embed PDF as base64 so the browser can download it directly
+        # without a second request (Vercel /tmp is not shared across invocations)
+        with open(report_path, "rb") as f:
+            pdf_bytes = f.read()
+        pipeline["report_b64"] = base64.b64encode(zlib.compress(pdf_bytes, level=9)).decode("ascii")
+        pipeline["report_compressed"] = True
     except Exception as e:
         pipeline["report_error"] = str(e)
         pipeline["report_filename"] = None
+        pipeline["report_b64"] = None
 
     return pipeline
 

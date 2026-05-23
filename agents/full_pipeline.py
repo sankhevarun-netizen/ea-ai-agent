@@ -1,6 +1,7 @@
 """
 Full EA Intelligence Pipeline: TIME → MAPPING → MATURITY → INSIGHTS
 Each agent receives the accumulated outputs of all prior agents as context.
+Industry context (when provided) is threaded through every stage.
 """
 import json
 from agents.time_agent import run_time
@@ -19,10 +20,15 @@ def run_full_pipeline(input_data: dict) -> dict:
     pipeline = {}
     errors = {}
 
+    # Extract industry context to pass through all stages
+    industry = input_data.get("industry", "")
+    sub_sector = input_data.get("sub_sector", "")
+
     # ── STAGE 1: TIME — Portfolio Rationalization ─────────────────────────────
-    print("[Pipeline] Stage 1/4 — TIME: Portfolio Rationalization...")
+    print(f"[Pipeline] Stage 1/4 — TIME: Portfolio Rationalization... (industry={industry or 'general'})")
     try:
-        time_result = run_time(input_data)
+        time_input = {**input_data, "industry": industry, "sub_sector": sub_sector}
+        time_result = run_time(time_input)
         pipeline["TIME"] = time_result
     except Exception as e:
         errors["TIME"] = str(e)
@@ -46,6 +52,8 @@ def run_full_pipeline(input_data: dict) -> dict:
                 "applications": flagged,
                 "all_apps": applications,
                 "context": "Full EA pipeline — dependency analysis for ELIMINATE/MIGRATE apps",
+                "industry": industry,
+                "sub_sector": sub_sector,
             }
             pipeline["MAPPING"] = run_mapping_batch(mapping_input)
         except Exception as e:
@@ -71,6 +79,8 @@ def run_full_pipeline(input_data: dict) -> dict:
         )
         maturity_input = {
             "context": "EA maturity assessment derived from portfolio rationalization",
+            "industry": industry,
+            "sub_sector": sub_sector,
             "portfolio_size": len(applications),
             "avg_composite_score": round(avg_score, 2),
             "categories_covered": categories,
@@ -95,6 +105,8 @@ def run_full_pipeline(input_data: dict) -> dict:
         # Feed ALL prior outputs to INSIGHTS for full synthesis
         insights_input = {
             "pipeline": "full_ea_intelligence",
+            "industry": industry,
+            "sub_sector": sub_sector,
             "time_output": {
                 "portfolio_summary": time_summary,
                 "assessment": time_assessment,
@@ -117,6 +129,8 @@ def run_full_pipeline(input_data: dict) -> dict:
 
     # ── Pipeline Summary ──────────────────────────────────────────────────────
     pipeline["pipeline_summary"] = {
+        "industry": industry or "General",
+        "sub_sector": sub_sector or "",
         "stages_completed": [s for s in ["TIME", "MAPPING", "MATURITY", "INSIGHTS"] if s not in errors],
         "stages_failed": list(errors.keys()),
         "errors": errors,

@@ -21,6 +21,7 @@ from services.supabase_service import (
     store_decision,
 )
 from prompts.time_prompt import TIME_SYSTEM_PROMPT
+from prompts.industry_context import get_industry_context
 from utils.scoring_engine import ScoringEngine
 from utils.duplication_detector import DuplicationDetector
 
@@ -255,6 +256,12 @@ def run_time(input_data: dict) -> dict:
         f"Portfolio (pre-scored by ScoringEngine):\n{json.dumps(tool_summary, indent=2, default=_json_default)}\n\n"
         f"Duplications found:\n{json.dumps(duplications[:10], indent=2, default=_json_default)}"
     )
+    # Inject industry context if provided
+    industry = input_data.get("industry", "")
+    sub_sector = input_data.get("sub_sector", "")
+    if industry:
+        enriched_prompt += get_industry_context(industry, sub_sector)
+
     narrative_str = call_claude(enriched_prompt, user_msg)
     narrative_str_clean = narrative_str.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
     try:
