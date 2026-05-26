@@ -11,10 +11,12 @@
         extend: {
           colors: {
             navy:  { DEFAULT: '#0C233C', light: '#153350', dark: '#08192b' },
-            kpmg:  { DEFAULT: '#00338D', light: '#0047BF', dark: '#002570' },
-            blue:  { brand: '#0063DC', light: '#3385E8' },
-            teal:  { brand: '#00A3A1' },
-            slate: { ui: '#F5F7FA', border: '#E4EAF0' },
+            kpmg:  { DEFAULT: '#00338D', light: '#1E49E2', dark: '#002570' },
+            blue:  { brand: '#1E49E2', light: '#4A6FEF' },
+            teal:  { brand: '#00B8F5' },
+            pacific: { DEFAULT: '#00B8F5', dark: '#0094C5' },
+            cobalt:  { DEFAULT: '#1E49E2' },
+            slate: { ui: '#F0F8FF', border: '#C2E0FF' },
           },
           fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
           boxShadow: {
@@ -27,21 +29,47 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* Material Symbols */
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      vertical-align: middle;
+    }
+    /* Overview animations */
+    @keyframes ovSlowRotate { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+    @keyframes ovPulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(.85);} }
+    .ov-slow-rotate { animation: ovSlowRotate 120s linear infinite; }
+    .ov-pulse { animation: ovPulse 2s ease-in-out infinite; }
+    /* Hex node */
+    .ov-hex-node { transition: all .3s; }
+    .ov-hex-node:hover { border-color:#00338D !important; box-shadow:0 10px 30px rgba(0,51,141,.18) !important; }
     /* Scrollbar */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
 
     /* Sidebar active glow */
-    .nav-active { background: rgba(0,99,220,.18); border-left: 3px solid #0063DC; }
+    .nav-active { background: rgba(30,73,226,.20); border-left: 3px solid #1E49E2; }
     .nav-item   { border-left: 3px solid transparent; transition: all .15s; }
-    .nav-item:hover { background: rgba(255,255,255,.06); }
+    .nav-item:hover { background: rgba(0,184,245,.08); }
 
     /* Agent card selected */
     .agent-card { transition: all .2s; cursor: pointer; }
-    .agent-card.selected { box-shadow: 0 0 0 2px #0063DC; }
+    .agent-card.selected { box-shadow: 0 0 0 2px #1E49E2; }
     .agent-card:hover { transform: translateY(-2px); }
 
     /* Skeleton pulse */
@@ -71,22 +99,6 @@
     }
     [data-tip] { position: relative; }
 
-    /* Industry selector pills */
-    .ind-pill {
-      font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px;
-      border: 1.5px solid #CBD5E1; background: #fff; color: #475569;
-      cursor: pointer; transition: all .15s; white-space: nowrap;
-    }
-    .ind-pill:hover { border-color: #0063DC; color: #0063DC; background: #EFF6FF; }
-    .ind-pill.active { border-color: #0063DC; background: #0063DC; color: #fff; }
-    .sub-pill {
-      font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 16px;
-      border: 1.5px solid #E2E8F0; background: #F8FAFC; color: #64748B;
-      cursor: pointer; transition: all .15s;
-    }
-    .sub-pill:hover { border-color: #0063DC; color: #0063DC; }
-    .sub-pill.active { border-color: #0063DC; background: #EFF6FF; color: #0063DC; }
-
     /* Architecture page — live flows */
     .arch-card { transition: box-shadow .2s; }
     .arch-card:hover { box-shadow: 0 6px 32px rgba(0,99,220,.12); }
@@ -113,9 +125,9 @@
     .ov-query-bar:focus-within { border-color: #0063DC; box-shadow: 0 0 0 3px rgba(0,99,220,.1), 0 2px 12px rgba(0,0,0,.06); }
 
     /* ── COMMAND CENTER ─────────────────────────────────── */
-    .cc-bg { background: linear-gradient(135deg, #0C233C 0%, #0a1d32 60%, #0C233C 100%); min-height: 100%; }
-    .glass-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; backdrop-filter: blur(8px); }
-    .glass-card-light { background: rgba(255,255,255,.92); border: 1px solid rgba(0,0,0,.06); border-radius: 14px; }
+    .cc-bg { background: #F8FAFC; min-height: 100%; }
+    .glass-card { background: #fff; border: 1px solid #B8DEFF; border-radius: 14px; box-shadow: 0 1px 4px rgba(0,51,141,.06); }
+    .glass-card-light { background: #fff; border: 1px solid #B8DEFF; border-radius: 14px; }
     .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px; border-radius: 12px; overflow: hidden; }
     .quadrant-cell { padding: 16px; display: flex; flex-direction: column; justify-content: space-between; min-height: 140px; cursor: default; transition: all .2s; }
     .quadrant-cell:hover { filter: brightness(1.06); }
@@ -126,9 +138,9 @@
     .badge-migrate { background: #DBEAFE; color: #1E40AF; }
     .badge-retire { background: #FEE2E2; color: #991B1B; }
     .cc-kpi { text-align: center; padding: 16px 12px; border-radius: 12px; }
-    .tab-toggle { display: flex; background: #F1F5F9; border-radius: 8px; padding: 3px; gap: 2px; }
+    .tab-toggle { display: flex; background: #EEF2FF; border-radius: 8px; padding: 3px; gap: 2px; }
     .tab-toggle button { padding: 6px 16px; border-radius: 6px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; background: transparent; color: #64748B; }
-    .tab-toggle button.active { background: #0C233C; color: #fff; }
+    .tab-toggle button.active { background: #00338D; color: #fff; }
 
     /* ── ENHANCED DASHBOARD ─────────────────────────────── */
     .dash-kpi-card { background: #fff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06); display: flex; flex-direction: column; gap: 4px; }
@@ -219,16 +231,16 @@
       <span class="text-blue-100 text-sm font-medium">Command Center</span>
     </a>
 
+    <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('ea-analysis')">
+      <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+      <span class="text-blue-100 text-sm font-medium">EA Analysis</span>
+    </a>
+
     <p class="text-xs font-semibold text-blue-300 opacity-50 uppercase tracking-widest px-3 pt-3 pb-2">Agents</p>
 
     <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('agents')">
       <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       <span class="text-blue-100 text-sm font-medium">AI Agents</span>
-    </a>
-
-    <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('portfolio')">
-      <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-      <span class="text-blue-100 text-sm font-medium">Portfolio</span>
     </a>
 
     <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('arb')">
@@ -295,31 +307,73 @@
 ══════════════════════════════════════════════════════════════ -->
 <div class="flex-1 flex flex-col overflow-hidden">
 
-  <!-- Top Bar -->
-  <header class="bg-white border-b border-slate-border px-6 py-3.5 flex items-center justify-between flex-shrink-0 shadow-sm">
-    <div class="flex items-center gap-3">
-      <!-- Mobile hamburger -->
-      <button class="lg:hidden p-1.5 rounded-lg hover:bg-gray-100" onclick="document.getElementById('sidebar').classList.toggle('hidden')">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+  <!-- ══ TOP HEADER ══════════════════════════════════════════════ -->
+  <header style="background:#0C233C;border-bottom:1px solid rgba(255,255,255,.08);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px;z-index:40">
+
+    <!-- Left: hamburger + hidden page title (kept for JS compat) -->
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+      <button style="display:none" class="lg:hidden" onclick="document.getElementById('sidebar').classList.toggle('hidden')">
+        <svg style="width:20px;height:20px;color:#94A3B8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
-      <div>
-        <h1 id="page-title" class="text-lg font-bold text-navy">Dashboard</h1>
-        <p id="page-subtitle" class="text-xs text-gray-400 mt-0.5">Overview of your EA Intelligence platform</p>
+      <h1 id="page-title" style="display:none">Dashboard</h1>
+      <p  id="page-subtitle" style="display:none">Overview</p>
+      <!-- Brand mark -->
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:28px;height:28px;border-radius:7px;background:#1E49E2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg style="width:14px;height:14px;color:#fff" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <span style="font-size:13px;font-weight:700;color:#fff;letter-spacing:-.2px;white-space:nowrap">EA Intelligence</span>
       </div>
     </div>
-    <div class="flex items-center gap-3">
-      <!-- Agents online pill -->
-      <div class="flex items-center gap-2 bg-green-50 border border-green-200 px-3 py-1.5 rounded-full">
-        <span class="online-dot w-2 h-2"></span>
-        <span class="text-green-700 text-xs font-semibold" id="status-pill">All agents online</span>
-      </div>
-      <!-- Notification bell -->
-      <button class="relative p-2 rounded-lg hover:bg-gray-100 text-gray-500">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-        <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-brand rounded-full hidden"></span>
+
+    <!-- Centre: segmented nav toggle -->
+    <div style="display:flex;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:3px;gap:2px;flex-shrink:0">
+      <button id="nav-toggle-overview"
+        onclick="showPage('overview')"
+        style="padding:5px 18px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;color:#94A3B8;background:transparent;white-space:nowrap">
+        Overview
       </button>
-      <!-- API status badge -->
-      <span id="api-badge" class="text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full font-mono hidden sm:block">connected</span>
+      <button id="nav-toggle-dashboard"
+        onclick="showPage('dashboard')"
+        style="padding:5px 18px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;color:#94A3B8;background:transparent;white-space:nowrap">
+        Dashboard
+      </button>
+      <button id="nav-toggle-command-center"
+        onclick="showPage('command-center')"
+        style="padding:5px 18px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;color:#94A3B8;background:transparent;white-space:nowrap">
+        Command Center
+      </button>
+    </div>
+
+    <!-- Right: search + status + notifications + api badge -->
+    <div style="display:flex;align-items:center;gap:10px">
+
+      <!-- Global search bar -->
+      <div style="position:relative">
+        <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#64748B;pointer-events:none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+        <input id="global-search-input" type="text" placeholder="Search agents, apps, tools…"
+          style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 12px 6px 30px;font-size:12px;color:#e2e8f0;width:230px;font-family:'Inter',sans-serif;outline:none;transition:all .15s"
+          onfocus="this.style.borderColor='#1E49E2';this.style.background='rgba(30,73,226,.18)'"
+          onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.background='rgba(255,255,255,.07)'"
+          onkeydown="if(event.key==='Enter')runGlobalSearch(this.value)" />
+        <!-- Search result dropdown -->
+        <div id="global-search-results" style="display:none;position:absolute;top:calc(100% + 6px);left:0;width:320px;background:#fff;border:1px solid #B8DEFF;border-radius:10px;box-shadow:0 8px 32px rgba(0,51,141,.14);z-index:200;overflow:hidden"></div>
+      </div>
+
+      <!-- Agents status pill -->
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:5px 11px;border-radius:99px;flex-shrink:0">
+        <span class="online-dot" style="width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.25)"></span>
+        <span id="status-pill" style="font-size:11px;font-weight:600;color:#4ade80;white-space:nowrap">All agents online</span>
+      </div>
+
+      <!-- Notification bell -->
+      <button style="position:relative;padding:6px;border-radius:8px;border:none;cursor:pointer;background:rgba(255,255,255,.06);color:#94A3B8;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
+        <svg style="width:18px;height:18px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span id="notif-dot" style="position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:#1E49E2;display:none"></span>
+      </button>
+
+      <!-- API badge -->
+      <span id="api-badge" style="font-size:10px;color:#64748B;background:rgba(255,255,255,.05);padding:4px 9px;border-radius:99px;font-family:monospace;white-space:nowrap;display:none" class="sm:block">connected</span>
     </div>
   </header>
 
@@ -327,399 +381,473 @@
   <main class="flex-1 overflow-y-auto bg-slate-ui">
 
     <!-- ══ DASHBOARD PAGE ══════════════════════════════════════ -->
-    <div id="page-dashboard" class="page p-6 fade-in hidden">
+    <div id="page-dashboard" class="page hidden" style="background:#F8FAFC;font-family:'Geist','Inter',sans-serif">
+      <div style="padding:32px;max-width:1600px;margin:0 auto">
 
-      <!-- Top toggle bar -->
-      <div class="flex items-center justify-between mb-5">
+      <!-- Header row -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
         <div>
-          <h2 class="text-base font-bold text-navy">Tool Portfolio</h2>
-          <p class="text-xs text-gray-400 mt-0.5">All applications scored and classified by 6R rationalization</p>
+          <h1 style="font-size:32px;font-weight:700;color:#0C233C;letter-spacing:-0.01em;margin:0;line-height:40px;font-family:'Geist','Inter',sans-serif">EA Strategy Dashboard</h1>
+          <p style="font-size:14px;color:#444653;margin:6px 0 0;font-family:'Geist','Inter',sans-serif">Real-time intelligence across the enterprise portfolio.</p>
         </div>
-        <div class="flex items-center gap-3">
-          <div class="tab-toggle">
-            <button class="active" onclick="showPage('dashboard')">Dashboard</button>
-            <button onclick="showPage('command-center')">Command Center</button>
-          </div>
-          <button onclick="refreshPortfolioTable()" class="flex items-center gap-1.5 text-xs text-gray-500 hover:text-navy bg-white border border-slate-border px-3 py-1.5 rounded-lg hover:bg-gray-50 transition">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            Refresh
-          </button>
+        <div style="display:flex;gap:4px;background:#fff;border:1px solid #B8DEFF;border-radius:6px;padding:4px;flex-shrink:0">
+          <button id="dash-btn-live" style="padding:6px 18px;background:#00338D;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist','Inter',sans-serif">Live</button>
+          <button id="dash-btn-hist" style="padding:6px 18px;background:none;border:none;color:#444653;font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist','Inter',sans-serif">Historical</button>
         </div>
       </div>
 
-      <!-- KPI Row -->
-      <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-
-        <!-- KPI 1: Total Tools -->
-        <div class="dash-kpi-card">
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-10 h-10 rounded-xl bg-kpmg bg-opacity-10 flex items-center justify-center">
-              <svg class="w-5 h-5 text-kpmg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path stroke-linecap="round" d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
-            </div>
-            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Active</span>
-          </div>
-          <p class="text-2xl font-bold text-navy" id="kpi-total-tools">—</p>
-          <p class="text-xs font-medium text-gray-500 mt-0.5">Total Tools Analysed</p>
-          <p class="text-xs text-gray-300 mt-1">in portfolio</p>
+      <!-- KPI Row — 7 cards -->
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-bottom:24px">
+        <!-- 1: Tools Assessed -->
+        <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:16px">
+          <p style="font-size:10px;font-weight:700;color:#747684;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;font-family:'Geist','Inter',sans-serif">Tools Assessed</p>
+          <p style="font-size:26px;font-weight:700;color:#0C233C;margin:0;letter-spacing:-0.02em;font-family:'Geist','Inter',sans-serif" id="kpi-total-tools">1,284</p>
+          <p style="font-size:11px;color:#16a34a;margin:5px 0 0;font-weight:600;font-family:'Geist','Inter',sans-serif">↑ +2.4%</p>
         </div>
-
-        <!-- KPI 2: Tools to Retire -->
-        <div class="dash-kpi-card">
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
-              <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            </div>
-            <span class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Action</span>
-          </div>
-          <p class="text-2xl font-bold text-red-600" id="kpi-retire-count">—</p>
-          <p class="text-xs font-medium text-gray-500 mt-0.5">Tools to Retire</p>
-          <p class="text-xs text-gray-300 mt-1">flagged for elimination</p>
+        <!-- 2: Annual Spend -->
+        <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:16px">
+          <p style="font-size:10px;font-weight:700;color:#747684;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;font-family:'Geist','Inter',sans-serif">Annual Spend</p>
+          <p style="font-size:26px;font-weight:700;color:#0C233C;margin:0;letter-spacing:-0.02em;font-family:'Geist','Inter',sans-serif" id="kpi-budget">$42.8M</p>
+          <p style="font-size:11px;color:#dc2626;margin:5px 0 0;font-weight:600;font-family:'Geist','Inter',sans-serif">↓ -0.8%</p>
         </div>
-
-        <!-- KPI 3: Overlap Detected -->
-        <div class="dash-kpi-card">
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-              <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/></svg>
-            </div>
-            <span class="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Review</span>
-          </div>
-          <p class="text-2xl font-bold text-amber-600" id="kpi-overlap-count">—</p>
-          <p class="text-xs font-medium text-gray-500 mt-0.5">Overlap Detected</p>
-          <p class="text-xs text-gray-300 mt-1">duplicate capabilities</p>
+        <!-- 3: Est. Savings — highlighted -->
+        <div style="background:#EAF6FF;border:1px solid #00B8F5;border-radius:8px;padding:16px">
+          <p style="font-size:10px;font-weight:700;color:#0094C5;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;font-family:'Geist','Inter',sans-serif">Est. Savings</p>
+          <p style="font-size:26px;font-weight:700;color:#00338D;margin:0;letter-spacing:-0.02em;font-family:'Geist','Inter',sans-serif" id="kpi-savings">$8.4M</p>
+          <p style="font-size:11px;color:#0094C5;margin:5px 0 0;font-style:italic;font-family:'Geist','Inter',sans-serif">Identified Potential</p>
         </div>
-
-        <!-- KPI 4: IT Budget -->
-        <div class="dash-kpi-card">
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
-              <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Budget</span>
-          </div>
-          <p class="text-2xl font-bold text-navy" id="kpi-budget">$0</p>
-          <p class="text-xs font-medium text-gray-500 mt-0.5">IT Budget Analysed</p>
-          <p class="text-xs text-gray-300 mt-1">annual spend tracked</p>
+        <!-- 4: Maturity Score -->
+        <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:16px">
+          <p style="font-size:10px;font-weight:700;color:#747684;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;font-family:'Geist','Inter',sans-serif">Maturity Score</p>
+          <p style="font-size:26px;font-weight:700;color:#0C233C;margin:0;letter-spacing:-0.02em;font-family:'Geist','Inter',sans-serif" id="kpi-maturity">3.2<span style="font-size:14px;font-weight:400;color:#747684">/5</span></p>
+          <div style="height:4px;background:#C2E8FF;border-radius:2px;margin-top:8px;overflow:hidden"><div style="height:100%;width:64%;background:#00338D;border-radius:2px"></div></div>
         </div>
-
-        <!-- KPI 5: Reports Generated -->
-        <div class="dash-kpi-card">
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
-              <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            </div>
-            <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">Reports</span>
-          </div>
-          <p class="text-2xl font-bold text-navy" id="kpi-reports-gen">—</p>
-          <p class="text-xs font-medium text-gray-500 mt-0.5">Reports Generated</p>
-          <p class="text-xs text-gray-300 mt-1">this session</p>
+        <!-- 5: Cloud Adoption -->
+        <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:16px">
+          <p style="font-size:10px;font-weight:700;color:#747684;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;font-family:'Geist','Inter',sans-serif">Cloud Adoption</p>
+          <p style="font-size:26px;font-weight:700;color:#0C233C;margin:0;letter-spacing:-0.02em;font-family:'Geist','Inter',sans-serif" id="kpi-overlap-count">68%</p>
+          <p style="font-size:11px;color:#747684;margin:5px 0 0;font-family:'Geist','Inter',sans-serif">Target: 80%</p>
         </div>
-
-        <!-- hidden compat IDs -->
-        <div class="hidden"><span id="kpi-apps">0</span><span id="kpi-arb">0</span><span id="kpi-savings">$0</span><span id="kpi-maturity">0</span><span id="kpi-maturity-level"></span></div>
-      </div>
-
-      <!-- Tool Portfolio Table -->
-      <div class="bg-white rounded-xl shadow-card overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-border flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <h2 class="font-bold text-navy text-sm">Tool Portfolio</h2>
-            <span id="port-count-badge" class="text-xs font-semibold text-blue-brand bg-blue-50 px-2 py-0.5 rounded-full">0 tools</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <input id="port-search" type="text" placeholder="Search tools…" oninput="filterPortfolioTable()"
-              class="text-xs border border-slate-border rounded-lg px-3 py-1.5 outline-none focus:border-blue-brand w-44 transition" />
-            <select id="port-filter-6r" onchange="filterPortfolioTable()"
-              class="text-xs border border-slate-border rounded-lg px-2 py-1.5 outline-none focus:border-blue-brand bg-white text-gray-600">
-              <option value="">All 6R</option>
-              <option value="Retain">Retain</option>
-              <option value="Invest">Invest</option>
-              <option value="Rehost">Rehost</option>
-              <option value="Replatform">Replatform</option>
-              <option value="Replace">Replace</option>
-              <option value="Retire">Retire</option>
-            </select>
-            <button onclick="exportPortfolioCSV()" class="flex items-center gap-1.5 text-xs text-gray-500 hover:text-navy bg-gray-50 border border-slate-border px-3 py-1.5 rounded-lg hover:bg-gray-100 transition">
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-              Export
-            </button>
-          </div>
+        <!-- 6: Compliance -->
+        <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:16px">
+          <p style="font-size:10px;font-weight:700;color:#747684;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;font-family:'Geist','Inter',sans-serif">Compliance</p>
+          <p style="font-size:26px;font-weight:700;color:#16a34a;margin:0;letter-spacing:-0.02em;font-family:'Geist','Inter',sans-serif" id="kpi-retire-count">94%</p>
+          <p style="font-size:11px;color:#747684;margin:5px 0 0;font-family:'Geist','Inter',sans-serif">Critical Guardrails</p>
         </div>
-        <div class="overflow-x-auto">
-          <table class="portfolio-table w-full border-collapse">
-            <thead>
-              <tr>
-                <th class="text-left">Tool Name</th>
-                <th class="text-left">Vendor</th>
-                <th class="text-left">Category</th>
-                <th class="text-left">Business Unit</th>
-                <th class="text-right">Annual Cost</th>
-                <th class="text-center">6R Class.</th>
-                <th class="text-center">Risk Score</th>
-                <th class="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="portfolio-table-body">
-              <tr>
-                <td colspan="8" class="text-center py-14">
-                  <div class="flex flex-col items-center gap-3">
-                    <div class="w-14 h-14 rounded-2xl bg-slate-ui flex items-center justify-center">
-                      <svg class="w-7 h-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                    </div>
-                    <p class="text-sm font-semibold text-gray-400">No tools loaded yet</p>
-                    <p class="text-xs text-gray-300">Upload a portfolio or run a TIME agent query to populate this table</p>
-                    <button onclick="showPage('portfolio')" class="mt-1 text-xs text-blue-brand font-semibold bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition">Upload Portfolio</button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- 7: Tech Debt -->
+        <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:16px">
+          <p style="font-size:10px;font-weight:700;color:#747684;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;font-family:'Geist','Inter',sans-serif">Tech Debt</p>
+          <p style="font-size:26px;font-weight:700;color:#dc2626;margin:0;letter-spacing:-0.02em;font-family:'Geist','Inter',sans-serif" id="kpi-reports-gen">$12M</p>
+          <p style="font-size:11px;color:#747684;margin:5px 0 0;font-family:'Geist','Inter',sans-serif">Identified Risk</p>
         </div>
       </div>
+      <!-- hidden compat IDs -->
+      <div class="hidden"><span id="kpi-apps">0</span><span id="kpi-arb">0</span><span id="kpi-maturity-level"></span></div>
 
-      <!-- compat IDs kept hidden for existing JS references -->
+      <!-- 2-col layout: Left (insights+agents) + Right (activity+reviews) -->
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:24px;margin-bottom:24px">
+
+        <!-- LEFT column -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+          <!-- EA Intelligence Insights card -->
+          <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:24px">
+            <h3 style="font-size:20px;font-weight:700;color:#0C233C;margin:0 0 6px;font-family:'Geist','Inter',sans-serif">EA Intelligence Insights</h3>
+            <p style="font-size:13px;color:#444653;margin:0 0 16px;line-height:1.6;font-family:'Geist','Inter',sans-serif">Ask the <span style="color:#1E49E2;font-weight:600">Enterprise Agent</span> any question about your <span style="color:#1E49E2">application portfolio</span>, <span style="color:#1E49E2">technical debt</span>, or <span style="color:#1E49E2">strategic alignment</span>.</p>
+            <!-- Input row -->
+            <div style="display:flex;align-items:center;gap:10px;border:1px solid #B8DEFF;border-radius:6px;padding:10px 14px;background:#F8FAFC;margin-bottom:14px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E49E2" stroke-width="2" style="flex-shrink:0"><path d="M12 2l2 7h7l-6 4 2 7-5-4-5 4 2-7-6-4h7z"/></svg>
+              <input id="dash-insight-input" type="text" placeholder="e.g. 'Show me all high-risk applications with over $500k annual cost…'" style="flex:1;background:none;border:none;outline:none;font-size:13px;color:#444653;font-family:'Geist','Inter',sans-serif" onkeydown="if(event.key==='Enter')runDashInsight()"/>
+              <button onclick="runDashInsight()" style="width:32px;height:32px;background:#00338D;border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .15s" onmouseover="this.style.background='#1E49E2'" onmouseout="this.style.background='#00338D'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+            <!-- Suggested queries -->
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:10px;font-weight:700;color:#747684;letter-spacing:.06em;text-transform:uppercase;font-family:'Geist','Inter',sans-serif">Suggested Queries:</span>
+              <button onclick="document.getElementById('dash-insight-input').value='Cloud migration timeline';runDashInsight()" style="font-size:11px;color:#1E49E2;background:#EAF6FF;border:1px solid #B8DEFF;border-radius:4px;padding:4px 10px;cursor:pointer;font-family:'Geist','Inter',sans-serif;transition:background .15s" onmouseover="this.style.background='#D0EEFF'" onmouseout="this.style.background='#EAF6FF'">Cloud migration timeline</button>
+              <button onclick="document.getElementById('dash-insight-input').value='Redundant HCM tools';runDashInsight()" style="font-size:11px;color:#1E49E2;background:#EAF6FF;border:1px solid #B8DEFF;border-radius:4px;padding:4px 10px;cursor:pointer;font-family:'Geist','Inter',sans-serif;transition:background .15s" onmouseover="this.style.background='#D0EEFF'" onmouseout="this.style.background='#EAF6FF'">Redundant HCM tools</button>
+              <button onclick="document.getElementById('dash-insight-input').value='Maturity drift Q3';runDashInsight()" style="font-size:11px;color:#1E49E2;background:#EAF6FF;border:1px solid #B8DEFF;border-radius:4px;padding:4px 10px;cursor:pointer;font-family:'Geist','Inter',sans-serif;transition:background .15s" onmouseover="this.style.background='#D0EEFF'" onmouseout="this.style.background='#EAF6FF'">Maturity drift Q3</button>
+            </div>
+            <div id="dash-insight-result" style="display:none;margin-top:14px;padding:14px;background:#EAF6FF;border:1px solid #B8DEFF;border-radius:6px;font-size:13px;color:#0C233C;line-height:1.65;font-family:'Geist','Inter',sans-serif"></div>
+          </div>
+
+          <!-- 2×2 Agent cards -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <!-- ARB Agent -->
+            <div onclick="showPage('arb')" style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px;cursor:pointer;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,51,141,.1)'" onmouseout="this.style.boxShadow='none'">
+              <div style="width:40px;height:40px;border-radius:8px;background:#EAF6FF;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00338D" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+              </div>
+              <h4 style="font-size:15px;font-weight:700;color:#0C233C;margin:0 0 6px;font-family:'Geist','Inter',sans-serif">ARB Agent</h4>
+              <p style="font-size:13px;color:#1E49E2;margin:0;line-height:1.55;font-family:'Geist','Inter',sans-serif">Automate Architectural Review Board documentation and compliance checking.</p>
+            </div>
+            <!-- TIME Analysis -->
+            <div onclick="showPage('ea-analysis')" style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px;cursor:pointer;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,51,141,.1)'" onmouseout="this.style.boxShadow='none'">
+              <div style="width:40px;height:40px;border-radius:8px;background:#EAF6FF;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00338D" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <h4 style="font-size:15px;font-weight:700;color:#0C233C;margin:0 0 6px;font-family:'Geist','Inter',sans-serif">TIME Analysis</h4>
+              <p style="font-size:13px;color:#1E49E2;margin:0;line-height:1.55;font-family:'Geist','Inter',sans-serif">Tolerate, Invest, Migrate, Eliminate modeling for application lifecycle.</p>
+            </div>
+            <!-- Mapping Bot -->
+            <div onclick="showPage('mapping')" style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px;cursor:pointer;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,51,141,.1)'" onmouseout="this.style.boxShadow='none'">
+              <div style="width:40px;height:40px;border-radius:8px;background:#EAF6FF;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00338D" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </div>
+              <h4 style="font-size:15px;font-weight:700;color:#0C233C;margin:0 0 6px;font-family:'Geist','Inter',sans-serif">Mapping Bot</h4>
+              <p style="font-size:13px;color:#1E49E2;margin:0;line-height:1.55;font-family:'Geist','Inter',sans-serif">Auto-generate dependency maps from infrastructure logs and CMDB data.</p>
+            </div>
+            <!-- Maturity Assessor -->
+            <div onclick="showPage('maturity')" style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px;cursor:pointer;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,51,141,.1)'" onmouseout="this.style.boxShadow='none'">
+              <div style="width:40px;height:40px;border-radius:8px;background:#EAF6FF;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00338D" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <h4 style="font-size:15px;font-weight:700;color:#0C233C;margin:0 0 6px;font-family:'Geist','Inter',sans-serif">Maturity Assessor</h4>
+              <p style="font-size:13px;color:#1E49E2;margin:0;line-height:1.55;font-family:'Geist','Inter',sans-serif">Evaluate capability maturity against industry standards and COBIT frameworks.</p>
+            </div>
+          </div>
+        </div><!-- end left col -->
+
+        <!-- RIGHT column -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <!-- Recent Activity -->
+          <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px;flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h4 style="font-size:14px;font-weight:700;color:#0C233C;margin:0;font-family:'Geist','Inter',sans-serif">Recent Activity</h4>
+              <button style="font-size:11px;font-weight:700;color:#1E49E2;background:none;border:none;cursor:pointer;letter-spacing:.04em;font-family:'Geist','Inter',sans-serif">VIEW ALL</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:#1E49E2;flex-shrink:0;margin-top:4px"></div><div><p style="font-size:13px;font-weight:600;color:#0C233C;margin:0;line-height:1.4;font-family:'Geist','Inter',sans-serif">Report Finalized: Q3 Cloud Rationalization</p><p style="font-size:11px;color:#747684;margin:2px 0 0;font-family:'Geist','Inter',sans-serif">Generated by AI Agent • 12m ago</p></div></div>
+              <div style="display:flex;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:#1E49E2;flex-shrink:0;margin-top:4px"></div><div><p style="font-size:13px;font-weight:600;color:#0C233C;margin:0;line-height:1.4;font-family:'Geist','Inter',sans-serif">ARB Approval: Project 'Phoenix' Migration</p><p style="font-size:11px;color:#747684;margin:2px 0 0;font-family:'Geist','Inter',sans-serif">Approved by Sarah J. • 2h ago</p></div></div>
+              <div style="display:flex;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;margin-top:4px"></div><div><p style="font-size:13px;font-weight:600;color:#0C233C;margin:0;line-height:1.4;font-family:'Geist','Inter',sans-serif">Data Sync: CMDB Refresh Complete</p><p style="font-size:11px;color:#747684;margin:2px 0 0;font-family:'Geist','Inter',sans-serif">System Log • 4h ago</p></div></div>
+              <div style="display:flex;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:#9ca3af;flex-shrink:0;margin-top:4px"></div><div><p style="font-size:13px;font-weight:600;color:#0C233C;margin:0;line-height:1.4;font-family:'Geist','Inter',sans-serif">New Tool Detected: 'Z-Flow Automation'</p><p style="font-size:11px;color:#747684;margin:2px 0 0;font-family:'Geist','Inter',sans-serif">Pending Classification • 6h ago</p></div></div>
+              <div style="display:flex;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:#1E49E2;flex-shrink:0;margin-top:4px"></div><div><p style="font-size:13px;font-weight:600;color:#0C233C;margin:0;line-height:1.4;font-family:'Geist','Inter',sans-serif">Portfolio Review: 42 Apps Marked 'Eliminate'</p><p style="font-size:11px;color:#747684;margin:2px 0 0;font-family:'Geist','Inter',sans-serif">Update by Marcus W. • 1d ago</p></div></div>
+            </div>
+          </div>
+          <!-- Upcoming Reviews -->
+          <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px">
+            <p style="font-size:10px;font-weight:700;color:#747684;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;font-family:'Geist','Inter',sans-serif">Upcoming Reviews</p>
+            <div style="background:#EAF6FF;border:1px solid #B8DEFF;border-radius:6px;padding:14px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                <h5 style="font-size:13px;font-weight:700;color:#0C233C;margin:0;font-family:'Geist','Inter',sans-serif">Architecture Council</h5>
+                <p style="font-size:11px;color:#1E49E2;font-weight:600;margin:0;text-align:right;font-family:'Geist','Inter',sans-serif">Tomorrow,<br>10:00 AM</p>
+              </div>
+              <p style="font-size:11px;color:#444653;margin:0 0 10px;font-family:'Geist','Inter',sans-serif">3 items for discussion</p>
+              <div style="display:flex">
+                <div style="width:26px;height:26px;border-radius:50%;background:#00338D;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;font-family:'Geist','Inter',sans-serif">EA</div>
+                <div style="width:26px;height:26px;border-radius:50%;background:#1E49E2;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;margin-left:-6px;font-family:'Geist','Inter',sans-serif">SJ</div>
+                <div style="width:26px;height:26px;border-radius:50%;background:#7213EA;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;margin-left:-6px;font-family:'Geist','Inter',sans-serif">MW</div>
+              </div>
+            </div>
+          </div>
+        </div><!-- end right col -->
+      </div><!-- end 2-col -->
+
+      <!-- Architecture Maturity Over Time chart -->
+      <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:24px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+          <div>
+            <h3 style="font-size:20px;font-weight:700;color:#0C233C;margin:0;font-family:'Geist','Inter',sans-serif">Architecture Maturity Over Time</h3>
+            <p style="font-size:13px;color:#747684;margin:4px 0 0;font-family:'Geist','Inter',sans-serif">Enterprise-wide assessment trending over the last 12 months.</p>
+          </div>
+          <div style="display:flex;gap:4px;background:#EAF6FF;border:1px solid #B8DEFF;border-radius:6px;padding:3px;flex-shrink:0">
+            <button style="padding:5px 14px;background:#00338D;color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Geist','Inter',sans-serif">Last 12M</button>
+            <button style="padding:5px 14px;background:none;border:none;color:#444653;font-size:12px;font-weight:500;cursor:pointer;font-family:'Geist','Inter',sans-serif">By Business Unit</button>
+          </div>
+        </div>
+        <div style="position:relative;padding-bottom:36px">
+          <!-- Current: 4.8 label -->
+          <div style="position:absolute;right:0;top:-4px;background:#0C233C;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:4px;font-family:'Geist','Inter',sans-serif;z-index:2">Current: 4.8</div>
+          <!-- SVG line chart -->
+          <svg width="100%" height="180" viewBox="0 0 900 180" preserveAspectRatio="none" style="display:block">
+            <defs>
+              <linearGradient id="dash-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1E49E2" stop-opacity=".18"/>
+                <stop offset="100%" stop-color="#1E49E2" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid lines -->
+            <line x1="0" y1="144" x2="900" y2="144" stroke="#EAF6FF" stroke-width="1"/>
+            <line x1="0" y1="108" x2="900" y2="108" stroke="#EAF6FF" stroke-width="1"/>
+            <line x1="0" y1="72" x2="900" y2="72" stroke="#EAF6FF" stroke-width="1"/>
+            <line x1="0" y1="36" x2="900" y2="36" stroke="#EAF6FF" stroke-width="1"/>
+            <!-- Area fill -->
+            <path d="M0,155 C75,148 150,140 225,130 C300,120 375,108 450,94 C525,80 600,62 675,44 C750,28 825,16 900,8 L900,180 L0,180 Z" fill="url(#dash-grad)"/>
+            <!-- Line -->
+            <path d="M0,155 C75,148 150,140 225,130 C300,120 375,108 450,94 C525,80 600,62 675,44 C750,28 825,16 900,8" fill="none" stroke="#1E49E2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- End dot -->
+            <circle cx="900" cy="8" r="5" fill="#1E49E2"/>
+            <circle cx="900" cy="8" r="9" fill="none" stroke="#1E49E2" stroke-opacity=".25" stroke-width="2"/>
+          </svg>
+          <!-- X-axis labels -->
+          <div style="display:flex;justify-content:space-between;margin-top:6px;padding:0 2px">
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">JAN</span>
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">FEB</span>
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">MAR</span>
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">APR</span>
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">MAY</span>
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">JUN</span>
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">JUL</span>
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">AUG</span>
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">SEP</span>
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">OCT</span>
+            <span style="font-size:10px;color:#747684;font-family:'Geist','Inter',sans-serif">NOV</span>
+            <span style="font-size:10px;color:#0094C5;font-weight:700;font-family:'Geist','Inter',sans-serif">DEC</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- hidden compat IDs for JS references -->
       <div class="hidden">
-        <span id="selected-agent-label">ARB</span>
-        <textarea id="query-input"></textarea>
-        <button id="run-btn"></button>
-        <div id="result-panel"><div id="result-agent-dot"></div><div id="result-title"></div><span id="result-badge"></span><div id="tab-summary"></div><div id="tab-risks"></div><div id="tab-recs"></div><div id="result-json"></div></div>
-        <div id="agent-status-list"></div>
-        <div id="activity-feed"><div id="activity-empty"></div></div>
-        <div id="quick-metrics"><div id="quick-metrics-content"></div></div>
+        <span id="port-count-badge">0 tools</span>
+        <input id="port-search"/>
+        <select id="port-filter-6r"></select>
+        <tbody id="portfolio-table-body"></tbody>
       </div>
+
+      </div><!-- end padding wrapper -->
+    </div><!-- end page-dashboard -->
+
+    <!-- compat IDs kept hidden for existing JS references -->
+    <div class="hidden">
+      <span id="selected-agent-label">ARB</span>
+      <textarea id="query-input"></textarea>
+      <button id="run-btn"></button>
+      <div id="result-panel"><div id="result-agent-dot"></div><div id="result-title"></div><span id="result-badge"></span><div id="tab-summary"></div><div id="tab-risks"></div><div id="tab-recs"></div><div id="result-json"></div></div>
+      <div id="agent-status-list"></div>
+      <div id="activity-feed"><div id="activity-empty"></div></div>
+      <div id="quick-metrics"><div id="quick-metrics-content"></div></div>
+    </div>
 
 
     <!-- ══ OVERVIEW PAGE (Screen 0) ══════════════════════════ -->
-    <div id="page-overview" class="page fade-in" style="height:100%;overflow-y:auto">
-      <div style="background:linear-gradient(160deg,#0C233C 0%,#0a1d32 50%,#08192b 100%);min-height:100%;padding:32px 40px 40px;display:flex;flex-direction:column;gap:28px">
+    <div id="page-overview" class="page hidden" style="background:#faf8ff;font-family:'Geist','Inter',sans-serif">
+      <div style="padding:32px;max-width:1600px;margin:0 auto">
 
-        <!-- Hero Header -->
-        <div style="display:flex;align-items:flex-start;justify-content:space-between">
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-              <div style="width:6px;height:36px;background:linear-gradient(180deg,#0063DC,#00A3A1);border-radius:3px"></div>
+        <!-- ── 2-COL: HUB + KPI ── -->
+        <div style="display:flex;gap:24px">
+
+          <!-- LEFT: Enterprise Lifecycle Hub -->
+          <div style="flex:1;min-width:0;background:#ffffff;border:1px solid #B8DEFF;border-radius:12px;padding:24px;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:920px;background-image:linear-gradient(135deg,#ffffff 0%,#EAF6FF 100%)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;position:relative;z-index:10;flex-shrink:0">
               <div>
-                <div style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.1">Portfolio Rationalization</div>
-                <div style="font-size:13px;color:#7ba3cc;font-weight:500;margin-top:2px">EA AI Intelligence Platform &nbsp;·&nbsp; Enterprise Architecture Command</div>
+                <h2 style="font-size:32px;font-weight:600;color:#00338D;line-height:40px;letter-spacing:-0.01em;margin:0;font-family:'Geist',sans-serif">Enterprise Lifecycle Hub</h2>
+                <p style="font-size:16px;color:#444653;margin:4px 0 0;line-height:24px;font-family:'Geist',sans-serif">Strategic AI-Powered Architecture Alignment</p>
+              </div>
+              <div style="display:flex;gap:8px;flex-shrink:0">
+                <span style="padding:4px 12px;background:rgba(0,184,245,.2);color:#0077A8;font-size:12px;font-weight:600;letter-spacing:.05em;border-radius:999px;border:1px solid rgba(0,184,245,.3);text-transform:uppercase;font-family:'Geist',sans-serif">SYNCED</span>
+                <span style="padding:4px 12px;background:#C2E8FF;color:#444653;font-size:12px;font-weight:600;letter-spacing:.05em;border-radius:999px;border:1px solid #B8DEFF;text-transform:uppercase;font-family:'Geist',sans-serif">Q4 v2.4</span>
               </div>
             </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-            <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:6px 14px">
-              <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2)"></div>
-              <span style="color:#7ba3cc;font-size:12px;font-weight:600">All Agents Online</span>
-            </div>
-            <button onclick="showPage('dashboard')" style="background:#0063DC;color:#fff;border:none;border-radius:10px;padding:8px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:.3px">
-              Open Dashboard →
-            </button>
-          </div>
-        </div>
-
-        <!-- Main Content Row -->
-        <div style="display:grid;grid-template-columns:1fr 400px;gap:28px;align-items:start">
-
-          <!-- Hexagonal Intelligence Diagram -->
-          <div style="display:flex;flex-direction:column;align-items:center">
-            <svg viewBox="30 30 540 460" style="width:100%;max-width:520px" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <filter id="ov-glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                <filter id="ov-soft"><feGaussianBlur stdDeviation="2"/></filter>
-                <radialGradient id="cg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1a3a5c"/><stop offset="100%" stop-color="#0C233C"/></radialGradient>
-              </defs>
-
-              <!-- Outer hex bg glow -->
-              <polygon points="300,100 460,190 460,370 300,460 140,370 140,190" fill="rgba(0,99,220,.07)" stroke="rgba(0,99,220,.15)" stroke-width="1"/>
-
-              <!-- Segment 0 – right – MONETIZATION (blue) -->
-              <polygon class="hex-seg" points="300,260 460,170 460,350" fill="#0063DC" fill-opacity=".85" stroke="#0C233C" stroke-width="3" onclick="ovSegClick('MONETIZATION')"/>
-              <!-- Segment 1 – lower-right – OPERATIONS (teal) -->
-              <polygon class="hex-seg" points="300,260 460,350 300,440" fill="#00A3A1" fill-opacity=".85" stroke="#0C233C" stroke-width="3" onclick="ovSegClick('OPERATIONS')"/>
-              <!-- Segment 2 – lower-left – SUPPLY CHAIN (amber) -->
-              <polygon class="hex-seg" points="300,260 300,440 140,350" fill="#F59E0B" fill-opacity=".85" stroke="#0C233C" stroke-width="3" onclick="ovSegClick('SUPPLY CHAIN')"/>
-              <!-- Segment 3 – left – REGULATORY (red) -->
-              <polygon class="hex-seg" points="300,260 140,350 140,170" fill="#EF4444" fill-opacity=".85" stroke="#0C233C" stroke-width="3" onclick="ovSegClick('REGULATORY')"/>
-              <!-- Segment 4 – upper-left – STRATEGY (purple) -->
-              <polygon class="hex-seg" points="300,260 140,170 300,80" fill="#8B5CF6" fill-opacity=".85" stroke="#0C233C" stroke-width="3" onclick="ovSegClick('STRATEGY')"/>
-              <!-- Segment 5 – upper-right – DESIGN & BUILD (green) -->
-              <polygon class="hex-seg" points="300,260 300,80 460,170" fill="#10B981" fill-opacity=".85" stroke="#0C233C" stroke-width="3" onclick="ovSegClick('DESIGN &amp; BUILD')"/>
-
-              <!-- Center hexagon cap -->
-              <polygon points="300,195 355,227 355,292 300,324 245,292 245,227" fill="url(#cg)" stroke="#0063DC" stroke-width="1.5"/>
-
-              <!-- Center icon lines -->
-              <g transform="translate(275,230)">
-                <rect x="0" y="0" width="50" height="7" rx="3" fill="#0063DC" opacity=".9"/>
-                <rect x="0" y="13" width="38" height="7" rx="3" fill="#0063DC" opacity=".6"/>
-                <rect x="0" y="26" width="44" height="7" rx="3" fill="#0063DC" opacity=".75"/>
-                <rect x="0" y="39" width="30" height="7" rx="3" fill="#0063DC" opacity=".5"/>
-              </g>
-              <text x="300" y="296" text-anchor="middle" font-size="8" fill="#7ba3cc" font-family="Inter,sans-serif" font-weight="700" letter-spacing="1.5">EA AI</text>
-
-              <!-- Segment labels -->
-              <text class="hex-seg-label" x="405" y="258" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700" letter-spacing=".5">MONETIZATION</text>
-              <text class="hex-seg-label" x="390" y="380" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700" letter-spacing=".5">OPERATIONS</text>
-              <text class="hex-seg-label" x="210" y="380" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700" letter-spacing=".5">SUPPLY CHAIN</text>
-              <text class="hex-seg-label" x="195" y="258" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700" letter-spacing=".5">REGULATORY</text>
-              <text class="hex-seg-label" x="210" y="140" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700" letter-spacing=".5">STRATEGY</text>
-              <text class="hex-seg-label" x="390" y="140" text-anchor="middle" font-size="9.5" fill="#fff" font-weight="700" letter-spacing=".5">DESIGN &amp; BUILD</text>
-
-              <!-- Segment icons (small circles as pips) -->
-              <circle cx="420" cy="250" r="4" fill="#fff" opacity=".5"/>
-              <circle cx="400" cy="370" r="4" fill="#fff" opacity=".5"/>
-              <circle cx="200" cy="370" r="4" fill="#fff" opacity=".5"/>
-              <circle cx="180" cy="250" r="4" fill="#fff" opacity=".5"/>
-              <circle cx="200" cy="132" r="4" fill="#fff" opacity=".5"/>
-              <circle cx="400" cy="132" r="4" fill="#fff" opacity=".5"/>
-            </svg>
-
-            <!-- Segment info tooltip -->
-            <div id="ov-seg-info" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 20px;text-align:center;min-width:260px;display:none">
-              <div id="ov-seg-name" style="font-size:13px;font-weight:700;color:#fff"></div>
-              <div id="ov-seg-desc" style="font-size:11px;color:#7ba3cc;margin-top:4px"></div>
-            </div>
-          </div>
-
-          <!-- Right Panel -->
-          <div style="display:flex;flex-direction:column;gap:16px">
-
-            <!-- Platform Stats -->
-            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px">
-              <div style="font-size:11px;font-weight:700;color:#7ba3cc;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px">Platform Overview</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div style="background:rgba(0,99,220,.15);border-radius:10px;padding:14px">
-                  <div style="font-size:22px;font-weight:800;color:#fff" id="ov-kpi-apps">—</div>
-                  <div style="font-size:11px;color:#7ba3cc;margin-top:2px">Applications</div>
-                </div>
-                <div style="background:rgba(0,163,161,.15);border-radius:10px;padding:14px">
-                  <div style="font-size:22px;font-weight:800;color:#00A3A1" id="ov-kpi-decisions">—</div>
-                  <div style="font-size:11px;color:#7ba3cc;margin-top:2px">Decisions</div>
-                </div>
-                <div style="background:rgba(139,92,246,.15);border-radius:10px;padding:14px">
-                  <div style="font-size:22px;font-weight:800;color:#a78bfa" id="ov-kpi-maturity">—</div>
-                  <div style="font-size:11px;color:#7ba3cc;margin-top:2px">Maturity Score</div>
-                </div>
-                <div style="background:rgba(34,197,94,.12);border-radius:10px;padding:14px">
-                  <div style="font-size:22px;font-weight:800;color:#4ade80" id="ov-kpi-savings">$0</div>
-                  <div style="font-size:11px;color:#7ba3cc;margin-top:2px">Savings Potential</div>
+            <!-- Hub visualization -->
+            <div style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;margin:32px 0;min-height:600px">
+              <!-- Decorative rings -->
+              <div class="ov-slow-rotate" style="position:absolute;width:450px;height:450px;border:1px solid rgba(196,197,213,.3);border-radius:50%;pointer-events:none"></div>
+              <div style="position:absolute;width:380px;height:380px;border:1px solid rgba(196,197,213,.5);border-radius:50%;pointer-events:none"></div>
+              <div style="position:absolute;width:300px;height:300px;border:1px solid rgba(196,197,213,.7);border-radius:50%;pointer-events:none"></div>
+              <!-- SVG connector lines — viewBox 800×800, centre 400,400 -->
+              <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 800 800">
+                <defs>
+                  <linearGradient id="ov-lg" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#00338D" stop-opacity=".1"/>
+                    <stop offset="50%" stop-color="#00338D" stop-opacity=".4"/>
+                    <stop offset="100%" stop-color="#00338D" stop-opacity=".1"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="400" cy="400" r="220" fill="none" stroke="url(#ov-lg)" stroke-dasharray="4 4" stroke-width="1"/>
+                <g fill="none" stroke="#00338D" stroke-width="1.5" opacity=".4">
+                  <path d="M400 400 L400 180"/><path d="M400 400 L590 290"/>
+                  <path d="M400 400 L590 510"/><path d="M400 400 L400 620"/>
+                  <path d="M400 400 L210 510"/><path d="M400 400 L210 290"/>
+                </g>
+                <g fill="#00338D">
+                  <circle cx="400" cy="180" r="3"/><circle cx="590" cy="290" r="3"/>
+                  <circle cx="590" cy="510" r="3"/><circle cx="400" cy="620" r="3"/>
+                  <circle cx="210" cy="510" r="3"/><circle cx="210" cy="290" r="3"/>
+                </g>
+              </svg>
+              <!-- EA AI CORE — circle, matches reference -->
+              <div style="position:absolute;width:112px;height:112px;border-radius:50%;background:#00338D;border:4px solid #D0EEFF;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:40;box-shadow:0 8px 40px rgba(0,51,141,.3);cursor:pointer;transition:transform .3s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <span class="material-symbols-outlined" style="color:#fff;font-size:30px;margin-bottom:2px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">psychology_alt</span>
+                <p style="color:rgba(255,255,255,.8);font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin:0;font-family:'Geist',sans-serif">EA AI</p>
+                <p style="color:#fff;font-size:20px;font-weight:600;margin:0;line-height:1;font-family:'Geist',sans-serif">CORE</p>
+              </div>
+              <!-- Strategy — top, -220px -->
+              <div style="position:absolute;transform:translateY(-220px);z-index:30;cursor:pointer">
+                <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
+                  <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">ads_click</span>
+                  <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Strategy</p>
+                  <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
                 </div>
               </div>
-            </div>
-
-            <!-- Agents Status -->
-            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px">
-              <div style="font-size:11px;font-weight:700;color:#7ba3cc;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px">Active Agents</div>
-              <div style="display:flex;flex-direction:column;gap:8px">
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)">
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <div style="width:28px;height:28px;border-radius:7px;background:#0063DC;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff">ARB</div>
-                    <div>
-                      <div style="font-size:12px;font-weight:600;color:#fff">Review Board Agent</div>
-                      <div style="font-size:10px;color:#7ba3cc">Architecture governance</div>
-                    </div>
-                  </div>
-                  <span style="font-size:10px;font-weight:700;color:#22c55e;background:rgba(34,197,94,.15);padding:3px 8px;border-radius:20px">Online</span>
+              <!-- Architecture — top-right, +190px -110px -->
+              <div style="position:absolute;transform:translate(190px,-110px);z-index:30;cursor:pointer">
+                <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
+                  <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">account_tree</span>
+                  <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Architecture</p>
+                  <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)">
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <div style="width:28px;height:28px;border-radius:7px;background:#00338D;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff">TIME</div>
-                    <div>
-                      <div style="font-size:12px;font-weight:600;color:#fff">TIME Portfolio Agent</div>
-                      <div style="font-size:10px;color:#7ba3cc">Rationalization engine</div>
-                    </div>
-                  </div>
-                  <span style="font-size:10px;font-weight:700;color:#22c55e;background:rgba(34,197,94,.15);padding:3px 8px;border-radius:20px">Online</span>
+              </div>
+              <!-- Insights — bottom-right, +190px +110px -->
+              <div style="position:absolute;transform:translate(190px,110px);z-index:30;cursor:pointer">
+                <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
+                  <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">query_stats</span>
+                  <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Insights</p>
+                  <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)">
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <div style="width:28px;height:28px;border-radius:7px;background:#00A3A1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff">MAP</div>
-                    <div>
-                      <div style="font-size:12px;font-weight:600;color:#fff">Mapping Agent</div>
-                      <div style="font-size:10px;color:#7ba3cc">Dependency analysis</div>
-                    </div>
-                  </div>
-                  <span style="font-size:10px;font-weight:700;color:#22c55e;background:rgba(34,197,94,.15);padding:3px 8px;border-radius:20px">Online</span>
+              </div>
+              <!-- Roadmaps — bottom, +220px -->
+              <div style="position:absolute;transform:translateY(220px);z-index:30;cursor:pointer">
+                <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
+                  <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">explore</span>
+                  <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Roadmaps</p>
+                  <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <div style="width:28px;height:28px;border-radius:7px;background:#8B5CF6;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff">MAT</div>
-                    <div>
-                      <div style="font-size:12px;font-weight:600;color:#fff">Maturity Agent</div>
-                      <div style="font-size:10px;color:#7ba3cc">EA assessment</div>
-                    </div>
+              </div>
+              <!-- Governance — bottom-left, -190px +110px -->
+              <div style="position:absolute;transform:translate(-190px,110px);z-index:30;cursor:pointer">
+                <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
+                  <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">gavel</span>
+                  <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Governance</p>
+                  <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
+                </div>
+              </div>
+              <!-- Operations — top-left, -190px -110px -->
+              <div style="position:absolute;transform:translate(-190px,-110px);z-index:30;cursor:pointer">
+                <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
+                  <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">precision_manufacturing</span>
+                  <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Operations</p>
+                  <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
+                </div>
+              </div>
+              <!-- Active Perspective overlay -->
+              <div style="position:absolute;bottom:0;left:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border:1px solid #B8DEFF;border-radius:12px;padding:16px;max-width:240px;z-index:50;box-shadow:0 4px 24px rgba(0,0,0,.1)">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span class="material-symbols-outlined" style="font-size:14px;color:#00338D;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">visibility</span>
+                    <span style="font-size:9px;font-weight:600;color:#00338D;letter-spacing:.18em;text-transform:uppercase;font-family:'Geist',sans-serif">ACTIVE PERSPECTIVE</span>
                   </div>
-                  <span style="font-size:10px;font-weight:700;color:#22c55e;background:rgba(34,197,94,.15);padding:3px 8px;border-radius:20px">Online</span>
+                  <span class="ov-pulse" style="width:6px;height:6px;border-radius:50%;background:#ba1a1a;display:inline-block;flex-shrink:0"></span>
+                </div>
+                <h5 style="font-size:12px;font-weight:700;color:#151b2b;margin:0 0 6px;font-family:'Geist',sans-serif">Business Capability Overlay</h5>
+                <div style="margin-bottom:6px">
+                  <p style="font-size:11px;color:#444653;margin:0;line-height:1.5;font-family:'Geist',sans-serif">Intelligence identifies <strong style="color:#ba1a1a">4 critical misalignments</strong> in current roadmap phases.</p>
+                </div>
+                <div style="padding:6px 8px;background:rgba(186,26,26,.05);border:1px solid rgba(186,26,26,.2);border-radius:8px;display:flex;align-items:center;gap:6px">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#ba1a1a">warning</span>
+                  <span style="font-size:9px;font-weight:700;color:#ba1a1a;letter-spacing:.05em;text-transform:uppercase;font-family:'Geist',sans-serif">Action Required</span>
                 </div>
               </div>
             </div>
+          </div><!-- end left col -->
 
-            <!-- Quick Actions -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-              <button onclick="showPage('portfolio')" style="background:rgba(0,99,220,.2);border:1px solid rgba(0,99,220,.4);color:#93c5fd;border-radius:10px;padding:12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-align:center;transition:all .15s" onmouseover="this.style.background='rgba(0,99,220,.35)'" onmouseout="this.style.background='rgba(0,99,220,.2)'">
-                Upload Portfolio
-              </button>
-              <button onclick="showPage('command-center')" style="background:rgba(0,163,161,.2);border:1px solid rgba(0,163,161,.4);color:#5eead4;border-radius:10px;padding:12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-align:center;transition:all .15s" onmouseover="this.style.background='rgba(0,163,161,.35)'" onmouseout="this.style.background='rgba(0,163,161,.2)'">
-                Command Center
-              </button>
-              <button onclick="showPage('arb')" style="background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);color:#c4b5fd;border-radius:10px;padding:12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-align:center;transition:all .15s" onmouseover="this.style.background='rgba(139,92,246,.35)'" onmouseout="this.style.background='rgba(139,92,246,.2)'">
-                ARB Review
-              </button>
-              <button onclick="showPage('reports')" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fcd34d;border-radius:10px;padding:12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-align:center;transition:all .15s" onmouseover="this.style.background='rgba(245,158,11,.28)'" onmouseout="this.style.background='rgba(245,158,11,.15)'">
-                View Reports
-              </button>
+          <!-- RIGHT: KPI cards -->
+          <div style="width:400px;flex-shrink:0;display:flex;flex-direction:column;gap:16px">
+            <!-- Strategic Alignment -->
+            <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <span style="font-size:10px;font-weight:700;color:#444653;letter-spacing:.09em;text-transform:uppercase;font-family:'Geist','Inter',sans-serif">Strategic Alignment</span>
+                <span class="material-symbols-outlined" style="color:#0094C5;font-size:18px">trending_up</span>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+                <span style="font-size:42px;font-weight:700;color:#00338D;line-height:1;letter-spacing:-.02em;font-family:'Geist','Inter',sans-serif">87%</span>
+                <span style="font-size:10px;font-weight:700;color:#fff;background:#0094C5;padding:2px 8px;border-radius:999px;font-family:'Geist','Inter',sans-serif">+4.2%</span>
+              </div>
+              <p style="font-size:12px;color:#444653;margin:0 0 14px;line-height:1.5;font-family:'Geist','Inter',sans-serif">Alignment score across 12 primary business units and IT delivery.</p>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:#444653;font-family:'Geist','Inter',sans-serif">Digital Transformation</span><span style="font-size:11px;font-weight:700;font-family:'Geist','Inter',sans-serif">92%</span></div>
+                <div style="height:5px;background:#C2E8FF;border-radius:999px;overflow:hidden;margin-bottom:10px"><div style="height:100%;width:92%;background:#00338D;border-radius:999px"></div></div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:#444653;font-family:'Geist','Inter',sans-serif">Cost Optimization</span><span style="font-size:11px;font-weight:700;font-family:'Geist','Inter',sans-serif">74%</span></div>
+                <div style="height:5px;background:#C2E8FF;border-radius:999px;overflow:hidden"><div style="height:100%;width:74%;background:#0094C5;border-radius:999px"></div></div>
+              </div>
+            </div>
+            <!-- Capability Maturity -->
+            <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <span style="font-size:10px;font-weight:700;color:#444653;letter-spacing:.09em;text-transform:uppercase;font-family:'Geist','Inter',sans-serif">Capability Maturity</span>
+                <span class="material-symbols-outlined" style="color:#7213EA;font-size:18px">account_tree</span>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+                <span style="font-size:42px;font-weight:700;color:#00338D;line-height:1;letter-spacing:-.02em;font-family:'Geist','Inter',sans-serif">Lvl 3.8</span>
+                <span style="font-size:10px;font-weight:700;color:#4A0090;background:#D4AAFF;padding:2px 8px;border-radius:999px;font-family:'Geist','Inter',sans-serif">OPTIMIZED</span>
+              </div>
+              <p style="font-size:12px;color:#444653;margin:0 0 12px;line-height:1.5;font-family:'Geist','Inter',sans-serif">Current state vs. target maturity across the architecture domain.</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div style="padding:10px;background:#EAF6FF;border:1px solid #B8DEFF;border-radius:4px">
+                  <p style="font-size:9px;color:#444653;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px;font-family:'Geist','Inter',sans-serif">Data Domain</p>
+                  <p style="font-size:20px;font-weight:700;color:#00338D;margin:0;font-family:'Geist','Inter',sans-serif">4.2</p>
+                </div>
+                <div style="padding:10px;background:#EAF6FF;border:1px solid #B8DEFF;border-radius:4px">
+                  <p style="font-size:9px;color:#444653;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px;font-family:'Geist','Inter',sans-serif">Security Domain</p>
+                  <p style="font-size:20px;font-weight:700;color:#00338D;margin:0;font-family:'Geist','Inter',sans-serif">3.9</p>
+                </div>
+                <div style="padding:10px;background:#EAF6FF;border:1px solid #B8DEFF;border-radius:4px">
+                  <p style="font-size:9px;color:#444653;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px;font-family:'Geist','Inter',sans-serif">App Portfolio</p>
+                  <p style="font-size:20px;font-weight:700;color:#00338D;margin:0;font-family:'Geist','Inter',sans-serif">3.1</p>
+                </div>
+                <div style="padding:10px;background:#EAF6FF;border:1px solid #B8DEFF;border-radius:4px">
+                  <p style="font-size:9px;color:#444653;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px;font-family:'Geist','Inter',sans-serif">Infrastructure</p>
+                  <p style="font-size:20px;font-weight:700;color:#00338D;margin:0;font-family:'Geist','Inter',sans-serif">4.0</p>
+                </div>
+              </div>
+            </div>
+            <!-- AI Strategic Insight -->
+            <div style="background:#00338D;border-radius:8px;padding:20px;position:relative;overflow:hidden">
+              <div style="position:absolute;right:-16px;top:-16px;opacity:.1;pointer-events:none;z-index:1">
+                <span class="material-symbols-outlined" style="font-size:120px;color:#fff">bolt</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;z-index:2">
+                <span class="material-symbols-outlined" style="color:#00B8F5;font-size:18px">smart_toy</span>
+                <span style="font-size:10px;font-weight:700;color:#ACEAFF;letter-spacing:.09em;text-transform:uppercase;font-family:'Geist','Inter',sans-serif">AI Strategic Insight</span>
+              </div>
+              <p style="font-size:12px;color:rgba(255,255,255,.9);line-height:1.65;margin:0 0 10px;position:relative;z-index:2;font-family:'Geist','Inter',sans-serif">"Your current roadmap indicates a significant dependency bottleneck in <strong>Q3 Project Alpha</strong>. Accelerating the Governance review could save an estimated $1.2M in technical debt."</p>
+              <button onclick="showPage('reports')" style="background:none;border:none;color:#00B8F5;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:3px;font-family:'Geist','Inter',sans-serif;padding:0;margin-top:10px;position:relative;z-index:2">Review Recommendations <span class="material-symbols-outlined" style="font-size:14px">arrow_forward</span></button>
+            </div>
+          </div><!-- end right col -->
+        </div><!-- end 2-col -->
+
+        <!-- BOTTOM 3-COL -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:24px">
+          <!-- Recent Blueprints -->
+          <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+              <div style="width:38px;height:38px;background:rgba(0,51,141,.1);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span class="material-symbols-outlined" style="color:#00338D;font-size:18px">description</span></div>
+              <div><h4 style="font-size:14px;font-weight:700;color:#151b2b;margin:0;font-family:'Geist','Inter',sans-serif">Recent Blueprints</h4><p style="font-size:11px;color:#444653;margin:0;font-family:'Geist','Inter',sans-serif">Last 7 days</p></div>
+            </div>
+            <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px">
+              <li style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:4px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='#C2E8FF'" onmouseout="this.style.background=''"><span style="font-size:13px;color:#151b2b;font-family:'Geist','Inter',sans-serif">Cloud Migration v4</span><span class="material-symbols-outlined" style="font-size:14px;color:#747684">open_in_new</span></li>
+              <li style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:4px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='#C2E8FF'" onmouseout="this.style.background=''"><span style="font-size:13px;color:#151b2b;font-family:'Geist','Inter',sans-serif">Legacy ERP Retiral</span><span class="material-symbols-outlined" style="font-size:14px;color:#747684">open_in_new</span></li>
+            </ul>
+          </div>
+          <!-- Stakeholder Engagement -->
+          <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+              <div style="width:38px;height:38px;background:rgba(0,148,197,.1);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span class="material-symbols-outlined" style="color:#0094C5;font-size:18px">groups</span></div>
+              <div><h4 style="font-size:14px;font-weight:700;color:#151b2b;margin:0;font-family:'Geist','Inter',sans-serif">Stakeholder Engagement</h4><p style="font-size:11px;color:#444653;margin:0;font-family:'Geist','Inter',sans-serif">Governance Approval</p></div>
+            </div>
+            <div style="display:flex;margin-left:-4px">
+              <div style="width:32px;height:32px;border-radius:50%;border:2px solid #fff;background:#C2E8FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#00338D;font-family:'Geist','Inter',sans-serif;margin-left:4px;flex-shrink:0">JD</div>
+              <div style="width:32px;height:32px;border-radius:50%;border:2px solid #fff;background:#D0EEFF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#00338D;font-family:'Geist','Inter',sans-serif;margin-left:-8px;flex-shrink:0">SM</div>
+              <div style="width:32px;height:32px;border-radius:50%;border:2px solid #fff;background:#D8F2FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#00338D;font-family:'Geist','Inter',sans-serif;margin-left:-8px;flex-shrink:0">PK</div>
+              <div style="width:32px;height:32px;border-radius:50%;border:2px solid #fff;background:#C2E8FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#444653;font-family:'Geist','Inter',sans-serif;margin-left:-8px;flex-shrink:0">+12</div>
+            </div>
+            <p style="font-size:12px;color:#444653;margin:14px 0 0;line-height:1.5;font-family:'Geist','Inter',sans-serif">8 Approval tasks pending for the <strong style="color:#151b2b">Strategic Alignment</strong> report.</p>
+          </div>
+          <!-- Network Health -->
+          <div style="background:#fff;border:1px solid #B8DEFF;border-radius:8px;padding:20px;position:relative;overflow:hidden">
+            <div style="position:relative;z-index:1">
+              <h4 style="font-size:14px;font-weight:700;color:#151b2b;margin:0 0 4px;font-family:'Geist','Inter',sans-serif">Network Health</h4>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><div class="ov-pulse" style="width:8px;height:8px;border-radius:50%;background:#22c55e"></div><span style="font-size:10px;font-weight:700;color:#16a34a;font-family:'Geist','Inter',sans-serif;letter-spacing:.06em">ALL SYSTEMS OPTIMAL</span></div>
+              <p style="font-size:12px;color:#444653;margin:0;line-height:1.5;font-family:'Geist','Inter',sans-serif">Real-time enterprise connectivity monitoring is active across 4 global regions.</p>
             </div>
           </div>
-        </div>
-
-        <!-- Pipeline Steps -->
-        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px 28px">
-          <div style="font-size:11px;font-weight:700;color:#7ba3cc;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;text-align:center">Intelligence Pipeline</div>
-          <div style="display:flex;align-items:center;gap:0">
-            <div style="flex:1;text-align:center;padding:0 8px">
-              <div style="width:40px;height:40px;border-radius:50%;background:#0063DC;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:14px;font-weight:800;color:#fff">1</div>
-              <div style="font-size:12px;font-weight:700;color:#fff">Assess</div>
-              <div style="font-size:10px;color:#7ba3cc;margin-top:2px">Upload portfolio data</div>
-            </div>
-            <div style="flex:2;height:2px;background:linear-gradient(90deg,#0063DC,#00A3A1);margin-bottom:22px"></div>
-            <div style="flex:1;text-align:center;padding:0 8px">
-              <div style="width:40px;height:40px;border-radius:50%;background:#00A3A1;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:14px;font-weight:800;color:#fff">2</div>
-              <div style="font-size:12px;font-weight:700;color:#fff">Analyse</div>
-              <div style="font-size:10px;color:#7ba3cc;margin-top:2px">AI agent scoring</div>
-            </div>
-            <div style="flex:2;height:2px;background:linear-gradient(90deg,#00A3A1,#8B5CF6);margin-bottom:22px"></div>
-            <div style="flex:1;text-align:center;padding:0 8px">
-              <div style="width:40px;height:40px;border-radius:50%;background:#8B5CF6;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:14px;font-weight:800;color:#fff">3</div>
-              <div style="font-size:12px;font-weight:700;color:#fff">Recommend</div>
-              <div style="font-size:10px;color:#7ba3cc;margin-top:2px">6R classification</div>
-            </div>
-            <div style="flex:2;height:2px;background:linear-gradient(90deg,#8B5CF6,#F59E0B);margin-bottom:22px"></div>
-            <div style="flex:1;text-align:center;padding:0 8px">
-              <div style="width:40px;height:40px;border-radius:50%;background:#F59E0B;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:14px;font-weight:800;color:#fff">4</div>
-              <div style="font-size:12px;font-weight:700;color:#fff">Deliver Outcomes</div>
-              <div style="font-size:10px;color:#7ba3cc;margin-top:2px">Reports &amp; roadmap</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- AI Query Bar -->
-        <div style="background:rgba(255,255,255,.06);border:1.5px solid rgba(0,99,220,.4);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:12px" onfocus="this.style.borderColor='#0063DC'" onblur="this.style.borderColor='rgba(0,99,220,.4)'">
-          <div style="width:34px;height:34px;border-radius:9px;background:#0063DC;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2"><path stroke-linecap="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-          </div>
-          <input id="ov-query-input" type="text" placeholder="Ask the EA Intelligence Platform anything… e.g. 'Which tools should we retire?'"
-            style="flex:1;background:transparent;border:none;outline:none;color:#fff;font-size:13px;font-family:'Inter',sans-serif;"
-            onkeydown="if(event.key==='Enter')ovRunQuery()"
-            onfocus="this.parentElement.style.borderColor='#0063DC'" onblur="this.parentElement.style.borderColor='rgba(0,99,220,.4)'" />
-          <button onclick="ovRunQuery()" style="background:#0063DC;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap">
-            Run Query
-          </button>
-        </div>
-
-        <!-- Query result area -->
-        <div id="ov-query-result" style="display:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:18px;color:#e2e8f0;font-size:13px;line-height:1.7"></div>
+        </div><!-- end 3-col -->
 
       </div>
     </div>
     <!-- ══ END OVERVIEW PAGE ══ -->
+
 
     <!-- ══ AI AGENTS PAGE ══════════════════════════════════════ -->
     <div id="page-agents" class="page p-6 hidden fade-in">
@@ -753,59 +881,50 @@
       </div>
     </div>
 
-    <!-- ══ PORTFOLIO PAGE ════════════════════════════════════ -->
-    <div id="page-portfolio" class="page p-6 hidden fade-in">
-      <div class="bg-white rounded-xl shadow-card p-6 mb-5">
-        <h2 class="font-bold text-navy text-base mb-4">Upload Portfolio for TIME Analysis</h2>
-        <div id="portfolio-drop" class="border-2 border-dashed border-slate-border rounded-xl p-10 text-center cursor-pointer hover:border-blue-brand hover:bg-blue-50 transition" onclick="document.getElementById('port-file').click()">
+    <!-- ══ EA ANALYSIS PAGE ═════════════════════════════════ -->
+    <div id="page-ea-analysis" class="page p-6 hidden" style="overflow-y:auto">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-card p-6 mb-5">
+        <div class="flex items-center gap-4 mb-5">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(0,51,141,0.1)">
+            <svg class="w-6 h-6 text-kpmg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <div>
+            <h2 class="font-bold text-navy text-base">EA Application Analysis</h2>
+            <p class="text-xs text-gray-400 mt-0.5">Upload your application inventory for TIME scoring, dependency mapping and EA intelligence</p>
+          </div>
+        </div>
+
+        <!-- Upload drop zone -->
+        <div id="ea-drop" class="rounded-xl p-10 text-center cursor-pointer transition" style="border:2px dashed #d1d5db" onmouseover="this.style.borderColor='#0063DC';this.style.background='#eff6ff'" onmouseout="this.style.borderColor='#d1d5db';this.style.background=''" onclick="document.getElementById('ea-file').click()">
           <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-          <p class="text-sm font-semibold text-gray-600">Click to upload or drag & drop</p>
-          <p class="text-xs text-gray-400 mt-1">CSV · JSON · Excel · PDF · PowerPoint (.pptx) · Images (PNG / JPG)</p>
-          <p class="text-xs text-gray-300 mt-1">PDFs and images are scanned by AI to extract all tools automatically</p>
+          <p class="text-sm font-semibold text-gray-600">Click to upload or drag &amp; drop</p>
+          <p class="text-xs text-gray-400 mt-1">CSV · JSON · Excel (.xlsx) · PDF · PowerPoint (.pptx) · Images (PNG / JPG)</p>
+          <p class="text-xs text-gray-300 mt-1">PDFs and images are scanned by AI to extract all applications automatically</p>
         </div>
-        <input type="file" id="port-file" class="hidden" accept=".csv,.json,.xlsx,.xls,.pdf,.pptx,.ppt,.png,.jpg,.jpeg,.gif,.webp"/>
-        <p class="text-xs text-gray-400 mt-2" id="port-filename"></p>
+        <input type="file" id="ea-file" class="hidden" accept=".csv,.json,.xlsx,.xls,.pdf,.pptx,.ppt,.png,.jpg,.jpeg,.gif,.webp"/>
+        <p class="text-xs text-gray-400 mt-2" id="ea-filename"></p>
+
         <div class="mt-4">
-          <p class="text-xs text-gray-400 mb-2">— or describe your portfolio in plain text —</p>
-          <textarea id="port-free-text" rows="3" placeholder="e.g. We use Salesforce CRM ($120K/yr, 500 users), legacy Oracle billing ($80K/yr, EOL soon), Jira ($24K/yr, 300 users)…" class="w-full border border-slate-border rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-kpmg resize-none"></textarea>
-        </div>
-        <!-- ── Industry Selector ─────────────────────────────────── -->
-        <div class="mt-5" id="industry-selector-block">
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Select Industry <span class="text-gray-300 font-normal normal-case tracking-normal">(tailors AI analysis to your sector)</span></label>
-            <button onclick="toggleSubSectors()" id="subsector-toggle-btn" class="text-xs text-blue-brand font-semibold hover:underline hidden">▼ Drill down</button>
-          </div>
-          <!-- Primary industry pills -->
-          <div class="flex flex-wrap gap-2" id="industry-pills">
-            <button onclick="selectIndustry(this,'Financial Services')"   class="ind-pill" data-ind="Financial Services">🏦 Financial Services</button>
-            <button onclick="selectIndustry(this,'Healthcare')"           class="ind-pill" data-ind="Healthcare">🏥 Healthcare</button>
-            <button onclick="selectIndustry(this,'Retail & E-commerce')"  class="ind-pill" data-ind="Retail & E-commerce">🛒 Retail</button>
-            <button onclick="selectIndustry(this,'Manufacturing')"        class="ind-pill" data-ind="Manufacturing">🏭 Manufacturing</button>
-            <button onclick="selectIndustry(this,'Telecommunications')"   class="ind-pill" data-ind="Telecommunications">📡 Telecom</button>
-            <button onclick="selectIndustry(this,'Government & Public Sector')" class="ind-pill" data-ind="Government & Public Sector">🏛️ Government</button>
-            <button onclick="selectIndustry(this,'Energy & Utilities')"   class="ind-pill" data-ind="Energy & Utilities">⚡ Energy</button>
-            <button onclick="selectIndustry(this,'Technology')"           class="ind-pill" data-ind="Technology">💻 Technology</button>
-            <button onclick="selectIndustry(this,'Professional Services')" class="ind-pill" data-ind="Professional Services">📊 Professional Svcs</button>
-            <button onclick="selectIndustry(this,'Media & Entertainment')" class="ind-pill" data-ind="Media & Entertainment">🎬 Media</button>
-            <button onclick="selectIndustry(this,'Other')"                class="ind-pill" data-ind="Other">🌐 Other</button>
-          </div>
-          <!-- Sub-sector drill-down (hidden until industry selected) -->
-          <div id="subsector-block" class="hidden mt-3">
-            <label class="text-xs font-semibold text-gray-400 mb-1 block">Sub-sector</label>
-            <div class="flex flex-wrap gap-2" id="subsector-pills"></div>
-          </div>
-          <!-- Selected indicator -->
-          <div id="industry-selected-label" class="hidden mt-2 text-xs text-blue-brand font-semibold"></div>
+          <p class="text-xs text-gray-400 mb-2">— or describe your application landscape in plain text —</p>
+          <textarea id="ea-free-text" rows="3" placeholder="e.g. We use Salesforce CRM ($120K/yr, 500 users), legacy Oracle Billing ($80K/yr, EOL soon), Jira ($24K/yr, 300 users), ServiceNow ITSM ($60K/yr)…" class="w-full rounded-xl px-4 py-3 text-sm text-gray-700 resize-none focus:outline-none" style="border:1px solid #d1d5db;font-family:inherit"></textarea>
         </div>
 
         <div class="mt-4 flex gap-3 flex-wrap">
-          <button onclick="runPortfolio()" class="bg-kpmg text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition">Analyse Portfolio</button>
-          <button onclick="downloadPortfolioPDF()" id="port-pdf-btn" class="hidden border border-kpmg text-kpmg text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition">Download PDF</button>
-          <button onclick="runFullPipeline()" class="border border-blue-brand text-blue-brand text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition">Run Full Pipeline</button>
+          <button onclick="runEAAnalysis()" class="bg-kpmg text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition flex items-center gap-2" id="ea-analyse-btn">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            Analyse Applications
+          </button>
+          <button onclick="runEAFullPipelineFromAnalysis()" class="border border-blue-brand text-blue-brand text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Run Full EA Pipeline
+          </button>
         </div>
       </div>
-      <div id="portfolio-results" class="hidden"></div>
+
+      <!-- Analysis results -->
+      <div id="ea-analysis-results" class="hidden"></div>
     </div>
+    <!-- ══ END EA ANALYSIS PAGE ═══════════════════════════════ -->
 
     <!-- ══ ARB DECISIONS PAGE ════════════════════════════════ -->
     <div id="page-arb" class="page p-6 hidden fade-in">
@@ -886,13 +1005,13 @@
       <div class="bg-white rounded-xl shadow-card p-6">
         <h2 class="font-bold text-navy text-base mb-5">Generate Reports</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="border border-slate-border rounded-xl p-5 hover:border-kpmg hover:shadow-card cursor-pointer transition" onclick="showPage('portfolio')">
+          <div class="border border-slate-border rounded-xl p-5 hover:border-kpmg hover:shadow-card cursor-pointer transition" onclick="runFullPipeline()">
             <div class="w-10 h-10 rounded-lg bg-kpmg bg-opacity-10 flex items-center justify-center mb-3">
               <svg class="w-5 h-5 text-kpmg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
             </div>
-            <p class="text-sm font-bold text-navy">Portfolio Report</p>
-            <p class="text-xs text-gray-400 mt-1">TIME framework analysis with duplication risks and cost breakdown</p>
-            <span class="mt-3 inline-block text-xs font-semibold text-kpmg">Generate PDF →</span>
+            <p class="text-sm font-bold text-navy">EA Full Pipeline Report</p>
+            <p class="text-xs text-gray-400 mt-1">TIME · Mapping · Maturity · Insights — full EA intelligence with PDF output</p>
+            <span class="mt-3 inline-block text-xs font-semibold text-kpmg">Run Pipeline →</span>
           </div>
           <div class="border border-slate-border rounded-xl p-5 hover:border-blue-brand hover:shadow-card transition">
             <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-3">
@@ -1405,7 +1524,7 @@
             <div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 16px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0">
               <span style="width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;animation:livePing 1.2s ease-out infinite"></span>
               <span style="font-size:11px;color:#64748B;white-space:nowrap">Pipeline stage:</span>
-              <span id="d3-step" style="font-size:12px;font-weight:700;color:#0063DC;min-width:200px;transition:color .3s">Step 1 — Portfolio upload</span>
+              <span id="d3-step" style="font-size:12px;font-weight:700;color:#0063DC;min-width:200px;transition:color .3s">Step 1 — EA data submission</span>
             </div>
             <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid #E2E8F0">
               <div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:#3B82F6"></div><span style="font-size:11px;color:#64748B">User action</span></div>
@@ -1420,7 +1539,7 @@
         <script>
         (function(){
           var steps=[
-            {t:'Step 1 — Portfolio upload',c:'#3B82F6'},
+            {t:'Step 1 — EA data submission',c:'#3B82F6'},
             {t:'Step 2 — FastAPI routes request',c:'#22C55E'},
             {t:'Step 3 — Orchestrator starts pipeline',c:'#F59E0B'},
             {t:'Step 4 — AI Engine processes all agents',c:'#7C3AED'},
@@ -1446,47 +1565,55 @@
     </div>
     <!-- ══ END ARCHITECTURE PAGE ══════════════════════════════════ -->
 
+
+
     <!-- ══ COMMAND CENTER PAGE (Screen 2) ════════════════════════ -->
-    <div id="page-command-center" class="page hidden fade-in cc-bg" style="min-height:100%;overflow-y:auto;padding:28px 32px 40px">
+    <div id="page-command-center" class="page hidden fade-in" style="background:#F8FAFC;min-height:100%;overflow-y:auto;padding:28px 32px 40px;font-family:'Inter',sans-serif">
 
       <!-- Top Bar -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
         <div>
-          <h2 style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-.3px">Command Center</h2>
-          <p style="font-size:12px;color:#7ba3cc;margin-top:2px">Real-time portfolio intelligence &amp; rationalization signals</p>
+          <h2 style="font-size:20px;font-weight:800;color:#0C233C;letter-spacing:-.3px">Command Center</h2>
+          <p style="font-size:12px;color:#64748B;margin-top:2px">Real-time portfolio intelligence &amp; rationalization signals</p>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
-          <div style="display:flex;background:rgba(255,255,255,.1);border-radius:8px;padding:3px;gap:2px">
-            <button onclick="showPage('dashboard')" style="padding:6px 16px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:#7ba3cc;font-family:'Inter',sans-serif;transition:all .15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#7ba3cc'">Dashboard</button>
-            <button onclick="showPage('command-center')" style="padding:6px 16px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.15);color:#fff;font-family:'Inter',sans-serif">Command Center</button>
+          <div style="display:flex;background:#EEF2FF;border-radius:8px;padding:3px;gap:2px">
+            <button onclick="showPage('dashboard')" style="padding:6px 16px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:#64748B;font-family:'Inter',sans-serif;transition:all .15s" onmouseover="this.style.color='#0C233C'" onmouseout="this.style.color='#64748B'">Dashboard</button>
+            <button onclick="showPage('command-center')" style="padding:6px 16px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:#00338D;color:#fff;font-family:'Inter',sans-serif">Command Center</button>
           </div>
-          <button onclick="refreshCommandCenter()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#7ba3cc;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">
+          <button onclick="refreshCommandCenter()" style="background:#EEF2FF;border:1px solid #B8DEFF;color:#00338D;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">
             ↻ Refresh
           </button>
         </div>
       </div>
 
-      <!-- Glass KPI Row -->
+      <!-- KPI Row -->
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
-        <div class="glass-card cc-kpi">
-          <div style="font-size:24px;font-weight:800;color:#fff" id="cc-kpi-total">—</div>
-          <div style="font-size:10px;font-weight:600;color:#7ba3cc;text-transform:uppercase;letter-spacing:.8px;margin-top:4px">Total Tools</div>
+        <div style="background:#fff;border:1px solid #B8DEFF;border-radius:14px;box-shadow:0 1px 4px rgba(0,51,141,.06);text-align:center;padding:16px 12px">
+          <div style="font-size:11px;font-weight:700;color:#00338D;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Portfolio Health</div>
+          <div style="font-size:28px;font-weight:800;color:#0C233C;line-height:1" id="cc-kpi-health">—</div>
+          <div style="font-size:10px;color:#64748B;margin-top:4px" id="cc-kpi-health-lbl">out of 100</div>
+          <div style="margin-top:8px;height:4px;background:#E4EAF0;border-radius:99px;overflow:hidden"><div id="cc-health-bar" style="height:100%;background:#00B8F5;border-radius:99px;width:0%;transition:width .8s ease"></div></div>
         </div>
-        <div class="glass-card cc-kpi">
-          <div style="font-size:24px;font-weight:800;color:#4ade80" id="cc-kpi-invest">—</div>
-          <div style="font-size:10px;font-weight:600;color:#7ba3cc;text-transform:uppercase;letter-spacing:.8px;margin-top:4px">Invest</div>
+        <div style="background:#fff;border:1px solid #FECACA;border-radius:14px;box-shadow:0 1px 4px rgba(0,51,141,.06);text-align:center;padding:16px 12px">
+          <div style="font-size:11px;font-weight:700;color:#DC2626;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Flagged for Retirement</div>
+          <div style="font-size:28px;font-weight:800;color:#DC2626;line-height:1" id="cc-kpi-retire">—</div>
+          <div style="font-size:10px;color:#64748B;margin-top:4px">ELIMINATE tools</div>
         </div>
-        <div class="glass-card cc-kpi">
-          <div style="font-size:24px;font-weight:800;color:#fbbf24" id="cc-kpi-tolerate">—</div>
-          <div style="font-size:10px;font-weight:600;color:#7ba3cc;text-transform:uppercase;letter-spacing:.8px;margin-top:4px">Tolerate</div>
+        <div style="background:#fff;border:1px solid #FDE68A;border-radius:14px;box-shadow:0 1px 4px rgba(0,51,141,.06);text-align:center;padding:16px 12px">
+          <div style="font-size:11px;font-weight:700;color:#D97706;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Overlaps Detected</div>
+          <div style="font-size:28px;font-weight:800;color:#D97706;line-height:1" id="cc-kpi-overlaps">—</div>
+          <div style="font-size:10px;color:#64748B;margin-top:4px">duplicate tools</div>
         </div>
-        <div class="glass-card cc-kpi">
-          <div style="font-size:24px;font-weight:800;color:#60a5fa" id="cc-kpi-migrate">—</div>
-          <div style="font-size:10px;font-weight:600;color:#7ba3cc;text-transform:uppercase;letter-spacing:.8px;margin-top:4px">Migrate</div>
+        <div style="background:#fff;border:1px solid #BBF7D0;border-radius:14px;box-shadow:0 1px 4px rgba(0,51,141,.06);text-align:center;padding:16px 12px">
+          <div style="font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Cost Savings Identified</div>
+          <div style="font-size:22px;font-weight:800;color:#059669;line-height:1" id="cc-kpi-savings">—</div>
+          <div style="font-size:10px;color:#64748B;margin-top:4px">per year (retire actions)</div>
         </div>
-        <div class="glass-card cc-kpi">
-          <div style="font-size:24px;font-weight:800;color:#f87171" id="cc-kpi-retire">—</div>
-          <div style="font-size:10px;font-weight:600;color:#7ba3cc;text-transform:uppercase;letter-spacing:.8px;margin-top:4px">Retire</div>
+        <div style="background:#fff;border:1px solid #DDD6FE;border-radius:14px;box-shadow:0 1px 4px rgba(0,51,141,.06);text-align:center;padding:16px 12px">
+          <div style="font-size:11px;font-weight:700;color:#7213EA;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Compliance Risk</div>
+          <div style="font-size:28px;font-weight:800;color:#7213EA;line-height:1" id="cc-kpi-compliance">—</div>
+          <div style="font-size:10px;color:#64748B;margin-top:4px" id="cc-kpi-compliance-lbl">tools need review</div>
         </div>
       </div>
 
@@ -1494,13 +1621,13 @@
       <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;margin-bottom:20px">
 
         <!-- LEFT: 2x2 Quadrant Matrix -->
-        <div class="glass-card" style="padding:20px">
+        <div style="background:#fff;border:1px solid #B8DEFF;border-radius:14px;box-shadow:0 1px 4px rgba(0,51,141,.06);padding:20px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
             <div>
-              <div style="font-size:13px;font-weight:700;color:#fff">Portfolio Quadrant</div>
-              <div style="font-size:11px;color:#7ba3cc;margin-top:2px">Business Value × Technical Health</div>
+              <div style="font-size:13px;font-weight:700;color:#0C233C">Portfolio Quadrant</div>
+              <div style="font-size:11px;color:#64748B;margin-top:2px">Business Value × Technical Health</div>
             </div>
-            <div style="font-size:10px;color:#7ba3cc;text-align:right">
+            <div style="font-size:10px;color:#64748B;text-align:right">
               <div>↑ Business Value</div>
               <div>→ Technical Health</div>
             </div>
@@ -1508,81 +1635,81 @@
 
           <!-- Y-axis label -->
           <div style="display:flex;align-items:stretch;gap:8px">
-            <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;font-weight:700;color:#7ba3cc;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;padding:4px 0">
+            <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;font-weight:700;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;padding:4px 0">
               Business Value →
             </div>
             <div style="flex:1">
               <!-- Axis labels top -->
-              <div style="display:flex;justify-content:space-between;font-size:9px;color:#7ba3cc;margin-bottom:4px;padding:0 2px">
+              <div style="display:flex;justify-content:space-between;font-size:9px;color:#94A3B8;margin-bottom:4px;padding:0 2px">
                 <span>Low TH</span><span>High TH</span>
               </div>
               <div class="quadrant-grid">
                 <!-- Q1: Top-left — MIGRATE (High BV, Low TH) -->
-                <div class="quadrant-cell" style="background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.25)">
+                <div class="quadrant-cell" style="background:#EFF6FF;border:1px solid #BFDBFE">
                   <div>
-                    <div style="font-size:11px;font-weight:800;color:#60a5fa;letter-spacing:.5px">MIGRATE</div>
-                    <div style="font-size:10px;color:#7ba3cc;margin-top:2px">High value · Low health</div>
-                    <div style="font-size:10px;color:#7ba3cc;margin-top:1px">Modernise these systems</div>
+                    <div style="font-size:11px;font-weight:800;color:#1E49E2;letter-spacing:.5px">MIGRATE</div>
+                    <div style="font-size:10px;color:#64748B;margin-top:2px">High value · Low health</div>
+                    <div style="font-size:10px;color:#94A3B8;margin-top:1px">Modernise these systems</div>
                   </div>
                   <div>
-                    <div style="font-size:22px;font-weight:800;color:#60a5fa" id="cc-q-migrate">—</div>
-                    <div id="cc-q-migrate-apps" style="font-size:10px;color:#7ba3cc;margin-top:4px;line-height:1.5"></div>
+                    <div style="font-size:22px;font-weight:800;color:#1E49E2" id="cc-q-migrate">—</div>
+                    <div id="cc-q-migrate-apps" style="font-size:10px;color:#64748B;margin-top:4px;line-height:1.5"></div>
                   </div>
                 </div>
                 <!-- Q2: Top-right — INVEST (High BV, High TH) -->
-                <div class="quadrant-cell" style="background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.22)">
+                <div class="quadrant-cell" style="background:#F0FDF4;border:1px solid #BBF7D0">
                   <div>
-                    <div style="font-size:11px;font-weight:800;color:#4ade80;letter-spacing:.5px">INVEST</div>
-                    <div style="font-size:10px;color:#7ba3cc;margin-top:2px">High value · High health</div>
-                    <div style="font-size:10px;color:#7ba3cc;margin-top:1px">Expand &amp; build upon</div>
+                    <div style="font-size:11px;font-weight:800;color:#16A34A;letter-spacing:.5px">INVEST</div>
+                    <div style="font-size:10px;color:#64748B;margin-top:2px">High value · High health</div>
+                    <div style="font-size:10px;color:#94A3B8;margin-top:1px">Expand &amp; build upon</div>
                   </div>
                   <div>
-                    <div style="font-size:22px;font-weight:800;color:#4ade80" id="cc-q-invest">—</div>
-                    <div id="cc-q-invest-apps" style="font-size:10px;color:#7ba3cc;margin-top:4px;line-height:1.5"></div>
+                    <div style="font-size:22px;font-weight:800;color:#16A34A" id="cc-q-invest">—</div>
+                    <div id="cc-q-invest-apps" style="font-size:10px;color:#64748B;margin-top:4px;line-height:1.5"></div>
                   </div>
                 </div>
                 <!-- Q3: Bottom-left — RETIRE (Low BV, Low TH) -->
-                <div class="quadrant-cell" style="background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.22)">
+                <div class="quadrant-cell" style="background:#FEF2F2;border:1px solid #FECACA">
                   <div>
-                    <div style="font-size:11px;font-weight:800;color:#f87171;letter-spacing:.5px">RETIRE</div>
-                    <div style="font-size:10px;color:#7ba3cc;margin-top:2px">Low value · Low health</div>
-                    <div style="font-size:10px;color:#7ba3cc;margin-top:1px">Decommission priority</div>
+                    <div style="font-size:11px;font-weight:800;color:#DC2626;letter-spacing:.5px">RETIRE</div>
+                    <div style="font-size:10px;color:#64748B;margin-top:2px">Low value · Low health</div>
+                    <div style="font-size:10px;color:#94A3B8;margin-top:1px">Decommission priority</div>
                   </div>
                   <div>
-                    <div style="font-size:22px;font-weight:800;color:#f87171" id="cc-q-retire">—</div>
-                    <div id="cc-q-retire-apps" style="font-size:10px;color:#7ba3cc;margin-top:4px;line-height:1.5"></div>
+                    <div style="font-size:22px;font-weight:800;color:#DC2626" id="cc-q-retire">—</div>
+                    <div id="cc-q-retire-apps" style="font-size:10px;color:#64748B;margin-top:4px;line-height:1.5"></div>
                   </div>
                 </div>
                 <!-- Q4: Bottom-right — TOLERATE (Low BV, High TH) -->
-                <div class="quadrant-cell" style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2)">
+                <div class="quadrant-cell" style="background:#FFFBEB;border:1px solid #FDE68A">
                   <div>
-                    <div style="font-size:11px;font-weight:800;color:#fbbf24;letter-spacing:.5px">TOLERATE</div>
-                    <div style="font-size:10px;color:#7ba3cc;margin-top:2px">Low value · High health</div>
-                    <div style="font-size:10px;color:#7ba3cc;margin-top:1px">Monitor &amp; optimise cost</div>
+                    <div style="font-size:11px;font-weight:800;color:#D97706;letter-spacing:.5px">TOLERATE</div>
+                    <div style="font-size:10px;color:#64748B;margin-top:2px">Low value · High health</div>
+                    <div style="font-size:10px;color:#94A3B8;margin-top:1px">Monitor &amp; optimise cost</div>
                   </div>
                   <div>
-                    <div style="font-size:22px;font-weight:800;color:#fbbf24" id="cc-q-tolerate">—</div>
-                    <div id="cc-q-tolerate-apps" style="font-size:10px;color:#7ba3cc;margin-top:4px;line-height:1.5"></div>
+                    <div style="font-size:22px;font-weight:800;color:#D97706" id="cc-q-tolerate">—</div>
+                    <div id="cc-q-tolerate-apps" style="font-size:10px;color:#64748B;margin-top:4px;line-height:1.5"></div>
                   </div>
                 </div>
               </div>
-              <div style="text-align:center;font-size:9px;color:#7ba3cc;margin-top:4px">Technical Health →</div>
+              <div style="text-align:center;font-size:9px;color:#94A3B8;margin-top:4px">Technical Health →</div>
             </div>
           </div>
         </div>
 
         <!-- RIGHT: AI Recommendations Feed -->
-        <div class="glass-card" style="padding:18px;max-height:420px;overflow-y:auto">
-          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:8px">
-            <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.5)"></div>
+        <div style="background:#fff;border:1px solid #B8DEFF;border-radius:14px;box-shadow:0 1px 4px rgba(0,51,141,.06);padding:18px;max-height:420px;overflow-y:auto">
+          <div style="font-size:13px;font-weight:700;color:#0C233C;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.4)"></div>
             AI Recommendations
           </div>
           <div id="cc-recs-feed">
-            <div style="text-align:center;padding:30px 0;color:#7ba3cc;font-size:12px">
+            <div style="text-align:center;padding:30px 0;color:#64748B;font-size:12px">
               <div style="font-size:28px;margin-bottom:8px">⚡</div>
-              <div>Run a portfolio analysis to generate recommendations</div>
-              <button onclick="showPage('portfolio')" style="margin-top:12px;background:rgba(0,99,220,.3);border:1px solid rgba(0,99,220,.5);color:#93c5fd;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">
-                Upload Portfolio
+              <div>Run the full EA pipeline to generate recommendations</div>
+              <button onclick="showPage('reports')" style="margin-top:12px;background:#EEF2FF;border:1px solid #1E49E2;color:#1E49E2;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">
+                Run Full Pipeline
               </button>
             </div>
           </div>
@@ -1644,59 +1771,68 @@ let sessionSavings = 0;
 let portIngestData = null;
 let pipelineReportFilename = null;
 let pipelineReportB64 = null;
-let selectedIndustry = '';
-let selectedSubSector = '';
 
 // ── INIT ──────────────────────────────────────────────────────
 document.getElementById('settings-api-url').value = API;
 document.getElementById('api-badge').textContent = API.replace(/https?:\/\//, '');
 
-// Portfolio file input
-document.getElementById('port-file').addEventListener('change', e => {
-  const f = e.target.files[0];
-  if (f) document.getElementById('port-filename').textContent = f.name;
-});
-
-// Portfolio drag & drop
-const portDrop = document.getElementById('portfolio-drop');
-if (portDrop) {
-  portDrop.addEventListener('dragover', e => { e.preventDefault(); portDrop.classList.add('border-blue-brand', 'bg-blue-50'); });
-  portDrop.addEventListener('dragleave', () => portDrop.classList.remove('border-blue-brand', 'bg-blue-50'));
-  portDrop.addEventListener('drop', e => {
+// EA Analysis file input
+const eaFileInput = document.getElementById('ea-file');
+if (eaFileInput) {
+  eaFileInput.addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (f) document.getElementById('ea-filename').textContent = f.name;
+  });
+}
+// EA Analysis drag & drop
+const eaDrop = document.getElementById('ea-drop');
+if (eaDrop) {
+  eaDrop.addEventListener('dragover', e => { e.preventDefault(); eaDrop.classList.add('border-blue-brand', 'bg-blue-50'); });
+  eaDrop.addEventListener('dragleave', () => eaDrop.classList.remove('border-blue-brand', 'bg-blue-50'));
+  eaDrop.addEventListener('drop', e => {
     e.preventDefault();
-    portDrop.classList.remove('border-blue-brand', 'bg-blue-50');
+    eaDrop.classList.remove('border-blue-brand', 'bg-blue-50');
     const f = e.dataTransfer.files[0];
     if (f) {
       const dt = new DataTransfer(); dt.items.add(f);
-      document.getElementById('port-file').files = dt.files;
-      document.getElementById('port-filename').textContent = f.name;
+      eaFileInput.files = dt.files;
+      document.getElementById('ea-filename').textContent = f.name;
     }
   });
 }
 
 checkHealth();
+setNavToggle('overview'); // highlight Overview toggle on initial load
 
 // ── NAVIGATION ───────────────────────────────────────────────
 const PAGE_META = {
-  overview:        { title: 'Overview', sub: 'EA AI Intelligence Platform — Portfolio Rationalization' },
-  dashboard:       { title: 'Dashboard', sub: 'Tool portfolio with 6R classification and KPI metrics' },
-  'command-center':{ title: 'Command Center', sub: 'Real-time portfolio intelligence and rationalization signals' },
-  agents:          { title: 'AI Agents', sub: 'Run queries against individual agents' },
-  portfolio:       { title: 'Portfolio', sub: 'Upload and analyse your application portfolio' },
+  overview:        { title: 'Overview', sub: 'EA AI Intelligence Platform — Enterprise Architecture Command' },
+  dashboard:       { title: 'Dashboard', sub: 'Application portfolio with 6R classification and EA metrics' },
+  'command-center':{ title: 'Command Center', sub: 'Real-time EA intelligence and portfolio signals' },
+  'ea-analysis':   { title: 'EA Analysis', sub: 'Upload application data for TIME scoring and full EA intelligence pipeline' },
+  agents:          { title: 'AI Agents', sub: 'Run queries against individual EA agents' },
   arb:             { title: 'ARB Decisions', sub: 'Architecture Review Board proposal evaluation' },
   maturity:        { title: 'Maturity Scores', sub: '6-dimension EA maturity assessment' },
   mapping:         { title: 'Dependency Map', sub: 'Analyse application dependencies and impact' },
-  reports:         { title: 'Reports', sub: 'Generate PDF reports from agent outputs' },
+  reports:         { title: 'Reports', sub: 'Generate PDF reports from EA agent outputs' },
   settings:        { title: 'Settings', sub: 'Configure API connection and preferences' },
   architecture:    { title: 'Architecture', sub: 'Live EA architecture diagram and flows' },
 };
 
 function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.add('hidden');
+    p.style.display = '';
+  });
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
 
   const page = document.getElementById('page-' + id);
-  if (page) { page.classList.remove('hidden'); page.classList.add('fade-in'); }
+  if (page) {
+    page.classList.remove('hidden', 'fade-in');
+    page.style.display = 'block';
+    void page.offsetWidth;
+    page.classList.add('fade-in');
+  }
 
   const navEl = document.querySelector(`.nav-item[onclick*="'${id}'"]`);
   if (navEl) navEl.classList.add('nav-active');
@@ -1704,10 +1840,86 @@ function showPage(id) {
   const meta = PAGE_META[id] || {};
   document.getElementById('page-title').textContent = meta.title || id;
   document.getElementById('page-subtitle').textContent = meta.sub || '';
+
+  // Sync top nav toggle
+  setNavToggle(id);
+
   if (id === 'settings') checkHealth();
   if (id === 'overview') loadOverviewKPIs();
   if (id === 'dashboard') refreshPortfolioTable();
   if (id === 'command-center') refreshCommandCenter();
+}
+
+// ── TOP NAV TOGGLE ────────────────────────────────────────────
+function setNavToggle(id) {
+  const toggleIds = ['overview', 'dashboard', 'command-center'];
+  toggleIds.forEach(tid => {
+    const btn = document.getElementById('nav-toggle-' + tid);
+    if (!btn) return;
+    if (tid === id) {
+      btn.style.background = '#1E49E2';
+      btn.style.color = '#fff';
+      btn.style.boxShadow = '0 2px 8px rgba(30,73,226,.35)';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.color = '#94A3B8';
+      btn.style.boxShadow = 'none';
+    }
+  });
+}
+
+// ── GLOBAL SEARCH ────────────────────────────────────────────
+async function runGlobalSearch(q) {
+  if (!q || !q.trim()) return;
+  q = q.trim();
+  const resultsEl = document.getElementById('global-search-results');
+  const inputEl   = document.getElementById('global-search-input');
+
+  // Show loading state in dropdown
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = `
+    <div style="padding:14px 16px;display:flex;align-items:center;gap:10px;color:#64748B;font-size:12px">
+      <svg style="width:14px;height:14px;animation:spin .7s linear infinite;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      Searching agents…
+    </div>`;
+
+  try {
+    const res = await fetch(API + '/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: `EA Intelligence search: ${q}` }] })
+    });
+    const data = await res.json();
+    const answer = data.response || data.content || 'No results found.';
+
+    resultsEl.innerHTML = `
+      <div style="padding:10px 14px;border-bottom:1px solid #EEF2FF;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700;color:#00338D;text-transform:uppercase;letter-spacing:.5px">Agent Response</span>
+        <button onclick="document.getElementById('global-search-results').style.display='none'"
+          style="border:none;background:none;cursor:pointer;color:#94A3B8;font-size:16px;line-height:1;padding:0 2px">&times;</button>
+      </div>
+      <div style="padding:14px 16px;font-size:12px;color:#1e293b;line-height:1.7;max-height:260px;overflow-y:auto;white-space:pre-wrap">${answer}</div>
+      <div style="padding:8px 14px;border-top:1px solid #EEF2FF;display:flex;gap:8px">
+        <button onclick="showPage('agents');document.getElementById('agent-query').value='${q.replace(/'/g,"\\'")}';runAgent();document.getElementById('global-search-results').style.display='none'"
+          style="font-size:11px;font-weight:600;color:#1E49E2;border:1px solid #B8DEFF;background:#EEF2FF;border-radius:6px;padding:4px 10px;cursor:pointer">
+          Open in AI Agents →
+        </button>
+      </div>`;
+  } catch (e) {
+    resultsEl.innerHTML = `
+      <div style="padding:14px 16px;font-size:12px;color:#DC2626">Unable to reach agents — check connection.</div>`;
+  }
+
+  // Close on outside click
+  setTimeout(() => {
+    const close = (e) => {
+      if (!resultsEl.contains(e.target) && e.target !== inputEl) {
+        resultsEl.style.display = 'none';
+        document.removeEventListener('click', close);
+      }
+    };
+    document.addEventListener('click', close);
+  }, 100);
 }
 
 // ── AGENT SELECTION ───────────────────────────────────────────
@@ -2124,146 +2336,81 @@ async function runMappingPage() {
   } catch(e) { toast(e.message, 'error'); }
 }
 
-// ── INDUSTRY SELECTOR ─────────────────────────────────────────
-const INDUSTRY_SUBSECTORS = {
-  'Financial Services':       ['Banking', 'Insurance', 'Capital Markets', 'Payments & FinTech'],
-  'Healthcare':               ['Hospitals & Health Systems', 'Pharmaceuticals', 'Medical Devices / MedTech', 'Health Insurance / Payer'],
-  'Retail & E-commerce':      ['E-commerce / D2C', 'Grocery & FMCG', 'Fashion & Apparel', 'Consumer Electronics'],
-  'Manufacturing':            ['Automotive', 'Aerospace & Defence', 'Consumer Goods', 'Industrial Equipment'],
-  'Telecommunications':       ['Mobile / MNO', 'Fixed Broadband / ISP', 'Cable & Media', 'Enterprise Telecom / MVNOs'],
-  'Government & Public Sector':['Central / Federal Government', 'Local & Municipal', 'Defence & Intelligence', 'Education'],
-  'Energy & Utilities':       ['Oil & Gas', 'Electricity Generation & Grid', 'Renewables', 'Water & Waste'],
-  'Technology':               ['SaaS / Cloud Software', 'Semiconductor / Hardware', 'IT Services / Consulting', 'Cybersecurity'],
-  'Professional Services':    ['Consulting & Advisory', 'Legal', 'Accounting & Audit', 'Architecture & Engineering'],
-  'Media & Entertainment':    ['Streaming & OTT', 'Broadcasting', 'Gaming', 'Publishing & News'],
-  'Other':                    [],
-};
+// ── EA ANALYSIS (data ingestion) ──────────────────────────────
+async function runEAAnalysis() {
+  const file = document.getElementById('ea-file').files[0];
+  const freeText = document.getElementById('ea-free-text')?.value?.trim();
+  if (!file && !freeText) { toast('Please upload a file or describe your application landscape', 'warn'); return; }
 
-function selectIndustry(btn, industry) {
-  // Toggle off if already selected
-  if (selectedIndustry === industry) {
-    selectedIndustry = ''; selectedSubSector = '';
-    document.querySelectorAll('.ind-pill').forEach(p => p.classList.remove('active'));
-    document.getElementById('subsector-block').classList.add('hidden');
-    document.getElementById('subsector-toggle-btn').classList.add('hidden');
-    document.getElementById('industry-selected-label').classList.add('hidden');
-    return;
-  }
-  selectedIndustry = industry; selectedSubSector = '';
-  document.querySelectorAll('.ind-pill').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-
-  // Populate sub-sectors
-  const subs = INDUSTRY_SUBSECTORS[industry] || [];
-  const subBlock = document.getElementById('subsector-block');
-  const subPills = document.getElementById('subsector-pills');
-  const toggleBtn = document.getElementById('subsector-toggle-btn');
-  subPills.innerHTML = subs.map(s =>
-    `<button class="sub-pill" onclick="selectSubSector(this,'${s.replace(/'/g,"\\'")}')">` + esc(s) + `</button>`
-  ).join('');
-  if (subs.length) {
-    toggleBtn.classList.remove('hidden');
-    subBlock.classList.remove('hidden');
-  } else {
-    toggleBtn.classList.add('hidden');
-    subBlock.classList.add('hidden');
-  }
-  _updateIndustryLabel();
-}
-
-function selectSubSector(btn, sub) {
-  selectedSubSector = selectedSubSector === sub ? '' : sub;
-  document.querySelectorAll('.sub-pill').forEach(p => p.classList.remove('active'));
-  if (selectedSubSector) btn.classList.add('active');
-  _updateIndustryLabel();
-}
-
-function toggleSubSectors() {
-  const block = document.getElementById('subsector-block');
-  const btn = document.getElementById('subsector-toggle-btn');
-  const hidden = block.classList.toggle('hidden');
-  btn.textContent = hidden ? '▼ Drill down' : '▲ Hide';
-}
-
-function _updateIndustryLabel() {
-  const label = document.getElementById('industry-selected-label');
-  if (selectedIndustry) {
-    label.textContent = '✓ Industry: ' + selectedIndustry + (selectedSubSector ? ' — ' + selectedSubSector : '');
-    label.classList.remove('hidden');
-  } else {
-    label.classList.add('hidden');
-  }
-}
-
-async function runPortfolio() {
-  const file = document.getElementById('port-file').files[0];
-  const freeText = document.getElementById('port-free-text')?.value?.trim();
-  if (!file && !freeText) { toast('Please upload a file or enter a portfolio description', 'warn'); return; }
-
-  const btn = document.querySelector('#page-portfolio button[onclick="runPortfolio()"]');
+  const btn = document.getElementById('ea-analyse-btn');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Analysing…'; }
 
   try {
-    let res;
-    if (file) {
-      const fd = new FormData(); fd.append('file', file);
-      if (selectedIndustry) fd.append('industry', selectedIndustry);
-      if (selectedSubSector) fd.append('sub_sector', selectedSubSector);
-      res = await fetch(API + '/time/ingest', { method: 'POST', body: fd });
-    } else {
-      const fd = new FormData(); fd.append('free_text', freeText);
-      if (selectedIndustry) fd.append('industry', selectedIndustry);
-      if (selectedSubSector) fd.append('sub_sector', selectedSubSector);
-      res = await fetch(API + '/time/ingest', { method: 'POST', body: fd });
-    }
+    const fd = new FormData();
+    if (file) fd.append('file', file);
+    else fd.append('free_text', freeText);
+    const res = await fetch(API + '/time/ingest', { method: 'POST', body: fd });
     if (!res.ok) throw new Error(await res.text());
     portIngestData = await res.json();
-    portIngestData._industry = selectedIndustry;
-    portIngestData._sub_sector = selectedSubSector;
     const apps = portIngestData.applications || [];
     if (apps.length) renderPortfolioTable(apps);
     const dups = portIngestData.duplications || [];
     const summary = portIngestData.summary || {};
     const tc = {};
     apps.forEach(a => { tc[a.time_classification || 'TOLERATE'] = (tc[a.time_classification || 'TOLERATE'] || 0) + 1; });
-    document.getElementById('portfolio-results').innerHTML = `
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
-        <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-navy">${apps.length}</div><div class="text-xs text-gray-400 mt-1">Total Apps</div></div>
-        <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-navy">$${fmtNum(summary.total_annual_cost||0)}</div><div class="text-xs text-gray-400 mt-1">Annual Spend</div></div>
-        <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-red-500">${dups.length}</div><div class="text-xs text-gray-400 mt-1">Duplications</div></div>
-        <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-green-600">$${fmtNum(summary.potential_savings||0)}</div><div class="text-xs text-gray-400 mt-1">Potential Savings</div></div>
-      </div>
-      <div class="bg-white rounded-xl shadow-card overflow-hidden mb-5">
-        <div class="px-5 py-3.5 border-b border-slate-border flex items-center gap-3"><h3 class="font-bold text-navy text-sm">Application Portfolio</h3>${selectedIndustry ? `<span style="font-size:11px;background:#EFF6FF;color:#0063DC;font-weight:700;padding:2px 10px;border-radius:12px">${esc(selectedIndustry)}${selectedSubSector?' — '+esc(selectedSubSector):''}</span>` : ''}</div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead class="bg-slate-ui"><tr>
-              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Application</th>
-              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Category</th>
-              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">TIME</th>
-              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">6R Action</th>
-              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Score</th>
-              <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Annual Cost</th>
-            </tr></thead>
-            <tbody class="divide-y divide-slate-border">${apps.map(a => {
-              const tc = a.time_classification || 'TOLERATE';
-              const tcColor = { INVEST: 'bg-green-100 text-green-700', TOLERATE: 'bg-blue-100 text-blue-700', MIGRATE: 'bg-yellow-100 text-yellow-700', ELIMINATE: 'bg-red-100 text-red-700' }[tc] || 'bg-gray-100 text-gray-600';
-              return `<tr class="hover:bg-slate-ui transition"><td class="px-4 py-3 font-semibold text-navy">${esc(a.name)}</td><td class="px-4 py-3 text-gray-500">${esc(a.category||'—')}</td><td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${tcColor}">${tc}</span></td><td class="px-4 py-3 text-xs text-gray-500">${esc(a.rationalization_action||'—')}</td><td class="px-4 py-3 font-semibold">${a.composite_score ? Number(a.composite_score).toFixed(1) : '—'}</td><td class="px-4 py-3 text-gray-500">${a.annual_cost ? '$'+fmtNum(a.annual_cost) : '—'}</td></tr>`;
-            }).join('')}</tbody>
-          </table>
+
+    const resultsEl = document.getElementById('ea-analysis-results');
+    if (resultsEl) {
+      resultsEl.innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+          <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-navy">${apps.length}</div><div class="text-xs text-gray-400 mt-1">Total Applications</div></div>
+          <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-navy">$${fmtNum(summary.total_annual_cost||0)}</div><div class="text-xs text-gray-400 mt-1">Annual Spend</div></div>
+          <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-red-500">${dups.length}</div><div class="text-xs text-gray-400 mt-1">Duplications</div></div>
+          <div class="bg-white rounded-xl shadow-card p-4 text-center"><div class="text-2xl font-bold text-green-600">$${fmtNum(summary.potential_savings||0)}</div><div class="text-xs text-gray-400 mt-1">Potential Savings</div></div>
         </div>
-      </div>`;
-    document.getElementById('portfolio-results').classList.remove('hidden');
-    document.getElementById('port-pdf-btn').classList.remove('hidden');
+        <div class="bg-white rounded-xl shadow-card overflow-hidden mb-5">
+          <div class="px-5 py-3.5 border-b border-slate-border flex items-center justify-between">
+            <h3 class="font-bold text-navy text-sm">Application Scoring — TIME Framework</h3>
+            <button onclick="runEAFullPipelineFromAnalysis()" class="text-xs font-semibold text-blue-brand bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition">Run Full Pipeline →</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-ui"><tr>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Application</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Category</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">TIME</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">6R Action</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Score</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Annual Cost</th>
+              </tr></thead>
+              <tbody class="divide-y divide-slate-border">${apps.map(a => {
+                const t = a.time_classification || 'TOLERATE';
+                const tC = { INVEST:'bg-green-100 text-green-700', TOLERATE:'bg-blue-100 text-blue-700', MIGRATE:'bg-yellow-100 text-yellow-700', ELIMINATE:'bg-red-100 text-red-700' }[t] || 'bg-gray-100 text-gray-600';
+                return `<tr class="hover:bg-slate-ui transition"><td class="px-4 py-3 font-semibold text-navy">${esc(a.name)}</td><td class="px-4 py-3 text-gray-500">${esc(a.category||'—')}</td><td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${tC}">${t}</span></td><td class="px-4 py-3 text-xs text-gray-500">${esc(a.rationalization_action||'—')}</td><td class="px-4 py-3 font-semibold">${a.composite_score ? Number(a.composite_score).toFixed(1) : '—'}</td><td class="px-4 py-3 text-gray-500">${a.annual_cost ? '$'+fmtNum(a.annual_cost) : '—'}</td></tr>`;
+              }).join('')}</tbody>
+            </table>
+          </div>
+        </div>`;
+      resultsEl.classList.remove('hidden');
+    }
     document.getElementById('kpi-apps').textContent = apps.length;
     if (summary.potential_savings > 0) { sessionSavings += summary.potential_savings; document.getElementById('kpi-savings').textContent = '$' + fmtNum(sessionSavings); }
     addActivity('TIME', 'Completed', 'success');
-    toast('Portfolio analysed — ' + apps.length + ' apps', 'success');
+    toast('Analysis complete — ' + apps.length + ' applications scored', 'success');
   } catch(e) {
     addActivity('TIME', 'Failed', 'error');
     toast('Error: ' + e.message, 'error');
   }
-  if (btn) { btn.disabled = false; btn.innerHTML = 'Analyse Portfolio'; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg> Analyse Applications'; }
+}
+
+async function runEAFullPipelineFromAnalysis() {
+  if (portIngestData && portIngestData.applications && portIngestData.applications.length > 0) {
+    showPage('reports');
+    await triggerFullPipeline({ applications: portIngestData.applications });
+  } else {
+    toast('Analyse your applications first, then run the full pipeline', 'info');
+  }
 }
 
 async function downloadPipelinePDF() {
@@ -2287,29 +2434,14 @@ async function downloadPipelinePDF() {
   }
 }
 
-async function downloadPortfolioPDF() {
-  if (!portIngestData) { toast('Run analysis first', 'warn'); return; }
-  try {
-    const res = await fetch(API + '/time/report', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ applications: portIngestData.applications, duplications: portIngestData.duplications || [], assessments: [] }),
-    });
-    if (!res.ok) throw new Error(await res.text());
-    const blob = await res.blob();
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ea_portfolio_report.pdf'; a.click();
-    toast('PDF downloaded', 'success');
-  } catch(e) { toast(e.message, 'error'); }
-}
-
 async function runFullPipeline() {
   // If we already have ingested portfolio data, run the pipeline with it
   if (portIngestData && portIngestData.applications && portIngestData.applications.length > 0) {
     showPage('reports');
-    await triggerFullPipeline({ applications: portIngestData.applications, industry: selectedIndustry, sub_sector: selectedSubSector });
+    await triggerFullPipeline({ applications: portIngestData.applications });
   } else {
-    // No data yet — prompt user to upload on Portfolio page
-    toast('Upload a portfolio first on the Portfolio page, then come back to run the full pipeline.', 'info');
-    showPage('portfolio');
+    toast('Upload your application data on the EA Analysis page first, then run the full pipeline.', 'info');
+    showPage('ea-analysis');
   }
 }
 
@@ -2317,7 +2449,7 @@ async function triggerFullPipeline(body) {
   const btn = document.getElementById('full-pipeline-btn');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Running Full Pipeline…'; }
   const statusEl = document.getElementById('full-pipeline-status');
-  const stages = ['Stage 1/4 — TIME: Portfolio Rationalization…','Stage 2/4 — MAPPING: Dependency Analysis…','Stage 3/4 — MATURITY: EA Capability Assessment…','Stage 4/4 — INSIGHTS: Executive Synthesis…'];
+  const stages = ['Stage 1/4 — TIME: Application Scoring…','Stage 2/4 — MAPPING: Dependency Analysis…','Stage 3/4 — MATURITY: EA Capability Assessment…','Stage 4/4 — INSIGHTS: Executive Synthesis…'];
   let si = 0;
   const stageTimer = setInterval(() => { if (statusEl && si < stages.length) { statusEl.classList.remove('hidden'); statusEl.textContent = stages[si++]; } }, 12000);
 
@@ -2439,7 +2571,7 @@ async function triggerFullPipeline(body) {
       <div style="background:#0a1628;color:#fff;padding:40px;border-top:5px solid #0063DC;margin-bottom:0">
         <div style="font-size:11px;font-weight:700;color:#0063DC;letter-spacing:2px;margin-bottom:12px">EA AI INTELLIGENCE  |  ENTERPRISE ARCHITECTURE ADVISORY</div>
         <div style="font-size:26px;font-weight:700;line-height:1.3;margin-bottom:8px">Full Enterprise Architecture Intelligence Report</div>
-        <div style="font-size:13px;opacity:.7;margin-bottom:16px">Portfolio Rationalization  |  Dependency Analysis  |  Maturity Assessment  |  Executive Intelligence</div>
+        <div style="font-size:13px;opacity:.7;margin-bottom:16px">Application Scoring  |  Dependency Analysis  |  Maturity Assessment  |  Executive Intelligence</div>
         <div style="display:grid;grid-template-columns:repeat(3,auto);gap:24px;font-size:12px;opacity:.6">
           <span>Date: ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</span>
           <span>Applications: ${apps.length}</span>
@@ -2582,6 +2714,25 @@ function ovSegClick(name) {
   document.getElementById('ov-seg-name').textContent = name;
   document.getElementById('ov-seg-desc').textContent = OV_SEG_INFO[name] || '';
   info.style.display = 'block';
+}
+
+async function runDashInsight() {
+  const q = document.getElementById('dash-insight-input')?.value?.trim();
+  if (!q) return;
+  const el = document.getElementById('dash-insight-result');
+  el.style.display = 'block';
+  el.textContent = 'Thinking…';
+  try {
+    const res = await fetch('/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ messages: [{ role: 'user', content: q }] })
+    });
+    const data = await res.json();
+    el.textContent = data.response || 'No response received.';
+  } catch(e) {
+    el.textContent = 'Unable to reach EA Intelligence — check connection.';
+  }
 }
 
 async function loadOverviewKPIs() {
@@ -2735,11 +2886,31 @@ function refreshCommandCenter() {
   });
   const retireCount = _portTableData.filter(r => (r.rationalization_action||'').toLowerCase() === 'retire').length;
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  set('cc-kpi-total', total);
-  set('cc-kpi-invest', invest.length);
-  set('cc-kpi-tolerate', tolerate.length);
-  set('cc-kpi-migrate', migrate.length);
+
+  // Portfolio Health Score (0-100): weighted by % INVEST - % ELIMINATE
+  const investPct = invest.length / Math.max(total,1);
+  const retirePct = retire.length / Math.max(total,1);
+  const healthScore = Math.round(Math.max(0, Math.min(100, (investPct * 60) + ((1-retirePct) * 40))));
+  set('cc-kpi-health', healthScore);
+  const hBar = document.getElementById('cc-health-bar');
+  if (hBar) { hBar.style.width = healthScore+'%'; hBar.style.background = healthScore>=70?'#4ade80':healthScore>=40?'#fbbf24':'#f87171'; }
   set('cc-kpi-retire', retireCount || retire.length);
+
+  // Overlaps (from duplication detector data)
+  const overlapCount = portIngestData?.duplications?.length || 0;
+  set('cc-kpi-overlaps', overlapCount || '0');
+
+  // Cost savings = sum of annual costs for ELIMINATE-classified tools
+  const eliminateApps = _portTableData.filter(r=>r.time_classification==='ELIMINATE');
+  const potentialSavings = eliminateApps.reduce((s,r)=>s+(r.annual_cost||0),0);
+  const dupSavings = (portIngestData?.summary?.potential_savings||0);
+  const totalSavings = potentialSavings + dupSavings;
+  set('cc-kpi-savings', totalSavings >= 1e6 ? '£'+(totalSavings/1e6).toFixed(1)+'M' : totalSavings >= 1e3 ? '£'+Math.round(totalSavings/1e3)+'k' : totalSavings ? '£'+totalSavings : '£0');
+
+  // Compliance risk = tools with compliance_required or end_of_life
+  const compRiskTools = _portTableData.filter(r=>r.compliance_required||r.end_of_life||r.criticality==='Critical').length;
+  set('cc-kpi-compliance', compRiskTools);
+  set('cc-kpi-compliance-lbl', compRiskTools===1?'tool needs review':'tools need review');
   set('cc-q-invest', invest.length);
   set('cc-q-migrate', migrate.length);
   set('cc-q-tolerate', tolerate.length);
@@ -2845,7 +3016,7 @@ function toggleChat() {
     btn.classList.add('bg-navy-light');
     document.getElementById('chat-input').focus();
     if (chatHistory.length === 0) appendChatMsg('assistant',
-      'Welcome! Let\'s start your EA analysis.\n\nSTEP 1 — Click Portfolio in the left sidebar.\n\nUpload your app inventory (CSV, Excel, PDF, PowerPoint) or paste plain text.\n\nThen click Analyse Portfolio.\n\nType "next" after each step and I\'ll guide you to the next one.');
+      'Welcome to EA Intelligence!\n\nSTEP 1 — Click AI Agents in the left sidebar to run individual EA agent queries.\n\nOr click Reports → Run Full Pipeline to run the complete 4-stage EA analysis.\n\nType "next" after each step and I\'ll guide you to the next one.');
   } else {
     panel.style.display = 'none';
     btn.classList.remove('bg-navy-light');
@@ -3095,6 +3266,7 @@ function downloadDiagram(svgId, filename) {
 
   document.addEventListener('DOMContentLoaded', checkAuth);
 })();
+
 </script>
 
 </body>

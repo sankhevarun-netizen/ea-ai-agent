@@ -336,12 +336,12 @@ GUIDANCE STYLE RULES (mandatory):
 - Keep responses short (3-6 lines max). No long paragraphs.
 
 STEP-BY-STEP FLOW:
-STEP 1 — Go to the Portfolio page (left sidebar, click "Portfolio").
-STEP 2 — Upload your app inventory. Accepted: CSV, Excel (.xlsx), JSON, PDF, PowerPoint (.pptx), PNG/JPG image. OR paste plain text in the text box.
-STEP 3 — Click the "Analyse Portfolio" button. Wait ~10 seconds. Scored results appear below.
+STEP 1 — Go to AI Agents (left sidebar) to run individual agent queries, or go to Reports for the full pipeline.
+STEP 2 — In AI Agents: select an agent (ARB, TIME, MAPPING, MATURITY), enter your query, and click Run.
+STEP 3 — For the full 4-agent pipeline: go to Reports → click "Run Full Pipeline" or "Run Pipeline →".
 STEP 4 — Review TIME classifications on screen (INVEST / TOLERATE / MIGRATE / ELIMINATE).
-STEP 5 — Click "Run Full Pipeline" button. This runs all 4 agents: TIME > MAPPING > MATURITY > INSIGHTS (~60-90 sec).
-STEP 6 — Review the on-screen report preview that appears below the button.
+STEP 5 — The full pipeline runs all 4 agents: TIME > MAPPING > MATURITY > INSIGHTS (~60-90 sec).
+STEP 6 — Review the on-screen EA Intelligence report preview.
 STEP 7 — Click "Download PDF Report" to get the full consulting-grade PDF.
 
 PLATFORM AGENTS:
