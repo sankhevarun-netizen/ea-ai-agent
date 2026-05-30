@@ -1,0 +1,808 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EA Maturity Assessment</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0f1e;--surface:#111827;--card:#1e293b;--border:#334155;
+    --text:#f1f5f9;--muted:#64748b;--sub:#94a3b8;
+    --blue:#3b82f6;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+    --purple:#8b5cf6;--teal:#10b981;
+  }
+  body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+  /* SIDEBAR */
+  #sidebar{width:220px;flex-shrink:0;background:#070c18;border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:100vh}
+  .sb-brand{padding:20px;border-bottom:1px solid var(--border)}
+  .sb-brand-tag{color:var(--blue);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+  .sb-brand-name{color:var(--text);font-size:14px;font-weight:700;margin-top:2px}
+  .sb-nav{flex:1;padding:12px}
+  .sb-nav-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:4px;border:none;cursor:pointer;background:transparent;color:var(--muted);font-size:13px;text-align:left;transition:all .15s}
+  .sb-nav-btn:hover{background:var(--card);color:var(--text)}
+  .sb-nav-btn.active{background:var(--blue);color:#fff;font-weight:600}
+  .sb-badge{margin-left:auto;background:rgba(255,255,255,.1);font-size:10px;border-radius:99px;padding:2px 7px}
+  .sb-session{padding:12px;border-top:1px solid var(--border)}
+  .sb-session-box{background:var(--card);border-radius:10px;padding:12px}
+  .sb-session-label{color:var(--muted);font-size:11px;margin-bottom:4px}
+  .sb-session-count{color:var(--text);font-size:13px;font-weight:600}
+  .sb-progress{background:var(--border);border-radius:99px;height:4px;margin-top:6px}
+  .sb-progress-bar{background:var(--blue);height:4px;border-radius:99px;transition:width .3s}
+  .sb-fresh-btn{background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;margin-top:8px;padding:0}
+
+  /* SEND TO PLATFORM BUTTON */
+  .sb-send-btn{background:var(--green);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;padding:7px 12px;border-radius:8px;width:100%;transition:background .15s}
+  .sb-send-btn:hover{background:#16a34a}
+
+  /* MAIN */
+  #main{flex:1;padding:32px;overflow-y:auto;max-height:100vh}
+
+  /* VIEWS */
+  .view{display:none}.view.active{display:block}
+
+  /* HOME */
+  .page-title{font-size:28px;font-weight:900;margin-bottom:4px}
+  .page-sub{color:var(--muted);font-size:14px;margin-bottom:32px}
+  .pillars-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+  .pillar-card{background:var(--card);border-radius:12px;padding:16px;border-top:3px solid var(--blue)}
+  .pillar-label{font-size:12px;font-weight:700;text-transform:uppercase;margin-bottom:8px}
+  .pillar-dim{color:var(--muted);font-size:11px;padding:2px 0}
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px}
+  .stat-icon{font-size:28px}
+  .stat-val{font-size:22px;font-weight:900}
+  .stat-lbl{color:var(--muted);font-size:12px}
+  .respondents-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+  .respondents-title{color:var(--sub);font-size:13px;font-weight:600;margin-bottom:12px}
+  .respondent-row{display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid #0f172a}
+  .respondent-avatar{width:32px;height:32px;border-radius:50%;background:#1e3a5f;color:#93c5fd;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+  .respondent-name{flex:1;font-size:13px}
+  .respondent-time{color:var(--muted);font-size:11px}
+  .respondent-done{color:var(--green);font-size:11px}
+  .btn-primary{padding:13px 24px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
+  .btn-primary:hover{background:#2563eb}
+  .btn-primary:disabled{background:var(--card);color:var(--muted);cursor:not-allowed}
+  .btn-success{padding:13px 24px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap}
+
+  /* NAME ENTRY */
+  #name-entry-view{display:flex;align-items:center;justify-content:center;min-height:60vh}
+  .name-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;width:400px;max-width:90%;text-align:center}
+  .name-emoji{font-size:48px;margin-bottom:16px}
+  .name-title{font-size:22px;font-weight:700;margin-bottom:8px}
+  .name-sub{color:var(--sub);font-size:14px;margin-bottom:24px}
+  .form-label{color:#cbd5e1;font-size:13px;display:block;margin-bottom:6px;text-align:left}
+  .form-input{width:100%;background:#0f172a;border:1px solid #475569;border-radius:8px;padding:12px 14px;color:#fff;font-size:14px;outline:none;transition:border .2s}
+  .form-input:focus{border-color:var(--blue)}
+  .form-error{color:#f87171;font-size:12px;margin-top:6px;text-align:left;min-height:18px}
+
+  /* QUESTIONNAIRE */
+  #questionnaire-view .q-layout{display:flex;gap:24px;align-items:flex-start}
+  .q-sidebar{width:200px;flex-shrink:0}
+  .q-sidebar-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;position:sticky;top:0}
+  .q-sec-label{color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+  .q-sec-btn{width:100%;text-align:left;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:4px;border:none;cursor:pointer;background:transparent;color:var(--muted);font-size:12px;transition:all .15s}
+  .q-sec-btn:hover{background:var(--surface);color:var(--text)}
+  .q-sec-btn.active{background:var(--blue);color:#fff}
+  .q-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0}
+  .q-dot.done{background:var(--green)}
+  .q-prog-label{color:var(--muted);font-size:11px;margin-bottom:6px}
+  .q-prog-bar-bg{background:var(--border);border-radius:99px;height:6px}
+  .q-prog-bar{background:var(--blue);height:6px;border-radius:99px;transition:width .3s}
+  .q-prog-count{color:var(--sub);font-size:11px;margin-top:4px}
+  .q-content{flex:1}
+  .q-header{margin-bottom:24px}
+  .q-header h2{font-size:20px;font-weight:700}
+  .q-header p{color:var(--muted);font-size:13px;margin-top:4px}
+  .q-header p span{color:var(--blue);font-weight:600}
+  .q-list{display:flex;flex-direction:column;gap:20px}
+  .q-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:border-color .2s}
+  .q-card.answered{border-color:var(--blue)}
+  .q-text{color:#e2e8f0;font-size:14px;margin-bottom:16px;line-height:1.6}
+  .q-num{color:var(--blue);font-weight:700;margin-right:6px}
+  .q-options{display:flex;flex-direction:column;gap:8px}
+  .q-option{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:#0f172a;cursor:pointer;text-align:left;width:100%;transition:all .15s}
+  .q-option:hover{border-color:var(--blue)}
+  .q-option.selected{border-color:var(--blue);background:#1e3a5f}
+  .q-opt-badge{width:24px;height:24px;border-radius:50%;background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:1px solid #475569;transition:all .15s}
+  .q-option.selected .q-opt-badge{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .q-opt-text{color:var(--sub);font-size:13px;line-height:1.5;text-align:left}
+  .q-option.selected .q-opt-text{color:#e2e8f0}
+  .q-nav{display:flex;justify-content:space-between;margin-top:24px;gap:12px}
+  .btn-ghost{padding:10px 20px;border-radius:10px;background:var(--card);color:var(--sub);border:1px solid var(--border);cursor:pointer;font-size:13px}
+  .btn-ghost:disabled{opacity:.4;cursor:not-allowed}
+  .btn-next{padding:10px 20px;border-radius:10px;background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:600}
+  .btn-submit{padding:10px 24px;border-radius:10px;background:var(--green);color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:700}
+  .btn-submit:disabled{background:var(--card);color:var(--muted);cursor:not-allowed}
+
+  /* DONE SCREEN */
+  #done-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center}
+  #done-screen.show{display:flex}
+  #done-screen .done-emoji{font-size:64px;margin-bottom:16px}
+  #done-screen h2{font-size:24px;font-weight:700;margin-bottom:8px}
+  #done-screen p{color:var(--sub)}
+
+  /* RESULTS */
+  .results-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+  .results-title{font-size:22px;font-weight:700;margin-bottom:4px}
+  .results-sub{color:var(--muted);font-size:13px}
+  .respondent-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .r-tag{background:var(--card);border:1px solid var(--border);color:var(--sub);font-size:12px;padding:4px 10px;border-radius:99px}
+  .overall-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 24px;text-align:center}
+  .overall-score{font-size:32px;font-weight:900}
+  .overall-band{font-size:14px;font-weight:700}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+  .mini-stat{background:#0f172a;border-radius:10px;padding:12px 16px;text-align:center}
+  .mini-stat-val{font-size:22px;font-weight:900}
+  .mini-stat-lbl{color:var(--muted);font-size:11px}
+  .legend-row{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+  .legend-item{display:flex;align-items:center;gap:8px;flex:1;min-width:180px}
+  .legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  .legend-text-title{font-size:12px;font-weight:700}
+  .legend-text-desc{color:var(--muted);font-size:10px;line-height:1.3}
+  .rationale-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px}
+  .rationale-title{font-size:15px;font-weight:700;margin-bottom:20px}
+  .gauges-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .gauge-card{background:#0f172a;border-radius:12px;padding:16px}
+  .gauge-dim-label{color:var(--sub);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+  .gauge-score-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px;margin-bottom:10px}
+  .gauge-band{font-size:13px;font-weight:700}
+  .gauge-score-val{color:var(--muted);font-size:11px}
+  .bullet-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:5px}
+  .bullet-item{display:flex;gap:6px;align-items:flex-start}
+  .bullet-dot{font-size:12px;line-height:1.3;flex-shrink:0}
+  .bullet-text{color:var(--sub);font-size:11px;line-height:1.5}
+  .table-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:24px}
+  .table-title{font-size:14px;font-weight:700;margin-bottom:12px}
+  .resp-table{width:100%;border-collapse:collapse;font-size:12px}
+  .resp-table th{color:var(--muted);padding:8px;text-align:center;font-weight:500;border-bottom:1px solid var(--border)}
+  .resp-table th:first-child{text-align:left;min-width:200px}
+  .resp-table td{padding:6px 8px;border-bottom:1px solid #0f172a;text-align:center;font-family:monospace;font-weight:700}
+  .resp-table td:first-child{text-align:left;font-family:system-ui;font-weight:400;color:var(--muted);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .majority-cell{color:var(--blue)!important}
+  .scroll-wrap{overflow-x:auto}
+  .reports-title{font-size:20px;font-weight:700;margin-bottom:20px}
+  .report-list{display:flex;flex-direction:column;gap:12px}
+  .report-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s}
+  .report-card:hover{border-color:var(--sub)}
+  .report-sess-title{font-weight:600;font-size:14px}
+  .report-sess-sub{color:var(--muted);font-size:12px;margin-top:4px}
+  .report-band-badge{font-size:12px;font-weight:700;padding:4px 12px;border-radius:99px;display:inline-block}
+  .report-arrow{color:var(--muted);font-size:11px;margin-top:4px}
+  .no-reports{text-align:center;padding:80px 0;color:var(--muted)}
+  .no-reports .big-icon{font-size:48px;margin-bottom:12px}
+  .back-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+  .back-btn:hover{color:var(--text)}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;display:none}
+  .modal-overlay.show{display:flex}
+  .modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px;max-width:400px;width:90%}
+  .modal-title{font-size:18px;font-weight:700;margin-bottom:8px}
+  .modal-desc{color:var(--sub);font-size:14px;margin-bottom:24px}
+  .modal-btns{display:flex;gap:12px}
+  .btn-cancel{flex:1;padding:11px;border-radius:10px;background:var(--border);color:var(--sub);border:none;cursor:pointer;font-size:14px}
+  .btn-danger{flex:1;padding:11px;border-radius:10px;background:#dc2626;color:#fff;border:none;cursor:pointer;font-size:14px;font-weight:700}
+
+  /* Send to platform banner */
+  .platform-banner{background:linear-gradient(135deg,#1e3a5f,#1e293b);border:1px solid #3b82f6;border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .platform-banner-text{color:#93c5fd;font-size:13px}
+  .platform-banner-text strong{color:#fff}
+  .btn-send-platform{padding:9px 20px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s}
+  .btn-send-platform:hover{background:#2563eb}
+
+  @media(max-width:900px){
+    .gauges-grid{grid-template-columns:repeat(2,1fr)}
+    .pillars-grid{grid-template-columns:repeat(2,1fr)}
+    .stats-row{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(max-width:640px){
+    #sidebar{display:none}
+    #main{padding:16px}
+    .gauges-grid{grid-template-columns:1fr 1fr}
+    .q-layout{flex-direction:column}
+    .q-sidebar{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-tag">EA Agent</div>
+    <div class="sb-brand-name">Maturity Assessment</div>
+  </div>
+  <nav class="sb-nav">
+    <button class="sb-nav-btn active" onclick="showView('home')" id="nav-home">
+      <span></span><span style="flex:1">Assessment</span><span class="sb-badge" id="nav-home-badge" style="display:none"></span>
+    </button>
+    <button class="sb-nav-btn" onclick="showView('results')" id="nav-results">
+      <span></span><span>Results</span>
+    </button>
+    <button class="sb-nav-btn" onclick="showView('reports')" id="nav-reports">
+      <span></span><span style="flex:1">Reports</span><span class="sb-badge" id="nav-reports-badge" style="display:none"></span>
+    </button>
+  </nav>
+  <div class="sb-session" id="sb-session-panel" style="display:none">
+    <div class="sb-session-box">
+      <div class="sb-session-label">Active Session</div>
+      <div class="sb-session-count" id="sb-user-count">0/15 respondents</div>
+      <div class="sb-progress"><div class="sb-progress-bar" id="sb-progress-bar" style="width:0%"></div></div>
+      <button class="sb-fresh-btn" onclick="confirmFresh()">↺ Start Fresh Session</button>
+      <button class="sb-send-btn" id="sb-send-btn" onclick="sendToPlatform()" style="display:none">^ Send Results to EA Platform</button>
+    </div>
+  </div>
+</aside>
+
+<main id="main">
+
+  <!-- HOME VIEW -->
+  <div id="home-view" class="view active">
+    <h1 class="page-title">EA Maturity Assessment</h1>
+    <p class="page-sub">30 questions · 8 dimensions · 4 pillars · Up to 15 respondents per session</p>
+    <div class="pillars-grid">
+      <div class="pillar-card" style="border-top-color:#3b82f6">
+        <div class="pillar-label" style="color:#3b82f6">Vision</div>
+        <div class="pillar-dim">• Vision &amp; Strategy</div>
+      </div>
+      <div class="pillar-card" style="border-top-color:#8b5cf6">
+        <div class="pillar-label" style="color:#8b5cf6">People</div>
+        <div class="pillar-dim">• Leadership &amp; Governance</div>
+        <div class="pillar-dim">• Behavior &amp; Culture</div>
+        <div class="pillar-dim">• Organization</div>
+      </div>
+      <div class="pillar-card" style="border-top-color:#f59e0b">
+        <div class="pillar-label" style="color:#f59e0b">Process</div>
+        <div class="pillar-dim">• Policy &amp; Standards</div>
+        <div class="pillar-dim">• Metrics &amp; Analysis</div>
+        <div class="pillar-dim">• Enabling Processes</div>
+      </div>
+      <div class="pillar-card" style="border-top-color:#10b981">
+        <div class="pillar-label" style="color:#10b981">Technology</div>
+        <div class="pillar-dim">• Tools &amp; Technology</div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-icon"></span><div><div class="stat-val" id="home-user-count">0/15</div><div class="stat-lbl">Respondents</div></div></div>
+      <div class="stat-card"><span class="stat-icon">v</span><div><div class="stat-val">30</div><div class="stat-lbl">Questions</div></div></div>
+      <div class="stat-card"><span class="stat-icon"></span><div><div class="stat-val">8</div><div class="stat-lbl">Dimensions</div></div></div>
+    </div>
+    <div id="home-respondents" style="display:none" class="respondents-box">
+      <div class="respondents-title">Completed Respondents</div>
+      <div id="home-respondents-list"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" id="add-respondent-btn" onclick="startRespondent()">+ Add Respondent</button>
+      <button class="btn-success" id="view-results-btn" onclick="showView('results')" style="display:none">View Results →</button>
+      <button class="btn-primary" id="send-platform-btn" onclick="sendToPlatform()" style="display:none;background:#10b981">^ Send to EA Platform</button>
+    </div>
+  </div>
+
+  <!-- NAME ENTRY VIEW -->
+  <div id="name-entry-view" class="view">
+    <div style="display:flex;align-items:center;justify-content:center;min-height:60vh">
+      <div class="name-card">
+        <div class="name-emoji"></div>
+        <h2 class="name-title">Welcome</h2>
+        <p class="name-sub">Enter your name to begin the EA Maturity Assessment</p>
+        <label class="form-label">Full Name</label>
+        <input class="form-input" type="text" id="name-input" placeholder="e.g. John Smith" onkeydown="if(event.key==='Enter')submitName()"/>
+        <div class="form-error" id="name-error"></div>
+        <button class="btn-primary" style="width:100%;margin-top:16px" onclick="submitName()">Start Assessment →</button>
+        <p style="color:var(--muted);font-size:12px;text-align:center;margin-top:16px" id="existing-count-msg"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUESTIONNAIRE VIEW -->
+  <div id="questionnaire-view" class="view">
+    <div id="done-screen">
+      <div class="done-emoji">v</div>
+      <h2 id="done-title">Thank you!</h2>
+      <p>Your responses have been saved to this session.</p>
+      <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;justify-content:center">
+        <button class="btn-primary" onclick="startRespondent()">+ Add Another Respondent</button>
+        <button class="btn-success" onclick="showView('results')">View Results →</button>
+        <button class="btn-primary" onclick="sendToPlatform()" style="background:#10b981">^ Send to EA Platform</button>
+      </div>
+    </div>
+    <div id="q-main-layout" class="q-layout">
+      <div class="q-sidebar">
+        <div class="q-sidebar-box">
+          <div class="q-sec-label">Sections</div>
+          <div id="section-nav"></div>
+          <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+            <div class="q-prog-label">Progress</div>
+            <div class="q-prog-bar-bg"><div class="q-prog-bar" id="q-prog-bar" style="width:0%"></div></div>
+            <div class="q-prog-count" id="q-prog-count">0/30 answered</div>
+          </div>
+        </div>
+      </div>
+      <div class="q-content">
+        <div class="q-header">
+          <h2 id="q-section-title">Section</h2>
+          <p>Responding as: <span id="q-user-name"></span></p>
+        </div>
+        <div class="q-list" id="q-list"></div>
+        <div class="q-nav">
+          <button class="btn-ghost" id="q-prev-btn" onclick="changeSection(-1)">← Previous</button>
+          <button class="btn-next" id="q-next-btn" onclick="changeSection(1)">Next →</button>
+          <button class="btn-submit" id="q-submit-btn" onclick="submitAnswers()" style="display:none">Submit All Answers v</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS VIEW -->
+  <div id="results-view" class="view">
+    <div id="results-back-btn" style="display:none">
+      <button class="back-btn" onclick="closeReportDetail()">← Back to Reports</button>
+    </div>
+    <div id="results-content"></div>
+  </div>
+
+  <!-- REPORTS VIEW -->
+  <div id="reports-view" class="view">
+    <h2 class="reports-title">Assessment Reports</h2>
+    <div id="reports-content"></div>
+  </div>
+
+</main>
+
+<!-- FRESH MODAL -->
+<div class="modal-overlay" id="fresh-modal">
+  <div class="modal-box">
+    <h3 class="modal-title">Start Fresh Session?</h3>
+    <p class="modal-desc" id="fresh-modal-desc">The current session will be archived to Reports.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeFreshModal()">Cancel</button>
+      <button class="btn-danger" onclick="doStartFresh()">Archive &amp; Start Fresh</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SECTIONS_DATA = [
+  { id:"vision_strategy",       label:"Vision & Strategy",       icon:"", questions:["q1","q2","q3","q4"] },
+  { id:"organization",          label:"Organization",            icon:"", questions:["q5","q6"] },
+  { id:"leadership_governance", label:"Leadership & Governance", icon:"", questions:["q7","q8"] },
+  { id:"behavior_culture",      label:"Behavior & Culture",      icon:"", questions:["q9","q10"] },
+  { id:"metrics_analysis",      label:"Metrics & Analysis",      icon:"", questions:["q11","q12","q13"] },
+  { id:"policy_standards",      label:"Policy & Standards",      icon:"", questions:["q14","q15","q16","q17","q18","q19"] },
+  { id:"enabling_processes",    label:"Enabling Processes",      icon:"", questions:["q20","q21","q22","q23","q24","q25","q26","q27","q28","q29"] },
+  { id:"tools_technology",      label:"Tools & Technology",      icon:"", questions:["q30"] },
+];
+
+const QUESTIONS_DATA = [
+  {id:"q1",s:"vision_strategy",text:"What is the vision and ambition around establishing EA capability?",opts:{A:"There is no ambition for a defined EA vision",B:"Need for EA has been identified",C:"Organization has begun to identify EA tasks and resource requirements",D:"Clear EA vision is defined / being defined",E:"EA vision is being realized through an EA roadmap"}},
+  {id:"q2",s:"vision_strategy",text:"What is the current capability to develop an EA strategy, a roadmap and implement the identified initiatives?",opts:{A:"Developing EA strategy and roadmap is not a key consideration",B:"Insufficient capability exists to develop EA strategy and roadmap",C:"EA strategy capability exists in limited capacity; not centralized",D:"Internal teams are leading EA efforts using industry standards",E:"EA capability is mature, strategic, and continuously improved"}},
+  {id:"q3",s:"vision_strategy",text:"What is the involvement of EA considerations in business strategy?",opts:{A:"EA viewpoints are not considered in business strategy",B:"Insufficient involvement of EA processes in strategic planning and acquisition",C:"EA processes are occasionally referenced in IT strategy and investment planning",D:"Majority of planned IT acquisitions are guided and governed by the Enterprise Architecture",E:"No unplanned IT investment or acquisition activity without considering EA viewpoints"}},
+  {id:"q4",s:"vision_strategy",text:"What is the extent of business linkages with EA activities?",opts:{A:"Minimal or limited linkage with business strategy drivers",B:"Explicit linkage to business strategies",C:"Enterprise Architecture is integrated with capital planning and investment control",D:"Enterprise Architecture contributes to periodic re-examination of business drivers",E:"Architecture process metrics are used to optimize and drive business linkages"}},
+  {id:"q5",s:"organization",text:"What is the current state of business and technical roles needed for an EA program?",opts:{A:"Dedicated roles for driving EA initiatives are not a key requirement",B:"The need for specialized roles / committees has been identified",C:"Some roles are defined, but responsibilities are unclear or overlapping",D:"Architecture Governance committees are established, with clearly defined roles and responsibilities",E:"Governance roles and responsibilities are reviewed and updated to incorporate changes to the EA Framework"}},
+  {id:"q6",s:"organization",text:"Is there a community of practice to share EA methodology insights and leading practices?",opts:{A:"EA insights and leading practices are not being shared at any level",B:"Inadequate practices of community or practices shared at individual level",C:"EA community of practice exists in key domains with limited engagement",D:"EA communities actively share insights, lessons, and refinements",E:"EA community of practice drives continuous improvement, peer mentoring, and methodology evolution"}},
+  {id:"q7",s:"leadership_governance",text:"Are EA principles enforced across business functions and initiatives?",opts:{A:"Inefficient or minimal adoption of the EA processes across functions and tech initiatives",B:"Limited adoption of EA activities in functions",C:"Most elements of businesses show acceptance or are actively participating in the Enterprise Architecture process",D:"Widespread adoption of EA activities",E:"Feedback on architecture process from all units is used to drive architecture process improvements"}},
+  {id:"q8",s:"leadership_governance",text:"How effectively do business and IT stakeholders engage to align architecture with strategic goals?",opts:{A:"Minimal interest of business stakeholders in EA. Architecture decisions made in isolation by IT",B:"Business leaders acknowledge the value of EA in principle. Informal discussions, no structured collaboration",C:"Occasional engagement between business and EA teams, often on a need basis. Alignment is inconsistent",D:"Business stakeholders are regularly involved in architecture reviews and planning. EA is a shared responsibility",E:"EA is a fully integrated, strategic function. Business and IT co-own architecture decisions"}},
+  {id:"q9",s:"behavior_culture",text:"What is the extent of communication on EA measures?",opts:{A:"There is no ambition for creating awareness on EA measures",B:"The need to create greater awareness about EA has been identified",C:"There is ongoing planning to develop educational sessions and materials to increase awareness of EA processes",D:"Regular training and awareness sessions on EA practices are being conducted",E:"Widespread understanding of architecture principles and processes already exists"}},
+  {id:"q10",s:"behavior_culture",text:"What is the general perception of the significance of EA and its role in driving transformation?",opts:{A:"EA is not recognized as a strategic function",B:"EA practice is gaining traction with some stakeholders",C:"EA practice is widely adopted across the organization",D:"EA is deeply embedded in the organizational fabric",E:"EA practice is recognized as a critical success factor in all processes"}},
+  {id:"q11",s:"metrics_analysis",text:"Are KPIs and metrics defined for the EA program, including monitoring of its performance?",opts:{A:"Absence of any framework to measure EA programs and performance",B:"Activities are reviewed, but metrics are not identified for formal assessment",C:"Metrics are defined but not measured adequately",D:"Metrics are defined and measured but not integrated with corrective actions",E:"Metrics are defined and measured periodically, with a formal review mechanism for EA activities"}},
+  {id:"q12",s:"metrics_analysis",text:"Are EA insights used in strategic planning and performance reviews?",opts:{A:"Architectural thinking is ad hoc, with minimal visibility to business leaders",B:"EA insights are occasionally referenced in a reactive or informal manner",C:"Some business units use EA data to inform decisions; usage is inconsistent",D:"Governance structures exist to ensure consistent application across the organization",E:"EA insights are an integral part of enterprise-wide planning"}},
+  {id:"q13",s:"metrics_analysis",text:"How well established is the process for collecting, analyzing, and reporting EA-related data?",opts:{A:"Data collection and analysis are ad-hoc or sporadic",B:"Some data is collected and analyzed, but processes are inconsistent and not standardized",C:"Data collection and analysis are standardized with defined procedures, but adoption is limited",D:"Data collection and analysis follow defined processes and are practiced",E:"Data is collected and analyzed using automated tools and integrated systems"}},
+  {id:"q14",s:"policy_standards",text:"What is the current state of Architectural Development Methods being practiced?",opts:{A:"Minimal or inadequate formal architecture development methods; processes are ad hoc and undocumented",B:"Limited documentation of EA processes and standards. Practices are localized or informal",C:"Adequate architecture standards are defined, but detailed guidelines and reference architectures are not established",D:"ADM Policies and standards are enforced across projects",E:"Policies and standards are continuously improved and aligned with strategic goals and EA frameworks"}},
+  {id:"q15",s:"policy_standards",text:"How well are technology standards and platforms defined and enforced across the enterprise?",opts:{A:"Minimal guidelines on technology standards exist. No ambition to holistically define these standards",B:"Technology standards are defined with limited context and are inconsistently applied",C:"Technology standards are defined but not managed or enforced",D:"Technology standards are documented and enforced across most domains",E:"Standards are enforced enterprise-wide with governance and compliance mechanisms"}},
+  {id:"q16",s:"policy_standards",text:"Describe how the organisation has adopted healthcare interoperability standards across different systems and processes.",opts:{A:"No formal adoption of interoperability standards; minimal integration",B:"Limited and inconsistent adoption of interoperability standards",C:"Standards are adopted in major systems. Data exchange is standardized, but not fully integrated across the enterprise",D:"Standards consistently implemented across systems. Interoperability is well-governed, with automated data exchange",E:"Interoperability standards are deeply embedded in architecture and operations"}},
+  {id:"q17",s:"policy_standards",text:"To what extent does the organisation define, adopt, and enforce standardized architecture principles, patterns, and technologies across all domains?",opts:{A:"Inadequate focus on architectural standards",B:"Architectural standards are defined but followed in silos",C:"Adequate documentation of standards exists at a limited scale, but they are not standardized",D:"Clear definition of standards for most of the IT investments",E:"Clear definition of standards for all of the IT investments"}},
+  {id:"q18",s:"policy_standards",text:"Are data governance policies enforced across lifecycle stages?",opts:{A:"Inadequate focus on governance policies across lifecycle stages",B:"Policies exist but are applied inconsistently",C:"Enforced in key lifecycle stages; traceability limited",D:"Lifecycle-wide enforcement with governance checkpoints",E:"Fully enforced with automation, audit integration, and policy alignment"}},
+  {id:"q19",s:"policy_standards",text:"What is the organisation's approach to compliance with data protection regulations (e.g., HIPAA, GDPR)?",opts:{A:"No formal approach to data protection compliance. Awareness of regulations is minimal",B:"Inadequate adherence to data protection regulations and compliance requirements",C:"Data protection is implemented at a limited scale, with few policies enforced",D:"Regulations are understood and addressed through documented policies and procedures",E:"Compliance is embedded into architecture and operations. Standards are proactively enforced"}},
+  {id:"q20",s:"enabling_processes",text:"What are some tangible benefits and outcomes derived from EA initiatives?",opts:{A:"EA initiatives are not expected to contribute business outcomes",B:"EA has delivered limited value in specific areas. Benefits are not consistently tracked",C:"EA initiatives show measurable outcomes. Benefits are documented and tied to business goals",D:"EA contributes to strategic outcomes such as agility, innovation, and improved customer experience",E:"EA is a key enabler of continuous enterprise transformation"}},
+  {id:"q21",s:"enabling_processes",text:"What is the current state of Enterprise Architecture Tools and Repository?",opts:{A:"No formal EA repository or tooling is required",B:"Basic digital repositories exist; usage and updates are inconsistent",C:"There are digital repositories (architecture web pages) which are updated periodically",D:"Architecture documents are updated regularly on digital repositories",E:"Architecture documents are updated regularly, and frequently reviewed for the latest architecture developments/standards"}},
+  {id:"q22",s:"enabling_processes",text:"How mature is the process for evaluating and adopting emerging technologies?",opts:{A:"Emerging technologies are adopted sporadically without formal evaluation",B:"Adoption is not strategically planned; driven by immediate needs or criticality",C:"Technologies are evaluated systematically for fit and feasibility",D:"Emerging technologies are assessed and adopted based on strategic alignment and EA principles",E:"Technology scouting and adoption are embedded in EA processes, with continuous innovation tracking"}},
+  {id:"q23",s:"enabling_processes",text:"What is the current capability to manage the lifecycle and standardization of apps?",opts:{A:"Applications are managed in silos with minimal standardized lifecycle or enhancement planning",B:"Some applications follow basic lifecycle stages. Standardization is limited",C:"Application lifecycle is documented and managed. Standardization guidelines exist",D:"Application lifecycle and standardization are integrated into EA processes",E:"Application lifecycle and standardization are continuously optimized. Enhancements driven by strategic goals"}},
+  {id:"q24",s:"enabling_processes",text:"How well is the security aspect highlighted in existing architecture layers, and are specific security-related measures designed?",opts:{A:"Inadequate focus on security considerations in any architecture layer. No formal documentation",B:"Insufficient security measures and lack of integration across Data/Tech/Solution layers",C:"Security is incorporated in some architecture layers with basic measures. Lacks a holistic approach",D:"Security is consistently integrated across most architecture layers. Specific measures are designed and mapped to risks",E:"Security is a foundational aspect across all architecture layers. Measures are comprehensive, risk-based"}},
+  {id:"q25",s:"enabling_processes",text:"How well is the process for lifecycle management of infrastructure components?",opts:{A:"Minimal or inadequate infrastructure lifecycle management; processes are largely manual and reactive",B:"Limited lifecycle management processes but not standardized or automated",C:"Lifecycle processes are adequately documented and followed for most components",D:"Lifecycle management is automated using tools",E:"Lifecycle management is mostly digital, integrated with EA tools"}},
+  {id:"q26",s:"enabling_processes",text:"How well do data models reflect business logic, regulatory requirements, and traceability needs?",opts:{A:"Minimal/inadequate data models and flows are defined and practiced",B:"Partial alignment in select models; informal documentation",C:"Data models are aligned in key domains; mapped to business rules",D:"Structured mapping to rules and regulations; version-controlled",E:"Embedded with compliance logic, traceable across domains, and continuously reviewed"}},
+  {id:"q27",s:"enabling_processes",text:"How mature are current capabilities to ensure continuity of critical business services through architectural resilience?",opts:{A:"Minimal/inadequate architectural provisions in place to ensure continuity of critical business services",B:"Basic resilience exists. Some critical services have continuity plans, but coverage is limited",C:"Most critical services are supported by resilient architecture components",D:"All critical services are architected for continuity and recovery",E:"Resilience is continuously optimized and aligned with business continuity strategy"}},
+  {id:"q28",s:"enabling_processes",text:"How effectively are Technology / IT services designed to support business capabilities and processes?",opts:{A:"Services are designed in an ad hoc manner without alignment to business needs",B:"Services are partially aligned and support business needs, but alignment is inconsistent",C:"Services are aligned and designed to support key business capabilities and workflows",D:"Service design is driven by business capability models and process optimization",E:"Services are a core enabler of business agility, innovation, and transformation"}},
+  {id:"q29",s:"enabling_processes",text:"How well established and effective is the Architecture Review Board (ARB)?",opts:{A:"No Architecture Review Board exists. No ambition for establishing these boards",B:"Architecture review takes place in silos and not formally through an ARB",C:"ARB exists in a limited or informal capacity",D:"ARB is formally established and conducts regular reviews across the enterprise",E:"The ARB is a strategic body with executive sponsorship and drives architectural governance"}},
+  {id:"q30",s:"tools_technology",text:"How effectively are tools (e.g., modeling, repository, visualization) used to support architecture development and governance?",opts:{A:"Minimal usage of tools for EA activities. Architectural work is largely manual",B:"Some tools are used, but only for selected tasks. Usage is informal and project-specific",C:"EA tools are consistently used for activities across projects. A centralized repository of tools exists",D:"EA tools are integrated across domains with other enterprise systems",E:"Enterprise-wide EA tools are used. Activities are automated, supporting real-time decision-making"}},
+];
+
+const RATIONALE_MAP = {
+  vision_strategy:{Low:["EA vision and objectives not defined at strategic planning level","Limited linkage between EA and business strategy drivers"],Medium:["EA need identified; capability developing in parts","EA processes occasionally referenced in IT strategy"],High:["Clear EA vision defined; EA viewpoints widely considered in IT planning","Strategically aligned with business — capability is mature"]},
+  organization:{Low:["Roles and responsibilities for EA not defined","No community of practice for sharing EA insights"],Medium:["Need for dedicated roles and committees identified","EA CoP exists with limited engagement"],High:["Governance structures active with clear roles","EA CoP drives continuous improvement and methodology evolution"]},
+  leadership_governance:{Low:["Minimal adoption of EA across business functions","Architecture decisions made in isolation by IT"],Medium:["Limited adoption; business teams interact occasionally with limited alignment","Business leaders acknowledge EA value but collaboration is informal"],High:["Widespread adoption; business stakeholders involved in planning and reviews","EA is a fully integrated strategic function jointly owned by business and IT"]},
+  behavior_culture:{Low:["EA is not recognized as a strategic function","No ambition for creating awareness on EA measures"],Medium:["Awareness growing; training and capability development plans in place","EA practice gaining traction with some stakeholders"],High:["Supported through regular training and embedded practices","EA recognized as a critical success factor across all processes"]},
+  metrics_analysis:{Low:["Performance not measured; practices are informal","No dedicated framework to measure EA programs"],Medium:["Metrics defined but used inconsistently; some EA data collected and analyzed","EA insights occasionally referenced in a reactive manner"],High:["Metrics measured and supported by governance","EA insights are integral to enterprise-wide planning"]},
+  policy_standards:{Low:["Architecture methods and standards are limited or missing","No formal approach to data protection compliance"],Medium:["Basic definition and documentation with inconsistent enforcement","Standards defined in key areas; data governance policies exist but inconsistently applied"],High:["Policies applied consistently with interoperability in place","Compliance is embedded in architecture; standards continuously evolve"]},
+  enabling_processes:{Low:["Enabling measures are minimal or inadequate","EA repositories either inconsistent or do not exist","ADM practices not applied adequately"],Medium:["Measures exist but used inconsistently; some EA compliance in place","Application lifecycle and security partially managed"],High:["High degree of standardization and integration of measures","Architecture drives transformation; resilience and security fully embedded"]},
+  tools_technology:{Low:["Specialized EA tools not used consistently","Architectural work is largely manual"],Medium:["Tools used informally for specific tasks; no central repository"],High:["Enterprise-wide tools support automation and real-time decisions","Tools are integrated across domains and systems"]},
+};
+
+const SCORE_MAP = {A:1,B:2,C:3,D:4,E:5};
+let state = {activeSession:null, archived:[]};
+let currentUser = "";
+let currentAnswers = {};
+let currentSectionIdx = 0;
+let viewingReportSession = null;
+
+function loadState(){ try{const r=localStorage.getItem("ea_maturity_v1");if(r)state=JSON.parse(r);}catch(e){} }
+function saveState(){ try{localStorage.setItem("ea_maturity_v1",JSON.stringify(state));}catch(e){} }
+function createSession(){ return{id:"s_"+Date.now(),createdAt:new Date().toISOString(),users:[]}; }
+
+function getMaturityBand(score){
+  if(score===null||score===undefined)return{band:"N/A",color:"#64748b"};
+  if(score<=2.0)return{band:"Low",color:"#ef4444"};
+  if(score<=3.5)return{band:"Medium",color:"#f59e0b"};
+  return{band:"High",color:"#22c55e"};
+}
+
+function getMajority(users){
+  const res={};
+  QUESTIONS_DATA.forEach(q=>{
+    const v={A:0,B:0,C:0,D:0,E:0};
+    users.forEach(u=>{if(u.answers&&u.answers[q.id])v[u.answers[q.id]]++;});
+    const nz=Object.entries(v).filter(([,x])=>x>0);
+    if(!nz.length){res[q.id]=null;return;}
+    nz.sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+    res[q.id]=nz[0][0];
+  });
+  return res;
+}
+
+function computeDims(majority){
+  return SECTIONS_DATA.map(sec=>{
+    const qs=sec.questions.filter(qid=>majority[qid]);
+    if(!qs.length)return{...sec,score:null,band:"N/A",color:"#64748b"};
+    const avg=qs.reduce((s,qid)=>s+SCORE_MAP[majority[qid]],0)/qs.length;
+    const score=parseFloat(avg.toFixed(2));
+    return{...sec,score,...getMaturityBand(score)};
+  });
+}
+
+function computeOverall(dims){
+  const v=dims.filter(d=>d.score!==null);
+  if(!v.length)return null;
+  return parseFloat((v.reduce((s,d)=>s+d.score,0)/v.length).toFixed(2));
+}
+
+function makeGaugeSVG(score){
+  const pct=score!==null?Math.min(100,Math.max(0,((score-1)/4)*100)):null;
+  const xPos=pct!==null?8+(pct/100)*104:null;
+  const pts=xPos!==null?`<polygon points="${xPos},15 ${xPos-5},5 ${xPos+5},5" fill="#0f172a" stroke="#94a3b8" stroke-width="0.5"/><line x1="${xPos}" y1="5" x2="${xPos}" y2="16" stroke="#0f172a" stroke-width="1.5"/>` :'';
+  return `<svg viewBox="0 0 120 38" width="120" height="38"><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ef4444"/><stop offset="40%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#22c55e"/></linearGradient></defs><rect x="8" y="16" width="104" height="8" rx="4" fill="url(#lg)"/>${pts}<text x="8" y="34" font-size="9" fill="#ef4444" font-weight="bold" text-anchor="middle">L</text><text x="60" y="34" font-size="9" fill="#f59e0b" font-weight="bold" text-anchor="middle">M</text><text x="112" y="34" font-size="9" fill="#22c55e" font-weight="bold" text-anchor="middle">H</text></svg>`;
+}
+
+// ── SEND TO EA PLATFORM ────────────────────────────────────────
+function buildResultsPayload(session){
+  if(!session||!session.users.length) return null;
+  const majority = getMajority(session.users);
+  const dims     = computeDims(majority);
+  const overall  = computeOverall(dims);
+  const band     = getMaturityBand(overall);
+  return {
+    source:           "ea_assessment_tool",
+    respondent_count: session.users.length,
+    respondent_names: session.users.map(u=>u.name),
+    overall_score:    overall,
+    overall_band:     band.band,
+    dimensions: dims.map(d=>({
+      id:    d.id,
+      label: d.label,
+      score: d.score,
+      band:  d.band,
+    })),
+    majority_answers: majority,
+    session_id:       session.id,
+    completed_at:     new Date().toISOString(),
+  };
+}
+
+function sendToPlatform(){
+  const sess = state.activeSession;
+  if(!sess||!sess.users.length){
+    alert("No completed respondents in the current session. Complete at least one respondent first.");
+    return;
+  }
+  const payload = buildResultsPayload(sess);
+  // Store in localStorage so the parent app can read it directly
+  localStorage.setItem("ea_assessment_results", JSON.stringify(payload));
+  // Also postMessage to parent if embedded in iframe
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:"EA_ASSESSMENT_RESULTS", payload}, "*");
+    }
+  }catch(e){}
+  // Show success
+  const btn = document.getElementById('send-platform-btn') || document.getElementById('sb-send-btn');
+  const origText = btn ? btn.textContent : '';
+  if(btn){ btn.textContent = "v Sent to EA Platform!"; btn.style.background="#16a34a"; }
+  setTimeout(()=>{ if(btn){ btn.textContent=origText; btn.style.background=""; } }, 3000);
+  alert("Assessment results sent to EA Platform!\n\nOverall Score: "+payload.overall_score+"/5 ("+payload.overall_band+")\nRespondents: "+payload.respondent_count+"\n\nReturn to the main platform and run the pipeline — your assessment results will be used in the Maturity stage.");
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.sb-nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(name+'-view').classList.add('active');
+  const navBtn=document.getElementById('nav-'+name);
+  if(navBtn)navBtn.classList.add('active');
+  if(name==='home')renderHome();
+  if(name==='results'){viewingReportSession=null;renderResults(state.activeSession);}
+  if(name==='reports')renderReports();
+  updateSidebar();
+}
+
+function updateSidebar(){
+  const uc=state.activeSession?.users?.length||0;
+  document.getElementById('sb-user-count').textContent=uc+'/15 respondents';
+  document.getElementById('sb-progress-bar').style.width=(uc/15*100)+'%';
+  document.getElementById('sb-session-panel').style.display=state.activeSession?'block':'none';
+  const badge=document.getElementById('nav-home-badge');
+  if(uc>0){badge.textContent=uc;badge.style.display='';}else badge.style.display='none';
+  const rb=document.getElementById('nav-reports-badge');
+  const ac=state.archived.length;
+  if(ac>0){rb.textContent=ac;rb.style.display='';}else rb.style.display='none';
+  const sendBtn=document.getElementById('sb-send-btn');
+  if(sendBtn) sendBtn.style.display=uc>0?'block':'none';
+}
+
+function renderHome(){
+  const uc=state.activeSession?.users?.length||0;
+  document.getElementById('home-user-count').textContent=uc+'/15';
+  const addBtn=document.getElementById('add-respondent-btn');
+  const vrBtn=document.getElementById('view-results-btn');
+  const spBtn=document.getElementById('send-platform-btn');
+  if(uc>=15){addBtn.disabled=true;addBtn.textContent='Maximum 15 respondents reached';}
+  else{addBtn.disabled=false;addBtn.textContent='+ Add Respondent';}
+  vrBtn.style.display=uc>0?'inline-block':'none';
+  spBtn.style.display=uc>0?'inline-block':'none';
+  const rBox=document.getElementById('home-respondents');
+  const rList=document.getElementById('home-respondents-list');
+  if(uc>0){
+    rBox.style.display='block';
+    rList.innerHTML=state.activeSession.users.map(u=>`
+      <div class="respondent-row">
+        <div class="respondent-avatar">${u.name.charAt(0).toUpperCase()}</div>
+        <div class="respondent-name">${u.name}</div>
+        <div class="respondent-time">${new Date(u.completedAt).toLocaleTimeString()}</div>
+        <div class="respondent-done">v Completed</div>
+      </div>`).join('');
+  } else rBox.style.display='none';
+}
+
+function startRespondent(){
+  if(!state.activeSession){state.activeSession=createSession();saveState();}
+  currentAnswers={};currentSectionIdx=0;
+  document.getElementById('name-input').value='';
+  document.getElementById('name-error').textContent='';
+  const ec=document.getElementById('existing-count-msg');
+  const uc=state.activeSession.users.length;
+  ec.textContent=uc>0?uc+' respondent(s) already completed in this session':'';
+  showView('name-entry');
+}
+
+function submitName(){
+  const n=document.getElementById('name-input').value.trim();
+  if(!n){document.getElementById('name-error').textContent='Please enter your name.';return;}
+  if(state.activeSession.users.find(u=>u.name.toLowerCase()===n.toLowerCase())){
+    document.getElementById('name-error').textContent='This name already exists in this session.';return;
+  }
+  document.getElementById('name-error').textContent='';
+  currentUser=n;
+  startQuestionnaire();
+}
+
+function startQuestionnaire(){
+  currentSectionIdx=0;
+  document.getElementById('done-screen').classList.remove('show');
+  document.getElementById('q-main-layout').style.display='flex';
+  document.getElementById('q-user-name').textContent=currentUser;
+  buildSectionNav();renderSection();showView('questionnaire');
+  document.querySelector('#questionnaire-view .q-layout').style.display='flex';
+}
+
+function buildSectionNav(){
+  const nav=document.getElementById('section-nav');
+  nav.innerHTML=SECTIONS_DATA.map((s,i)=>`
+    <button class="q-sec-btn ${i===currentSectionIdx?'active':''}" id="sec-nav-${i}" onclick="goSection(${i})">
+      <span class="q-dot ${allSectionAnswered(i)?'done':''}"></span>${s.icon} ${s.label}
+    </button>`).join('');
+}
+
+function allSectionAnswered(idx){ return SECTIONS_DATA[idx].questions.every(qid=>currentAnswers[qid]); }
+function goSection(idx){currentSectionIdx=idx;renderSection();}
+
+function renderSection(){
+  const sec=SECTIONS_DATA[currentSectionIdx];
+  document.getElementById('q-section-title').textContent=sec.icon+' '+sec.label;
+  const secQs=QUESTIONS_DATA.filter(q=>q.s===sec.id);
+  const qList=document.getElementById('q-list');
+  qList.innerHTML=secQs.map(q=>{
+    const gIdx=QUESTIONS_DATA.findIndex(x=>x.id===q.id);
+    return `<div class="q-card ${currentAnswers[q.id]?'answered':''}" id="qcard-${q.id}">
+      <p class="q-text"><span class="q-num">Q${gIdx+1}.</span>${q.text}</p>
+      <div class="q-options">
+        ${Object.entries(q.opts).map(([opt,label])=>`
+          <button class="q-option ${currentAnswers[q.id]===opt?'selected':''}" onclick="selectAnswer('${q.id}','${opt}')">
+            <span class="q-opt-badge">${opt}</span>
+            <span class="q-opt-text">${label}</span>
+          </button>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  updateProgress();updateNavBtns();buildSectionNav();
+}
+
+function selectAnswer(qid,opt){
+  currentAnswers[qid]=opt;
+  const card=document.getElementById('qcard-'+qid);
+  if(card){
+    card.classList.add('answered');
+    card.querySelectorAll('.q-option').forEach(b=>{b.classList.remove('selected');});
+    card.querySelectorAll('.q-option').forEach(b=>{
+      if(b.querySelector('.q-opt-badge').textContent===opt)b.classList.add('selected');
+    });
+  }
+  updateProgress();updateNavBtns();buildSectionNav();
+}
+
+function updateProgress(){
+  const tot=QUESTIONS_DATA.length,ans=Object.keys(currentAnswers).length;
+  document.getElementById('q-prog-bar').style.width=(ans/tot*100)+'%';
+  document.getElementById('q-prog-count').textContent=ans+'/'+tot+' answered';
+}
+
+function updateNavBtns(){
+  const tot=QUESTIONS_DATA.length,ans=Object.keys(currentAnswers).length;
+  const isLast=currentSectionIdx===SECTIONS_DATA.length-1;
+  document.getElementById('q-prev-btn').disabled=currentSectionIdx===0;
+  document.getElementById('q-next-btn').style.display=isLast?'none':'inline-block';
+  const sub=document.getElementById('q-submit-btn');
+  sub.style.display=isLast?'inline-block':'none';
+  sub.disabled=ans<tot;
+  sub.textContent=ans<tot?`Complete all (${ans}/${tot})`:'Submit All Answers v';
+}
+
+function changeSection(dir){
+  currentSectionIdx=Math.max(0,Math.min(SECTIONS_DATA.length-1,currentSectionIdx+dir));
+  renderSection();
+}
+
+function submitAnswers(){
+  const entry={name:currentUser,answers:{...currentAnswers},completedAt:new Date().toISOString()};
+  state.activeSession.users.push(entry);
+  saveState();
+  document.getElementById('q-main-layout').style.display='none';
+  const ds=document.getElementById('done-screen');
+  ds.classList.add('show');
+  document.getElementById('done-title').textContent='Thank you, '+currentUser+'!';
+  updateSidebar();
+}
+
+function renderResults(session){
+  document.getElementById('results-back-btn').style.display=viewingReportSession?'block':'none';
+  const cont=document.getElementById('results-content');
+  if(!session||!session.users||!session.users.length){
+    cont.innerHTML=`<div style="text-align:center;padding:80px 0;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px"></div><p>No responses yet. Add respondents to generate the assessment.</p></div>`;
+    return;
+  }
+  const majority=getMajority(session.users);
+  const dims=computeDims(majority);
+  const overall=computeOverall(dims);
+  const ob=getMaturityBand(overall);
+  const respondentTags=session.users.map(u=>`<span class="r-tag"> ${u.name}</span>`).join('');
+  const gaugesHTML=dims.map(dim=>{
+    const bullets=(RATIONALE_MAP[dim.id]&&RATIONALE_MAP[dim.id][dim.band])||[];
+    return `<div class="gauge-card">
+      <div class="gauge-dim-label">${dim.icon||''} ${dim.label}</div>
+      ${makeGaugeSVG(dim.score)}
+      <div class="gauge-score-row">
+        <span class="gauge-band" style="color:${dim.color}">${dim.band}</span>
+        ${dim.score!==null?`<span class="gauge-score-val">Score: ${dim.score}</span>`:''}
+      </div>
+      <ul class="bullet-list">
+        ${bullets.map(b=>`<li class="bullet-item"><span class="bullet-dot" style="color:${dim.color}">•</span><span class="bullet-text">${b}</span></li>`).join('')}
+        ${!bullets.length?'<li class="bullet-item"><span class="bullet-text" style="font-style:italic;color:var(--border)">No data yet</span></li>':''}
+      </ul>
+    </div>`;
+  }).join('');
+  const userCols=session.users.map(u=>`<th>${u.name}</th>`).join('');
+  const tableRows=QUESTIONS_DATA.map((q,i)=>{
+    const userCells=session.users.map(u=>`<td>${u.answers?.[q.id]||'—'}</td>`).join('');
+    const maj=majority[q.id]||'—';
+    return `<tr><td title="${q.text}">Q${i+1}: ${q.text.substring(0,55)}…</td>${userCells}<td class="majority-cell">${maj}</td></tr>`;
+  }).join('');
+
+  const platformBtn = `<button onclick="sendToPlatform()" style="padding:10px 20px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px">^ Send to EA Platform</button>`;
+
+  cont.innerHTML=`
+    <div class="platform-banner">
+      <div class="platform-banner-text"><strong>Results ready.</strong> Send these results to the EA Platform to use them in the maturity stage of the full pipeline.</div>
+      <button class="btn-send-platform" onclick="sendToPlatform()">^ Send to EA Platform</button>
+    </div>
+    <div class="results-header">
+      <div>
+        <h2 class="results-title">EA Maturity Assessment Results</h2>
+        <div class="results-sub">Based on ${session.users.length} respondent(s) · Majority vote consensus</div>
+        <div class="respondent-tags">${respondentTags}</div>
+      </div>
+      ${overall!==null?`<div class="overall-box">
+        <div class="overall-score">${overall.toFixed(1)}/5.0</div>
+        <div class="overall-band" style="color:${ob.color}">Overall: ${ob.band}</div>
+        ${platformBtn}
+      </div>`:''}
+    </div>
+    <div class="rationale-box">
+      <h3 class="rationale-title">Assessment Rationale</h3>
+      <div class="stats-row">
+        <div class="mini-stat"><div class="mini-stat-val">8</div><div class="mini-stat-lbl">EA Themes</div></div>
+        <div class="mini-stat"><div class="mini-stat-val">30</div><div class="mini-stat-lbl">Questions</div></div>
+        <div class="mini-stat"><div class="mini-stat-val">${session.users.length}</div><div class="mini-stat-lbl">Respondents</div></div>
+        <div class="mini-stat"><div class="mini-stat-val">${overall?overall.toFixed(1):'—'}</div><div class="mini-stat-lbl">Overall Score</div></div>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div><div><div class="legend-text-title" style="color:#22c55e">High</div><div class="legend-text-desc">Completely defined, fully documented, consistently implemented</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div><div><div class="legend-text-title" style="color:#f59e0b">Medium</div><div class="legend-text-desc">Acknowledged in principle, partially defined and/or implemented</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><div><div class="legend-text-title" style="color:#ef4444">Low</div><div class="legend-text-desc">Not a priority, inadequately defined, either partially or not implemented</div></div></div>
+      </div>
+      <div class="gauges-grid">${gaugesHTML}</div>
+    </div>
+    <div class="table-box">
+      <h3 class="table-title">Individual Responses &amp; Consensus</h3>
+      <div class="scroll-wrap">
+        <table class="resp-table">
+          <thead><tr><th>Question</th>${userCols}<th style="color:var(--blue)">Majority</th></tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderReports(){
+  const cont=document.getElementById('reports-content');
+  if(!state.archived.length){
+    cont.innerHTML=`<div class="no-reports"><div class="big-icon"></div><p>No archived sessions yet.</p><p style="font-size:13px;margin-top:6px">Completed sessions will appear here when you Start Fresh.</p></div>`;
+    return;
+  }
+  const cards=[...state.archived].reverse().map(sess=>{
+    const maj=getMajority(sess.users);
+    const dims=computeDims(maj);
+    const ov=computeOverall(dims);
+    const band=getMaturityBand(ov);
+    const date=new Date(sess.createdAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    return `<div class="report-card" onclick="viewReport('${sess.id}')">
+      <div>
+        <div class="report-sess-title">Session · ${date}</div>
+        <div class="report-sess-sub">${sess.users.length} respondent(s): ${sess.users.map(u=>u.name).join(', ')}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="report-band-badge" style="color:${band.color};background:${band.color}20">${band.band} · ${ov?ov.toFixed(1):'—'}/5</div>
+        <div class="report-arrow">→ View Details</div>
+      </div>
+    </div>`;
+  }).join('');
+  cont.innerHTML=`<div class="report-list">${cards}</div>`;
+}
+
+function viewReport(sessId){
+  const sess=state.archived.find(s=>s.id===sessId);
+  if(!sess)return;
+  viewingReportSession=sess;
+  renderResults(sess);
+  showView('results');
+  document.getElementById('results-back-btn').style.display='block';
+}
+
+function closeReportDetail(){ viewingReportSession=null; showView('reports'); }
+function confirmFresh(){ document.getElementById('fresh-modal').classList.add('show'); }
+function closeFreshModal(){ document.getElementById('fresh-modal').classList.remove('show'); }
+function doStartFresh(){
+  const uc=state.activeSession?.users?.length||0;
+  if(state.activeSession)state.archived.push(state.activeSession);
+  state.activeSession=createSession();
+  saveState(); closeFreshModal(); showView('home'); updateSidebar();
+}
+
+loadState(); updateSidebar(); renderHome();
+</script>
+</body>
+</html>

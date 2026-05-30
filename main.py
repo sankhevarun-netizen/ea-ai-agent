@@ -19,6 +19,19 @@ try:
 except Exception:
     pass
 
+_ASSESSMENT_HTML = ""
+for _ap in [
+    Path(__file__).parent / "frontend" / "ea_assessment.html",
+    Path("frontend") / "ea_assessment.html",
+    Path("/var/task/frontend/ea_assessment.html"),
+]:
+    try:
+        if _ap.exists():
+            _ASSESSMENT_HTML = _ap.read_text(encoding="utf-8")
+            break
+    except Exception:
+        continue
+
 from models.schemas import EARequest, EAResponse
 from orchestrator import route_request, resolve_agents
 from agents.arb_agent import run_arb
@@ -71,6 +84,13 @@ def serve_ui():
     if _FRONTEND_HTML:
         return HTMLResponse(content=_FRONTEND_HTML)
     return HTMLResponse(content="<h2>EA AI Intelligence — <a href='/docs'>See API Docs</a></h2>")
+
+
+@app.get("/assessment", response_class=HTMLResponse, include_in_schema=False)
+def serve_assessment():
+    if _ASSESSMENT_HTML:
+        return HTMLResponse(content=_ASSESSMENT_HTML)
+    return HTMLResponse(content="<h2>EA Maturity Assessment — file not found</h2>")
 
 
 # ─── Core EA Agent endpoint ───────────────────────────────────────────────────
@@ -300,8 +320,8 @@ async def ea_full(body: Dict[str, Any]):
         # without a second request (Vercel /tmp is not shared across invocations)
         with open(report_path, "rb") as f:
             pdf_bytes = f.read()
-        pipeline["report_b64"] = base64.b64encode(zlib.compress(pdf_bytes, level=9)).decode("ascii")
-        pipeline["report_compressed"] = True
+        pipeline["report_b64"] = base64.b64encode(pdf_bytes).decode("ascii")
+        pipeline["report_compressed"] = False
     except Exception as e:
         pipeline["report_error"] = str(e)
         pipeline["report_filename"] = None

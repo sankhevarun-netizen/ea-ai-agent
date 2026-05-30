@@ -385,9 +385,9 @@ class EAPdf(FPDF):
         if not roadmap:
             return
         phases = [
-            ("PHASE 1  |  0-3 MONTHS   Quick Wins",      roadmap.get("short_term", []),  TEAL),
-            ("PHASE 2  |  3-12 MONTHS  Strategic",        roadmap.get("medium_term", []), BLUE),
-            ("PHASE 3  |  12-24 MONTHS Transformation",   roadmap.get("long_term", []),   (114,28,100)),
+            ("PHASE 1  |  0-6 MONTHS    Foundation",      roadmap.get("short_term", []),  TEAL),
+            ("PHASE 2  |  6-18 MONTHS   Execution",       roadmap.get("medium_term", []), BLUE),
+            ("PHASE 3  |  18-24 MONTHS  Optimisation",    roadmap.get("long_term", []),   (114,28,100)),
         ]
         col_w = 59
         y0 = self.get_y()
@@ -1095,9 +1095,9 @@ tbody tr:nth-child(even){{background:#f8fbff}}
             parts.append(
                 f'<div class="section"><h2>Transformation Roadmap</h2>'
                 f'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">'
-                f'<div style="border-top:4px solid #00A651;padding:16px;background:#f8fbff"><strong>Phase 1 — 0-3 Months</strong><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("short_term")}</ul></div>'
-                f'<div style="border-top:4px solid #0063DC;padding:16px;background:#f8fbff"><strong>Phase 2 — 3-12 Months</strong><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("medium_term")}</ul></div>'
-                f'<div style="border-top:4px solid #7B2FBE;padding:16px;background:#f8fbff"><strong>Phase 3 — 12-24 Months</strong><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("long_term")}</ul></div>'
+                f'<div style="border-top:4px solid #00A651;padding:16px;background:#f8fbff"><strong>Phase 1 — 0–6 Months</strong><br><small style="color:#666">Foundation &amp; Quick Wins</small><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("short_term")}</ul></div>'
+                f'<div style="border-top:4px solid #0063DC;padding:16px;background:#f8fbff"><strong>Phase 2 — 6–18 Months</strong><br><small style="color:#666">Execution &amp; Migration</small><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("medium_term")}</ul></div>'
+                f'<div style="border-top:4px solid #7B2FBE;padding:16px;background:#f8fbff"><strong>Phase 3 — 18–24 Months</strong><br><small style="color:#666">Optimisation &amp; Embedding</small><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("long_term")}</ul></div>'
                 f'</div></div>')
         return "\n".join(parts)
 
