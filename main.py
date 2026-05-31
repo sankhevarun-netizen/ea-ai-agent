@@ -285,18 +285,68 @@ async def time_ingest(
 
         elif ext in (".csv",):
             import csv, io
-            reader = csv.DictReader(io.StringIO(content.decode("utf-8", errors="replace")))
-            tools_raw = list(reader)
+            # Try utf-8 first, fall back to latin-1 for Excel-exported CSVs with £/€ symbols
+            for enc in ("utf-8-sig", "utf-8", "latin-1"):
+                try:
+                    decoded = content.decode(enc)
+                    break
+                except UnicodeDecodeError:
+                    continue
+            else:
+                decoded = content.decode("utf-8", errors="replace")
+            reader = csv.DictReader(io.StringIO(decoded))
+            tools_raw = [
+                {k.strip(): (v.strip() if isinstance(v, str) else v)
+                 for k, v in row.items() if k}
+                for row in reader
+                if any(v and str(v).strip() not in ("", "nan", "None") for v in row.values())
+            ]
 
         elif ext in (".xlsx", ".xls"):
             import tempfile, pandas as pd, json as _json
             with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
                 tmp.write(content)
                 tmp_path = tmp.name
-            df = pd.read_excel(tmp_path)
+            # ── Auto-detect header row ────────────────────────────────────────
+            # Some templates have a title/subtitle row before the real headers.
+            # We check the first 5 rows: the header row is the one that contains
+            # recognisable EA column keywords.
+            _EA_KEYWORDS = {
+                "name","application","app","tool","system","software","product",
+                "vendor","supplier","category","type","cost","spend","budget",
+                "users","user","deployment","hosting","age","criticality","priority",
+                "compliance","eol","end of life","integrations","business unit","department",
+            }
+            _header_row = 0
+            try:
+                for _try_row in range(5):
+                    _df_try = pd.read_excel(tmp_path, header=_try_row, nrows=1)
+                    # Only consider real columns — skip pandas "Unnamed: N" placeholders
+                    _real_cols = [
+                        str(c).strip().lower() for c in _df_try.columns
+                        if not str(c).strip().lower().startswith("unnamed:")
+                    ]
+                    # Need at least 3 named columns for this to be a real header row
+                    if len(_real_cols) < 3:
+                        continue
+                    _hits = sum(1 for k in _EA_KEYWORDS
+                                if any(c == k or c.startswith(k + " ") or c.endswith(" " + k) or (" " + k + " ") in c
+                                       for c in _real_cols))
+                    if _hits >= 3:
+                        _header_row = _try_row
+                        break
+            except Exception:
+                _header_row = 0
+            df = pd.read_excel(tmp_path, header=_header_row)
             os.unlink(tmp_path)
-            # Use pandas JSON round-trip to convert numpy types and NaN → None
+            # Replace all float NaN with None before JSON serialisation
+            df = df.where(pd.notnull(df), None)
             tools_raw = _json.loads(df.to_json(orient="records"))
+            # Filter out entirely-blank rows
+            tools_raw = [r for r in tools_raw if any(
+                v is not None and str(v).strip() not in ("", "nan", "None")
+                for v in r.values()
+            )]
 
         elif ext == ".pdf":
             import pypdf, io as _io
@@ -323,6 +373,25 @@ async def time_ingest(
                         slide_texts.append(shape.text)
             tools_raw = _extract_tools_from_text("\n".join(slide_texts))
 
+        elif ext in (".docx", ".doc"):
+            try:
+                import docx as _docx, io as _io
+                doc = _docx.Document(_io.BytesIO(content))
+                doc_text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+                # Also extract tables (often contain app inventories)
+                for table in doc.tables:
+                    headers = [cell.text.strip() for cell in table.rows[0].cells] if table.rows else []
+                    for row in table.rows[1:]:
+                        row_data = {headers[i]: cell.text.strip()
+                                    for i, cell in enumerate(row.cells)
+                                    if i < len(headers) and headers[i]}
+                        if any(row_data.values()):
+                            tools_raw.append(row_data)
+                if not tools_raw:
+                    tools_raw = _extract_tools_from_text(doc_text)
+            except Exception:
+                tools_raw = _extract_tools_from_text(content.decode("utf-8", errors="replace"))
+
         elif ext in (".png", ".jpg", ".jpeg", ".gif", ".webp"):
             media_map = {
                 ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
@@ -330,8 +399,11 @@ async def time_ingest(
             }
             tools_raw = _extract_tools_from_image(content, media_map[ext])
 
+        elif ext in (".txt", ".md"):
+            tools_raw = _extract_tools_from_text(content.decode("utf-8", errors="replace"))
+
         else:
-            # Plain text fallback
+            # Generic fallback — try text extraction
             tools_raw = _extract_tools_from_text(content.decode("utf-8", errors="replace"))
 
     elif free_text:
@@ -341,8 +413,34 @@ async def time_ingest(
         import json
         tools_raw = json.loads(applications)
 
+    # ── EA data validation ────────────────────────────────────────────────────
     if not tools_raw:
-        raise HTTPException(400, "No portfolio data provided. Send a file, free_text, or applications JSON.")
+        raise HTTPException(
+            400,
+            "No application data found in the uploaded file. "
+            "Please upload a file containing your application inventory "
+            "(CSV, Excel, PDF, PPTX, image, or DOCX with application names and details)."
+        )
+
+    # Check that at least some rows have any non-blank content
+    # (tools_raw still has original column names — normalization happens in _score_tools)
+    _NAME_KEYS = {"name","application name","application","app name","app","tool name",
+                  "tool","system name","system","software","product","product name",
+                  "service","solution","platform"}
+    def _has_name(row: dict) -> bool:
+        for k, v in row.items():
+            if str(k).strip().lower() in _NAME_KEYS and v and str(v).strip().lower() not in ("","nan","none","unknown"):
+                return True
+        return False
+
+    named = [t for t in tools_raw if _has_name(t)]
+    if not named:
+        raise HTTPException(
+            422,
+            "The file was read successfully but no recognisable application or tool names were found. "
+            "Ensure your file contains at least an 'Application Name' or 'Name' column. "
+            "Supported formats: CSV, Excel (xlsx/xls), PDF, PPTX, DOCX, PNG, JPG, WEBP."
+        )
 
     scored = _score_tools(tools_raw)
     duplications = _detector.detect_duplications(scored)

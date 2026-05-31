@@ -113,13 +113,33 @@ Be specific, reference tool names, use consultant-grade language. Return ONLY JS
 def _normalize_tool(raw: Dict) -> Dict:
     """Ensure every tool has an id and clean fields.
     Handles many common column-name variations so uploads don't silently return 'Unknown'.
+    Uses exact-match first, then partial/contains fallback for unrecognised column headers.
     """
-    # ── Case-insensitive key lookup ──────────────────────────────────────────
+    def _is_blank(v) -> bool:
+        """True for None, empty string, 'nan', 'NaN', 'N/A', '-', and float NaN."""
+        if v is None:
+            return True
+        if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+            return True
+        s = str(v).strip()
+        return s.lower() in ("", "nan", "none", "null", "n/a", "na", "-", "unknown")
+
+    # Build lowercase column map once
+    raw_lower = {str(k).strip().lower(): v for k, v in raw.items() if not _is_blank(v)}
+
     def _get(*keys):
+        # Pass 1 — exact case-insensitive match
         for k in keys:
-            for rk, rv in raw.items():
-                if str(rk).strip().lower() == k.lower() and rv not in (None, "", "nan", "NaN"):
-                    return rv
+            kl = k.lower().strip()
+            v = raw_lower.get(kl)
+            if v is not None:
+                return v
+        # Pass 2 — partial/contains: column name contains alias OR alias contains column name
+        for k in keys:
+            kl = k.lower().strip()
+            for col, v in raw_lower.items():
+                if kl in col or col in kl:
+                    return v
         return None
 
     tool = dict(raw)
@@ -127,35 +147,43 @@ def _normalize_tool(raw: Dict) -> Dict:
         tool["id"] = str(uuid.uuid4())
 
     # ── Name aliases ─────────────────────────────────────────────────────────
-    if not tool.get("name") or str(tool.get("name","")).strip().lower() in ("", "nan", "unknown"):
+    if _is_blank(tool.get("name")):
         tool["name"] = (
             _get("name","application name","application","app name","app",
                  "tool name","tool","system name","system","software name",
                  "software","product name","product","service name","service",
-                 "solution name","solution","platform name","platform") or "Unknown"
+                 "solution name","solution","platform name","platform",
+                 "application / tool","app / system","system / application") or "Unknown"
         )
 
     # ── Category aliases ─────────────────────────────────────────────────────
-    if not tool.get("category") or str(tool.get("category","")).strip().lower() in ("","nan"):
+    if _is_blank(tool.get("category")):
         tool["category"] = (
             _get("category","app category","application category","tool category",
                  "type","app type","application type","tool type","system type",
-                 "function","functionality","domain","module type") or "Other"
+                 "function","functionality","domain","module type",
+                 "technology category","tech category","software category",
+                 "application domain","solution type","platform type") or "Other"
         )
 
     # ── Criticality aliases ──────────────────────────────────────────────────
-    if not tool.get("criticality") or str(tool.get("criticality","")).strip().lower() in ("","nan"):
+    if _is_blank(tool.get("criticality")):
         tool["criticality"] = (
             _get("criticality","business criticality","priority","importance",
                  "impact","risk level","risk","tier","business tier",
-                 "strategic importance","business importance") or None
+                 "strategic importance","business importance","mission criticality",
+                 "criticality level","app criticality","system criticality",
+                 "business impact","operational importance") or None
         )
 
     # ── Vendor aliases ───────────────────────────────────────────────────────
-    if not tool.get("vendor") or str(tool.get("vendor","")).strip().lower() in ("","nan"):
+    if _is_blank(tool.get("vendor")):
         tool["vendor"] = (
             _get("vendor","vendor name","supplier","manufacturer",
-                 "provider","software vendor","tech vendor","publisher") or None
+                 "provider","software vendor","tech vendor","publisher",
+                 "software provider","technology vendor","technology provider",
+                 "vendor / supplier","supplier name","oem","make","brand",
+                 "company","software company","tech company","licensor") or None
         )
 
     # ── Annual cost aliases ──────────────────────────────────────────────────
@@ -165,14 +193,26 @@ def _normalize_tool(raw: Dict) -> Dict:
             "annual licence","annual fee","cost","total cost","license cost",
             "licence cost","contract value","annual contract value","acv",
             "annual spend","yearly spend","cost per year","cost (usd)",
-            "cost ($)","annual cost ($)","annual cost (usd)","budget")
+            "cost ($)","annual cost ($)","annual cost (usd)","budget",
+            "annual budget","annual licensing cost","annual licence cost",
+            "software cost","licensing cost","licence fee","license fee",
+            "annual subscription","subscription cost","saas cost",
+            "total annual cost","cost per annum","per annum cost",
+            "annual cost (£)","annual cost (eur)","annual value",
+            "contract amount","spend","it spend","technology spend",
+            "annual it cost","yearly spend","annual support cost")
         if raw_cost is not None:
             try:
-                tool["annual_cost"] = float(
-                    str(raw_cost).replace(",","").replace("$","")
-                    .replace("£","").replace("€","").replace("k","000")
-                    .replace("K","000").replace("m","000000").strip()
-                )
+                cleaned = (str(raw_cost)
+                    .replace(",","").replace("$","").replace("£","")
+                    .replace("€","").replace("USD","").replace("GBP","")
+                    .replace("EUR","").strip())
+                # Handle shorthand: 100k → 100000, 1.2M → 1200000
+                if cleaned.lower().endswith("m"):
+                    cleaned = str(float(cleaned[:-1]) * 1_000_000)
+                elif cleaned.lower().endswith("k"):
+                    cleaned = str(float(cleaned[:-1]) * 1_000)
+                tool["annual_cost"] = float(cleaned)
             except (ValueError, TypeError):
                 tool["annual_cost"] = None
 
@@ -181,7 +221,11 @@ def _normalize_tool(raw: Dict) -> Dict:
         raw_uc = _get(
             "user_count","user count","users","no of users","number of users",
             "# users","num users","active users","licensed users","seats",
-            "headcount","user base","user volume")
+            "headcount","user base","user volume","no. of users","num. of users",
+            "total users","end users","named users","concurrent users",
+            "user licenses","user licences","users count","users (no.)",
+            "number of end users","no of end users","registered users",
+            "monthly active users","mau","fte users","staff using")
         if raw_uc is not None:
             try:
                 tool["user_count"] = int(float(str(raw_uc).replace(",","").strip()))
@@ -192,19 +236,33 @@ def _normalize_tool(raw: Dict) -> Dict:
     if not tool.get("age_years"):
         raw_age = _get(
             "age_years","age","age (years)","app age","system age",
-            "years in use","years old","years","age in years","application age")
+            "years in use","years old","years","age in years","application age",
+            "age (yrs)","age in yrs","system age (years)","no. of years",
+            "years deployed","years live","age of system","age of application",
+            "implementation age","years since implementation","years since go-live",
+            "go-live year",  # will be handled as year → age calculation
+            "system age (yrs)","app age (years)")
         if raw_age is not None:
             try:
-                tool["age_years"] = float(str(raw_age).replace(",","").strip())
+                val = float(str(raw_age).replace(",","").strip())
+                # If the value looks like a year (e.g. 2018), convert to age
+                if val > 1990:
+                    import datetime
+                    val = round(datetime.datetime.now().year - val, 1)
+                tool["age_years"] = val
             except (ValueError, TypeError):
                 tool["age_years"] = None
 
     # ── Deployment aliases ───────────────────────────────────────────────────
-    if not tool.get("deployment") or str(tool.get("deployment","")).strip().lower() in ("","nan"):
+    if _is_blank(tool.get("deployment")):
         tool["deployment"] = (
             _get("deployment","deployment model","hosting","hosting model",
                  "infrastructure","environment","cloud or on-prem",
-                 "cloud/on-prem","deployment type","hosted") or None
+                 "cloud/on-prem","deployment type","hosted","hosting type",
+                 "infrastructure type","deployment environment","where hosted",
+                 "cloud or on premises","on-prem or cloud","saas or on-prem",
+                 "deployment location","hosting environment","platform type",
+                 "cloud / on-prem","on premise or cloud","infrastructure model") or None
         )
 
     # ── Integrations aliases ─────────────────────────────────────────────────
@@ -212,7 +270,11 @@ def _normalize_tool(raw: Dict) -> Dict:
         raw_int = _get(
             "integrations","integration count","no of integrations",
             "number of integrations","# integrations","interfaces",
-            "no of interfaces","connected systems","api connections")
+            "no of interfaces","connected systems","api connections",
+            "no. of integrations","integration no.","number of interfaces",
+            "interface count","no. of interfaces","api count","no. of apis",
+            "connected apps","dependencies count","system dependencies",
+            "integration points","no of connected systems","integrations (#)")
         if raw_int is not None:
             try:
                 tool["integrations"] = int(float(str(raw_int).replace(",","").strip()))
@@ -223,27 +285,41 @@ def _normalize_tool(raw: Dict) -> Dict:
     if not tool.get("end_of_life"):
         raw_eol = _get(
             "end_of_life","end of life","eol","end-of-life","retired",
-            "sunset","decommissioned","legacy","is eol","eol flag")
+            "sunset","decommissioned","legacy","is eol","eol flag",
+            "end of support","eos","past end of life","end of maintenance",
+            "eol?","is legacy","legacy system","is retired","retiring",
+            "end of life (y/n)","eol (y/n)","eol status","support status")
         if raw_eol is not None:
             v = str(raw_eol).strip().lower()
-            tool["end_of_life"] = v in ("yes","y","true","1","eol","sunset","legacy")
+            tool["end_of_life"] = v in ("yes","y","true","1","eol","sunset","legacy",
+                                         "retired","decommissioned","end of life",
+                                         "end of support","eos","past eol")
 
     # ── Compliance aliases ───────────────────────────────────────────────────
     if not tool.get("compliance_required"):
         raw_comp = _get(
             "compliance_required","compliance required","compliance","regulated",
             "regulatory","hipaa","gdpr","sox","pci","compliance flag",
-            "needs compliance","compliance needed")
+            "needs compliance","compliance needed","regulatory requirement",
+            "compliance (y/n)","requires compliance","data regulation",
+            "data privacy","regulated data","compliance requirement",
+            "regulatory compliance","compliance applicable","subject to compliance")
         if raw_comp is not None:
             v = str(raw_comp).strip().lower()
-            tool["compliance_required"] = v in ("yes","y","true","1","required","regulated")
+            tool["compliance_required"] = v in ("yes","y","true","1","required",
+                                                  "regulated","applicable","hipaa",
+                                                  "gdpr","sox","pci")
 
     # ── Business unit aliases ────────────────────────────────────────────────
-    if not tool.get("business_unit") or str(tool.get("business_unit","")).strip().lower() in ("","nan"):
+    if _is_blank(tool.get("business_unit")):
         tool["business_unit"] = (
             _get("business_unit","business unit","department","dept",
                  "division","team","org","organisation","organization",
-                 "owner","business owner","cost centre","cost center") or None
+                 "owner","business owner","cost centre","cost center",
+                 "bu","org unit","organisational unit","organizational unit",
+                 "owning department","sponsoring department","accountable team",
+                 "it owner","business sponsor","product owner","application owner",
+                 "dept.","department name","line of business","lob") or None
         )
 
     # ── Coerce numeric fields robustly ────────────────────────────────────────
