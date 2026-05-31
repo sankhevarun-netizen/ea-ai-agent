@@ -213,110 +213,138 @@
 <!-- ═══════════════════════════════════════════════════════════
  SIDEBAR
 ══════════════════════════════════════════════════════════════ -->
-<aside id="sidebar" class="w-64 flex-shrink-0 bg-navy flex flex-col h-screen overflow-y-auto transition-all duration-300 z-50">
+<style>
+#sidebar {
+ width:60px; flex-shrink:0; background:#0C233C;
+ display:flex; flex-direction:column; height:100vh;
+ overflow:hidden; transition:width .25s ease; z-index:50;
+ position:relative;
+}
+#sidebar:hover { width:220px; }
+.sb-label {
+ white-space:nowrap; overflow:hidden; opacity:0;
+ transition:opacity .2s ease .05s;
+ font-size:13px; font-weight:500; color:#CBD5E1;
+ font-family:'Inter',sans-serif;
+}
+#sidebar:hover .sb-label { opacity:1; }
+.sb-section-label {
+ white-space:nowrap; overflow:hidden; max-height:0; opacity:0;
+ transition:max-height .2s ease, opacity .2s ease .05s;
+ font-size:10px; font-weight:700; color:#4B6A9B;
+ letter-spacing:.12em; text-transform:uppercase;
+ padding:0 16px; font-family:'Inter',sans-serif;
+}
+#sidebar:hover .sb-section-label { max-height:28px; opacity:1; padding:10px 16px 4px; }
+.sb-logo-text {
+ white-space:nowrap; overflow:hidden; opacity:0;
+ transition:opacity .2s ease .05s;
+}
+#sidebar:hover .sb-logo-text { opacity:1; }
+.sb-profile-detail {
+ white-space:nowrap; overflow:hidden; opacity:0; max-width:0;
+ transition:opacity .2s ease, max-width .25s ease;
+}
+#sidebar:hover .sb-profile-detail { opacity:1; max-width:160px; }
+.nav-item {
+ display:flex; align-items:center; gap:12px;
+ padding:8px 18px; cursor:pointer; border-radius:0 8px 8px 0;
+ margin-bottom:2px; transition:background .15s;
+ text-decoration:none;
+}
+.nav-item:hover { background:rgba(255,255,255,.07); }
+.nav-item.nav-active { background:#1E49E2; }
+.nav-item.nav-active svg { color:#fff !important; }
+.nav-item.nav-active .sb-label { color:#fff !important; }
+</style>
+
+<aside id="sidebar">
 
  <!-- Logo -->
- <div class="px-5 py-5 border-b border-navy-light">
- <div class="flex items-center gap-3">
- <div class="w-9 h-9 rounded-lg bg-blue-brand flex items-center justify-center flex-shrink-0">
- <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
- <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
- </svg>
- </div>
- <div>
- <div class="text-white font-bold text-sm leading-tight">EA AI Intelligence</div>
- <div class="text-blue-300 text-xs opacity-70">Enterprise Architecture</div>
- </div>
- </div>
+ <div style="padding:14px 12px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px;flex-shrink:0">
+  <div style="width:36px;height:36px;border-radius:9px;background:#1E49E2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+   <svg style="width:18px;height:18px;color:#fff" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+   </svg>
+  </div>
+  <div class="sb-logo-text">
+   <div style="color:#fff;font-weight:700;font-size:13px;line-height:1.2;font-family:'Inter',sans-serif">EA AI Intelligence</div>
+   <div style="color:#4B6A9B;font-size:10px;font-family:'Inter',sans-serif">Enterprise Architecture</div>
+  </div>
  </div>
 
  <!-- Nav -->
- <nav class="flex-1 px-3 py-4 space-y-0.5">
- <p class="text-xs font-semibold text-blue-300 opacity-50 uppercase tracking-widest px-3 pt-1 pb-2">Main</p>
+ <nav style="flex:1;padding:8px 0;overflow-y:auto;overflow-x:hidden">
+  <div class="sb-section-label">Main</div>
 
- <a class="nav-item nav-active flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('overview')">
- <svg class="w-5 h-5 text-blue-brand flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4l3 3"/></svg>
- <span class="text-white text-sm font-medium">Overview</span>
- </a>
+  <a class="nav-item nav-active" onclick="showPage('overview')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4l3 3"/></svg>
+   <span class="sb-label">Overview</span>
+  </a>
+  <a class="nav-item" onclick="showPage('dashboard')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+   <span class="sb-label">Dashboard</span>
+  </a>
+  <a class="nav-item" onclick="showPage('command-center')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+   <span class="sb-label">Command Center</span>
+  </a>
+  <a class="nav-item" onclick="showPage('ea-analysis')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+   <span class="sb-label">EA Analysis</span>
+  </a>
 
- <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('dashboard')">
- <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
- <span class="text-blue-100 text-sm font-medium">Dashboard</span>
- </a>
+  <div class="sb-section-label">Agents</div>
 
- <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('command-center')">
- <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
- <span class="text-blue-100 text-sm font-medium">Command Center</span>
- </a>
+  <a class="nav-item" onclick="showPage('agents')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+   <span class="sb-label">AI Agents</span>
+  </a>
+  <a class="nav-item" onclick="showPage('arb')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+   <span class="sb-label">ARB Decisions</span>
+  </a>
+  <a class="nav-item" onclick="showPage('maturity')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+   <span class="sb-label">Maturity Scores</span>
+  </a>
+  <a class="nav-item" onclick="showPage('mapping')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+   <span class="sb-label">Dependency Map</span>
+  </a>
+  <a class="nav-item" onclick="showPage('reports')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+   <span class="sb-label">Reports</span>
+  </a>
+  <a class="nav-item" onclick="showPage('advisory')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+   <span class="sb-label">AI Advisory Console</span>
+  </a>
 
- <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('ea-analysis')">
- <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
- <span class="text-blue-100 text-sm font-medium">EA Analysis</span>
- </a>
+  <div class="sb-section-label">System</div>
 
- <p class="text-xs font-semibold text-blue-300 opacity-50 uppercase tracking-widest px-3 pt-3 pb-2">Agents</p>
-
- <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('agents')">
- <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
- <span class="text-blue-100 text-sm font-medium">AI Agents</span>
- </a>
-
- <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('arb')">
- <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
- <span class="text-blue-100 text-sm font-medium">ARB Decisions</span>
- </a>
-
- <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('maturity')">
- <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
- <span class="text-blue-100 text-sm font-medium">Maturity Scores</span>
- </a>
-
- <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('mapping')">
- <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
- <span class="text-blue-100 text-sm font-medium">Dependency Map</span>
- </a>
-
- <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('reports')">
- <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
- <span class="text-blue-100 text-sm font-medium">Reports</span>
- </a>
-
- <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('advisory')">
- <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
- <span class="text-blue-100 text-sm font-medium">AI Advisory Console</span>
- </a>
-
- <p class="text-xs font-semibold text-blue-300 opacity-50 uppercase tracking-widest px-3 pt-3 pb-2">System</p>
-
- <a class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-lg cursor-pointer" onclick="showPage('settings')">
- <svg class="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
- <span class="text-blue-100 text-sm font-medium">Settings</span>
- </a>
+  <a class="nav-item" onclick="showPage('settings')">
+   <svg style="width:20px;height:20px;color:#93C5FD;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+   <span class="sb-label">Settings</span>
+  </a>
  </nav>
 
  <!-- User Profile -->
- <div class="px-4 py-4 border-t border-navy-light">
- <div class="flex items-center gap-3">
- <div class="w-8 h-8 rounded-full bg-navy-light border border-blue-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">EA</div>
- <div class="flex-1 min-w-0">
- <div class="text-white text-sm font-semibold truncate">EA Architect</div>
- <div id="sidebar-user-email" class="text-blue-300 text-xs font-medium opacity-70 truncate">Super Admin</div>
- </div>
- <div class="flex items-center gap-2 flex-shrink-0">
- <div class="online-dot"></div>
- <button onclick="showPage('settings')" class="p-1 rounded hover:bg-navy-light transition" title="Settings">
- <svg class="w-3.5 h-3.5 text-blue-300 opacity-60 hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
- <path stroke-linecap="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
- <circle cx="12" cy="12" r="3"/>
- </svg>
- </button>
- <button onclick="doSignOut()" class="p-1 rounded hover:bg-navy-light transition" title="Sign Out">
- <svg class="w-3.5 h-3.5 text-blue-300 opacity-60 hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
- <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
- </svg>
- </button>
- </div>
- </div>
+ <div style="padding:12px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px;flex-shrink:0">
+  <div style="width:32px;height:32px;border-radius:50%;background:#1E3A5F;border:1.5px solid #1E49E2;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0">EA</div>
+  <div class="sb-profile-detail" style="flex:1;min-width:0">
+   <div style="color:#fff;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Inter',sans-serif">EA Architect</div>
+   <div id="sidebar-user-email" style="color:#4B6A9B;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Inter',sans-serif">Super Admin</div>
+  </div>
+  <div class="sb-profile-detail" style="display:flex;gap:6px;flex-shrink:0">
+   <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;margin-top:1px"></span>
+   <button onclick="showPage('settings')" style="background:none;border:none;cursor:pointer;padding:2px;color:#4B6A9B" title="Settings">
+    <svg style="width:13px;height:13px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+   </button>
+   <button onclick="doSignOut()" style="background:none;border:none;cursor:pointer;padding:2px;color:#4B6A9B" title="Sign Out">
+    <svg style="width:13px;height:13px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+   </button>
+  </div>
  </div>
 </aside>
 
@@ -337,9 +365,6 @@
  <p id="page-subtitle" style="display:none">Overview</p>
  <!-- Brand mark -->
  <div style="display:flex;align-items:center;gap:8px">
- <div style="width:28px;height:28px;border-radius:7px;background:#1E49E2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
- <svg style="width:14px;height:14px;color:#fff" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
- </div>
  <span style="font-size:13px;font-weight:700;color:#fff;letter-spacing:-.2px;white-space:nowrap">EA Intelligence</span>
  </div>
  </div>
@@ -505,7 +530,7 @@
  <div style="width:40px;height:40px;border-radius:8px;background:#EAF6FF;display:flex;align-items:center;justify-content:center;margin-bottom:14px">
  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00338D" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
  </div>
- <h4 style="font-size:15px;font-weight:700;color:#0C233C;margin:0 0 6px;font-family:'Geist','Inter',sans-serif">TIME Analysis</h4>
+ <h4 style="font-size:15px;font-weight:700;color:#0C233C;margin:0 0 6px;font-family:'Geist','Inter',sans-serif">Rationalization Analysis</h4>
  <p style="font-size:13px;color:#1E49E2;margin:0;line-height:1.55;font-family:'Geist','Inter',sans-serif">Tolerate, Invest, Migrate, Eliminate modeling for application lifecycle.</p>
  </div>
  <!-- Mapping Bot -->
@@ -674,59 +699,90 @@
  <circle cx="210" cy="510" r="3"/><circle cx="210" cy="290" r="3"/>
  </g>
  </svg>
- <!-- EA AI CORE — circle, matches reference -->
- <div style="position:absolute;width:112px;height:112px;border-radius:50%;background:#00338D;border:4px solid #D0EEFF;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:40;box-shadow:0 8px 40px rgba(0,51,141,.3);cursor:pointer;transition:transform .3s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
- <span class="material-symbols-outlined" style="color:#fff;font-size:30px;margin-bottom:2px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">psychology_alt</span>
- <p style="color:rgba(255,255,255,.8);font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin:0;font-family:'Geist',sans-serif">EA AI</p>
- <p style="color:#fff;font-size:20px;font-weight:600;margin:0;line-height:1;font-family:'Geist',sans-serif">CORE</p>
+ <!-- EA AI CORE -->
+ <div id="ov-core" class="ov-core-anim" style="position:absolute;width:120px;height:120px;border-radius:50%;background:#00338D;border:4px solid #D0EEFF;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:40;box-shadow:0 8px 40px rgba(0,51,141,.3);cursor:pointer;transition:transform .3s" onmouseover="this.style.transform='scale(1.07)'" onmouseout="this.style.transform='scale(1)'">
+  <span class="material-symbols-outlined" style="color:#fff;font-size:32px;margin-bottom:2px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">psychology_alt</span>
+  <p style="color:rgba(255,255,255,.8);font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin:0;font-family:'Geist',sans-serif">EA AI</p>
+  <p style="color:#fff;font-size:20px;font-weight:700;margin:0;line-height:1;font-family:'Geist',sans-serif">CORE</p>
  </div>
- <!-- Strategy — top, -220px -->
- <div style="position:absolute;transform:translateY(-220px);z-index:30;cursor:pointer">
- <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
- <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">ads_click</span>
- <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Strategy</p>
- <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
+
+ <!-- Strategy — top -->
+ <div id="ov-node-strategy" class="ov-hex-wrap ov-hex-anim" style="transform:translateY(-220px)">
+  <div class="ov-hex-node" style="width:100px;height:116px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.95);border:1.5px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:8px;transition:box-shadow .2s,border-color .2s">
+   <span class="material-symbols-outlined" style="color:#00338D;font-size:26px;margin-bottom:4px">ads_click</span>
+   <p style="font-size:10px;font-weight:700;color:#00338D;letter-spacing:.06em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Strategy</p>
+   <div style="height:2px;width:14px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:5px"></div>
+  </div>
+  <div class="ov-tooltip">
+   <strong style="color:#93C5FD">EA Strategy</strong><br>
+   Defines the vision, goals and architectural direction aligned to business objectives. Covers EA roadmap, investment priorities and long-term technology positioning.
+  </div>
  </div>
+
+ <!-- Architecture — top-right -->
+ <div id="ov-node-architecture" class="ov-hex-wrap ov-hex-anim" style="transform:translate(210px,-120px)">
+  <div class="ov-hex-node" style="width:100px;height:116px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.95);border:1.5px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:8px;transition:box-shadow .2s,border-color .2s">
+   <span class="material-symbols-outlined" style="color:#00338D;font-size:26px;margin-bottom:4px">account_tree</span>
+   <p style="font-size:10px;font-weight:700;color:#00338D;letter-spacing:.06em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Architecture</p>
+   <div style="height:2px;width:14px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:5px"></div>
+  </div>
+  <div class="ov-tooltip" style="bottom:auto;top:calc(100% + 10px)">
+   <strong style="color:#93C5FD">Enterprise Architecture</strong><br>
+   The structured analysis of applications, data flows, integrations and technology layers across the enterprise. Drives standardisation and reduces complexity.
+   <style>.ov-node-arch .ov-tooltip::after{border-top-color:transparent;border-bottom-color:#0C233C;top:auto;bottom:100%}</style>
+  </div>
  </div>
- <!-- Architecture — top-right, +190px -110px -->
- <div style="position:absolute;transform:translate(190px,-110px);z-index:30;cursor:pointer">
- <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
- <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">account_tree</span>
- <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Architecture</p>
- <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
+
+ <!-- Insights — bottom-right -->
+ <div id="ov-node-insights" class="ov-hex-wrap ov-hex-anim" style="transform:translate(210px,120px)">
+  <div class="ov-hex-node" style="width:100px;height:116px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.95);border:1.5px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:8px;transition:box-shadow .2s,border-color .2s">
+   <span class="material-symbols-outlined" style="color:#00338D;font-size:26px;margin-bottom:4px">query_stats</span>
+   <p style="font-size:10px;font-weight:700;color:#00338D;letter-spacing:.06em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Insights</p>
+   <div style="height:2px;width:14px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:5px"></div>
+  </div>
+  <div class="ov-tooltip">
+   <strong style="color:#93C5FD">EA Insights</strong><br>
+   AI-generated executive intelligence: financial impact, risk profile, strategic recommendations and quick wins synthesised across all pipeline agents.
+  </div>
  </div>
+
+ <!-- Roadmaps — bottom -->
+ <div id="ov-node-roadmaps" class="ov-hex-wrap ov-hex-anim" style="transform:translateY(220px)">
+  <div class="ov-hex-node" style="width:100px;height:116px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.95);border:1.5px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:8px;transition:box-shadow .2s,border-color .2s">
+   <span class="material-symbols-outlined" style="color:#00338D;font-size:26px;margin-bottom:4px">explore</span>
+   <p style="font-size:10px;font-weight:700;color:#00338D;letter-spacing:.06em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Roadmaps</p>
+   <div style="height:2px;width:14px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:5px"></div>
+  </div>
+  <div class="ov-tooltip">
+   <strong style="color:#93C5FD">EA Roadmaps</strong><br>
+   Time-phased transformation plans showing which applications to invest, migrate, retire or replace — aligned to business strategy and budget cycles.
+  </div>
  </div>
- <!-- Insights — bottom-right, +190px +110px -->
- <div style="position:absolute;transform:translate(190px,110px);z-index:30;cursor:pointer">
- <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
- <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">query_stats</span>
- <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Insights</p>
- <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
+
+ <!-- Governance — bottom-left -->
+ <div id="ov-node-governance" class="ov-hex-wrap ov-hex-anim" style="transform:translate(-210px,120px)">
+  <div class="ov-hex-node" style="width:100px;height:116px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.95);border:1.5px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:8px;transition:box-shadow .2s,border-color .2s">
+   <span class="material-symbols-outlined" style="color:#00338D;font-size:26px;margin-bottom:4px">gavel</span>
+   <p style="font-size:10px;font-weight:700;color:#00338D;letter-spacing:.06em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Governance</p>
+   <div style="height:2px;width:14px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:5px"></div>
+  </div>
+  <div class="ov-tooltip">
+   <strong style="color:#93C5FD">EA Governance</strong><br>
+   ARB reviews, compliance standards, architecture principles and policy enforcement. Ensures all technology decisions align with regulatory and strategic requirements.
+  </div>
  </div>
- </div>
- <!-- Roadmaps — bottom, +220px -->
- <div style="position:absolute;transform:translateY(220px);z-index:30;cursor:pointer">
- <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
- <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">explore</span>
- <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Roadmaps</p>
- <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
- </div>
- </div>
- <!-- Governance — bottom-left, -190px +110px -->
- <div style="position:absolute;transform:translate(-190px,110px);z-index:30;cursor:pointer">
- <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
- <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">gavel</span>
- <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Governance</p>
- <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
- </div>
- </div>
- <!-- Operations — top-left, -190px -110px -->
- <div style="position:absolute;transform:translate(-190px,-110px);z-index:30;cursor:pointer">
- <div class="ov-hex-node" style="width:96px;height:112px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.9);border:1px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:8px">
- <span class="material-symbols-outlined" style="color:#00338D;font-size:24px;margin-bottom:4px">precision_manufacturing</span>
- <p style="font-size:10px;font-weight:600;color:#00338D;letter-spacing:.05em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Operations</p>
- <div style="height:2px;width:12px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:4px"></div>
- </div>
+
+ <!-- Operations — top-left -->
+ <div id="ov-node-operations" class="ov-hex-wrap ov-hex-anim" style="transform:translate(-210px,-120px)">
+  <div class="ov-hex-node" style="width:100px;height:116px;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);background:rgba(255,255,255,.95);border:1.5px solid rgba(0,51,141,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:8px;transition:box-shadow .2s,border-color .2s">
+   <span class="material-symbols-outlined" style="color:#00338D;font-size:26px;margin-bottom:4px">precision_manufacturing</span>
+   <p style="font-size:10px;font-weight:700;color:#00338D;letter-spacing:.06em;text-transform:uppercase;text-align:center;margin:0;font-family:'Geist',sans-serif">Operations</p>
+   <div style="height:2px;width:14px;background:rgba(0,51,141,.2);border-radius:1px;margin-top:5px"></div>
+  </div>
+  <div class="ov-tooltip">
+   <strong style="color:#93C5FD">EA Operations</strong><br>
+   Operational architecture covering ITSM processes, infrastructure lifecycle, availability management and day-to-day technology delivery aligned to service standards.
+  </div>
  </div>
  <!-- Active Perspective overlay -->
  <div style="position:absolute;bottom:0;left:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border:1px solid #B8DEFF;border-radius:12px;padding:16px;max-width:240px;z-index:50;box-shadow:0 4px 24px rgba(0,0,0,.1)">
@@ -807,7 +863,7 @@
  </button>
  <button onclick="showPage('reports')" class="ov-action-btn" onmouseover="this.style.background='#EEF2FF'" onmouseout="this.style.background='#F8FAFC'">
  <div style="width:7px;height:7px;border-radius:50%;background:#1E49E2;flex-shrink:0"></div>
- <div><div style="font-size:12px;font-weight:600;color:#0C233C">Run Full Pipeline</div><div style="font-size:10.5px;color:#94A3B8">TIME → Mapping → Maturity → Insights</div></div>
+ <div><div style="font-size:12px;font-weight:600;color:#0C233C">Run Full Pipeline</div><div style="font-size:10.5px;color:#94A3B8">Rationalization → Mapping → Maturity → Insights</div></div>
  </button>
  <button onclick="showPage('maturity')" class="ov-action-btn" onmouseover="this.style.background='#EEF2FF'" onmouseout="this.style.background='#F8FAFC'">
  <div style="width:7px;height:7px;border-radius:50%;background:#7213EA;flex-shrink:0"></div>
@@ -848,7 +904,7 @@
  </div>
  </div>
  <div id="ov-platform-status" style="display:flex;flex-direction:column;gap:7px">
- <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px"><span style="color:#334155;font-weight:500">TIME Agent</span><span id="ov-status-time" style="font-size:10px;font-weight:700;color:#16A34A;background:#D1FAE5;padding:2px 8px;border-radius:3px">CHECKING…</span></div>
+ <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px"><span style="color:#334155;font-weight:500">Rationalization Agent</span><span id="ov-status-time" style="font-size:10px;font-weight:700;color:#16A34A;background:#D1FAE5;padding:2px 8px;border-radius:3px">CHECKING…</span></div>
  <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px"><span style="color:#334155;font-weight:500">MAPPING Agent</span><span id="ov-status-mapping" style="font-size:10px;font-weight:700;color:#16A34A;background:#D1FAE5;padding:2px 8px;border-radius:3px">CHECKING…</span></div>
  <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px"><span style="color:#334155;font-weight:500">MATURITY Agent</span><span id="ov-status-maturity" style="font-size:10px;font-weight:700;color:#16A34A;background:#D1FAE5;padding:2px 8px;border-radius:3px">CHECKING…</span></div>
  <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px"><span style="color:#334155;font-weight:500">INSIGHTS Agent</span><span id="ov-status-insights" style="font-size:10px;font-weight:700;color:#16A34A;background:#D1FAE5;padding:2px 8px;border-radius:3px">CHECKING…</span></div>
@@ -865,33 +921,97 @@
 
 
  <!-- ══ AI AGENTS PAGE ══════════════════════════════════════ -->
- <div id="page-agents" class="page p-6 hidden fade-in">
- <div class="bg-white rounded-xl shadow-card p-6">
+ <div id="page-agents" class="page p-6 hidden fade-in" style="overflow-y:auto">
+ <div class="bg-white rounded-xl shadow-card p-6 mb-5">
  <h2 class="font-bold text-navy text-base mb-1">AI Agent Chat</h2>
- <p class="text-sm text-gray-400 mb-5">Select an agent and run queries below</p>
- <!-- Reuse same agent grid + query -->
- <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
- <div class="agent-card-p selected border-2 border-blue-brand rounded-xl p-4 text-center bg-blue-50 cursor-pointer" data-agent="ARB" onclick="selectAgentPage(this)">
- <div class="w-10 h-10 rounded-xl bg-blue-brand mx-auto flex items-center justify-center mb-2"><span class="text-white font-bold">ARB</span></div>
- <p class="text-xs text-gray-500">Review Board</p>
+ <p class="text-sm text-gray-400 mb-6">Select an agent below, then type your query and click Run</p>
+
+ <!-- Agent cards grid — with descriptions -->
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:24px">
+
+  <!-- ARB -->
+  <div class="agent-card-p selected border-2 border-blue-brand rounded-xl cursor-pointer" style="background:#EFF6FF;padding:20px" data-agent="ARB" onclick="selectAgentPage(this)">
+   <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <div style="width:44px;height:44px;border-radius:12px;background:#1E49E2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+     <span style="color:#fff;font-weight:800;font-size:13px;font-family:'Inter',sans-serif">ARB</span>
+    </div>
+    <div>
+     <div style="font-size:13px;font-weight:700;color:#0C233C;font-family:'Inter',sans-serif">Architecture Review Board</div>
+     <div style="font-size:10px;font-weight:600;color:#1E49E2;text-transform:uppercase;letter-spacing:.8px;margin-top:2px">Governance Agent</div>
+    </div>
+   </div>
+   <p style="font-size:12px;color:#334155;line-height:1.65;margin:0 0 10px;font-family:'Inter',sans-serif">Evaluates architecture proposals and technology decisions against governance standards. Returns <strong>APPROVE / REJECT / CONDITIONAL</strong> verdicts with compliance scores and risk flags.</p>
+   <div style="background:#DBEAFE;border-radius:6px;padding:8px 10px">
+    <div style="font-size:10px;font-weight:700;color:#1E49E2;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">EA Relevance</div>
+    <p style="font-size:11px;color:#1E40AF;margin:0;line-height:1.5">Critical for enforcing architectural standards, regulatory compliance and preventing ungoverned technology proliferation across the enterprise.</p>
+   </div>
+  </div>
+
+  <!-- TIME -->
+  <div class="agent-card-p border-2 border-transparent rounded-xl cursor-pointer" style="padding:20px;background:#fff;border-color:#E2E8F0" data-agent="TIME" onclick="selectAgentPage(this)">
+   <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <div style="width:44px;height:44px;border-radius:12px;background:#00338D;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+     <span style="color:#fff;font-weight:800;font-size:14px;font-family:'Inter',sans-serif">T</span>
+    </div>
+    <div>
+     <div style="font-size:13px;font-weight:700;color:#0C233C;font-family:'Inter',sans-serif">Rationalization Agent</div>
+     <div style="font-size:10px;font-weight:600;color:#00338D;text-transform:uppercase;letter-spacing:.8px;margin-top:2px">Portfolio Rationalisation</div>
+    </div>
+   </div>
+   <p style="font-size:12px;color:#334155;line-height:1.65;margin:0 0 10px;font-family:'Inter',sans-serif">Scores every application across 7 dimensions and classifies it as <strong>Tolerate · Invest · Migrate · Eliminate</strong> with a 6R action (Retain, Rehost, Replatform, Refactor, Replace, Retire).</p>
+   <div style="background:#EFF6FF;border-radius:6px;padding:8px 10px">
+    <div style="font-size:10px;font-weight:700;color:#00338D;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">EA Relevance</div>
+    <p style="font-size:11px;color:#1E3A5F;margin:0;line-height:1.5">Foundation of EA rationalization — drives cost reduction, eliminates technical debt and aligns portfolio investment with strategic business outcomes.</p>
+   </div>
+  </div>
+
+  <!-- MAPPING -->
+  <div class="agent-card-p border-2 border-transparent rounded-xl cursor-pointer" style="padding:20px;background:#fff;border-color:#E2E8F0" data-agent="MAPPING" onclick="selectAgentPage(this)">
+   <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <div style="width:44px;height:44px;border-radius:12px;background:#0D9488;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+     <span style="color:#fff;font-weight:800;font-size:14px;font-family:'Inter',sans-serif">M</span>
+    </div>
+    <div>
+     <div style="font-size:13px;font-weight:700;color:#0C233C;font-family:'Inter',sans-serif">Mapping Agent</div>
+     <div style="font-size:10px;font-weight:600;color:#0D9488;text-transform:uppercase;letter-spacing:.8px;margin-top:2px">Dependency Analysis</div>
+    </div>
+   </div>
+   <p style="font-size:12px;color:#334155;line-height:1.65;margin:0 0 10px;font-family:'Inter',sans-serif">Analyses upstream/downstream dependencies, integration complexity and migration risk for flagged applications. Produces coupling scores and change impact assessments.</p>
+   <div style="background:#F0FDFA;border-radius:6px;padding:8px 10px">
+    <div style="font-size:10px;font-weight:700;color:#0D9488;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">EA Relevance</div>
+    <p style="font-size:11px;color:#134E4A;margin:0;line-height:1.5">Essential for safe decommissioning and migration planning — prevents service disruption by identifying hidden dependencies before retirement or replacement decisions.</p>
+   </div>
+  </div>
+
+  <!-- MATURITY -->
+  <div class="agent-card-p border-2 border-transparent rounded-xl cursor-pointer" style="padding:20px;background:#fff;border-color:#E2E8F0" data-agent="MATURITY" onclick="selectAgentPage(this)">
+   <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <div style="width:44px;height:44px;border-radius:12px;background:#7213EA;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+     <span style="color:#fff;font-weight:800;font-size:14px;font-family:'Inter',sans-serif">M</span>
+    </div>
+    <div>
+     <div style="font-size:13px;font-weight:700;color:#0C233C;font-family:'Inter',sans-serif">Maturity Agent</div>
+     <div style="font-size:10px;font-weight:600;color:#7213EA;text-transform:uppercase;letter-spacing:.8px;margin-top:2px">Capability Assessment</div>
+    </div>
+   </div>
+   <p style="font-size:12px;color:#334155;line-height:1.65;margin:0 0 10px;font-family:'Inter',sans-serif">Scores EA practice maturity across <strong>8 dimensions</strong> on a 1–5 scale (Vision, Governance, Architecture Development, Portfolio, Data, Technology, Integration, Tools). Produces improvement priorities.</p>
+   <div style="background:#F5F3FF;border-radius:6px;padding:8px 10px">
+    <div style="font-size:10px;font-weight:700;color:#7213EA;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">EA Relevance</div>
+    <p style="font-size:11px;color:#4C1D95;margin:0;line-height:1.5">Benchmarks where the EA function stands today across COBIT/TOGAF dimensions — enables targeted capability investment and tracks year-on-year improvement.</p>
+   </div>
+  </div>
+
  </div>
- <div class="agent-card-p border-2 border-transparent rounded-xl p-4 text-center hover:border-kpmg cursor-pointer" data-agent="TIME" onclick="selectAgentPage(this)">
- <div class="w-10 h-10 rounded-xl bg-kpmg mx-auto flex items-center justify-center mb-2"><span class="text-white font-bold">T</span></div>
- <p class="text-xs text-gray-500">Portfolio</p>
+
+ <!-- Query area -->
+ <div style="border-top:1px solid #E2E8F0;padding-top:20px">
+  <label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:8px;font-family:'Inter',sans-serif">Query for selected agent</label>
+  <textarea id="query-input-p" rows="4" placeholder="Type your query… e.g. 'Assess the maturity of our EA practice' or 'Review proposal to migrate billing to microservices'" class="w-full border border-slate-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand mb-3 resize-none"></textarea>
+  <button onclick="runAgentPage()" class="bg-blue-brand text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-blue-light transition">Run Agent</button>
  </div>
- <div class="agent-card-p border-2 border-transparent rounded-xl p-4 text-center hover:border-teal-500 cursor-pointer" data-agent="MAPPING" onclick="selectAgentPage(this)">
- <div class="w-10 h-10 rounded-xl bg-teal-brand mx-auto flex items-center justify-center mb-2"><span class="text-white font-bold">M</span></div>
- <p class="text-xs text-gray-500">Dependencies</p>
- </div>
- <div class="agent-card-p border-2 border-transparent rounded-xl p-4 text-center hover:border-purple-500 cursor-pointer" data-agent="MATURITY" onclick="selectAgentPage(this)">
- <div class="w-10 h-10 rounded-xl bg-purple-600 mx-auto flex items-center justify-center mb-2"><span class="text-white font-bold">M</span></div>
- <p class="text-xs text-gray-500">Assessment</p>
- </div>
- </div>
- <textarea id="query-input-p" rows="4" placeholder="Type your query…" class="w-full border border-slate-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-brand mb-3 resize-none"></textarea>
- <button onclick="runAgentPage()" class="bg-blue-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-light transition">Run Agent</button>
+
  <div id="agents-page-result" class="mt-5 hidden">
- <pre class="result-pre bg-gray-50 rounded-xl p-4 text-sm text-gray-700 overflow-auto max-h-96" id="agents-page-json"></pre>
+  <pre class="result-pre bg-gray-50 rounded-xl p-4 text-sm text-gray-700 overflow-auto max-h-96" id="agents-page-json"></pre>
  </div>
  </div>
  </div>
@@ -905,7 +1025,7 @@
  </div>
  <div>
  <h2 class="font-bold text-navy text-base">EA Application Analysis</h2>
- <p class="text-xs text-gray-400 mt-0.5">Upload your application inventory for TIME scoring, dependency mapping and EA intelligence</p>
+ <p class="text-xs text-gray-400 mt-0.5">Upload your application inventory for portfolio rationalization, dependency mapping and EA intelligence</p>
  </div>
  </div>
 
@@ -1159,19 +1279,61 @@
  </div>
 
  <!-- Assessment tool launch card -->
- <div style="background:#0C233C;border-radius:14px;padding:24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+ <div style="background:#0C233C;border-radius:14px 14px 0 0;padding:24px;margin-bottom:0;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
  <div>
  <div style="font-size:10px;font-weight:700;color:#00B8F5;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Primary Input</div>
  <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px">Run the Structured Assessment Questionnaire</div>
  <div style="font-size:12px;color:#94A3B8;line-height:1.6">30 evidence-based questions across Vision, People, Process and Technology pillars. Supports up to 15 respondents with majority-vote consensus scoring. Results feed directly into the full pipeline.</div>
  </div>
  <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
- <button onclick="openAssessmentTool()" style="padding:11px 24px;background:#7213EA;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s" onmouseover="this.style.background='#5b0eb8'" onmouseout="this.style.background='#7213EA'">
- Open Assessment Tool ↗
+ <button onclick="toggleInlineQuestionnaire()" id="mat-toggle-q-btn" style="padding:11px 24px;background:#7213EA;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s" onmouseover="this.style.background='#5b0eb8'" onmouseout="this.style.background='#7213EA'">
+ Start Assessment ↓
  </button>
- <button onclick="syncAssessmentResults()" style="padding:9px 24px;background:rgba(255,255,255,.08);color:#94A3B8;border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap" id="mat-sync-btn">
- ↺ Sync Results (after completing assessment)
- </button>
+ </div>
+ </div>
+ <!-- ── INLINE QUESTIONNAIRE PANEL ── -->
+ <div id="inline-q-panel" style="display:none;background:#fff;border:1px solid #B8DEFF;border-top:none;border-radius:0 0 14px 14px;margin-bottom:20px;overflow:hidden">
+ <!-- Name entry -->
+ <div id="iq-name-view" style="padding:28px;text-align:center">
+ <div style="font-size:20px;font-weight:800;color:#0C233C;margin-bottom:6px">Who is responding?</div>
+ <div style="font-size:13px;color:#64748B;margin-bottom:20px">Enter your name to begin. Up to 15 respondents — results are averaged.</div>
+ <div style="max-width:340px;margin:0 auto">
+ <input id="iq-respondent-name" type="text" placeholder="Your name or role (e.g. EA Lead)" style="width:100%;border:1px solid #CBD5E1;border-radius:8px;padding:11px 14px;font-size:14px;outline:none;margin-bottom:12px;font-family:inherit" onkeydown="if(event.key==='Enter')startIQRespondent()"/>
+ <div id="iq-name-err" style="color:#DC2626;font-size:12px;min-height:16px;margin-bottom:8px"></div>
+ <button onclick="startIQRespondent()" style="width:100%;padding:12px;background:#7213EA;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">Begin Questionnaire →</button>
+ </div>
+ <div id="iq-respondents-list" style="margin-top:20px;max-width:400px;margin-left:auto;margin-right:auto"></div>
+ </div>
+ <!-- Questions -->
+ <div id="iq-question-view" style="display:none;padding:24px">
+ <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+ <div>
+ <div id="iq-section-label" style="font-size:10px;font-weight:700;color:#7213EA;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Section 1</div>
+ <div id="iq-section-title" style="font-size:16px;font-weight:800;color:#0C233C">Vision & Strategy</div>
+ <div style="font-size:12px;color:#64748B;margin-top:2px">Responding as: <span id="iq-user-label" style="font-weight:600;color:#0C233C"></span></div>
+ </div>
+ <div style="text-align:right">
+ <div style="font-size:11px;color:#64748B;margin-bottom:4px">Progress</div>
+ <div style="width:180px;height:6px;background:#E2E8F0;border-radius:99px;overflow:hidden"><div id="iq-progress-bar" style="height:100%;background:#7213EA;border-radius:99px;width:0%;transition:width .3s"></div></div>
+ <div id="iq-progress-text" style="font-size:11px;color:#94A3B8;margin-top:3px">0/30 answered</div>
+ </div>
+ </div>
+ <div id="iq-questions-list" style="display:flex;flex-direction:column;gap:20px;margin-bottom:24px"></div>
+ <div style="display:flex;gap:12px;justify-content:space-between;align-items:center">
+ <button id="iq-prev-btn" onclick="iqChangeSection(-1)" style="padding:9px 20px;background:#F1F5F9;color:#64748B;border:1px solid #CBD5E1;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">← Previous</button>
+ <button id="iq-next-btn" onclick="iqChangeSection(1)" style="padding:9px 20px;background:#1E49E2;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Next →</button>
+ <button id="iq-submit-btn" onclick="iqSubmitAnswers()" style="display:none;padding:9px 20px;background:#16A34A;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Submit Answers</button>
+ </div>
+ </div>
+ <!-- Gauge results -->
+ <div id="iq-results-view" style="display:none;padding:28px">
+ <div style="font-size:16px;font-weight:800;color:#0C233C;margin-bottom:16px">Assessment Results</div>
+ <div id="iq-gauge-area" style="margin-bottom:20px"></div>
+ <div id="iq-dim-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:20px"></div>
+ <div style="display:flex;gap:12px;flex-wrap:wrap">
+ <button onclick="iqAddRespondent()" style="padding:9px 20px;background:#EEF2FF;color:#1E49E2;border:1px solid #C7D2FE;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">+ Add Respondent</button>
+ <button onclick="iqSaveToMainAndCollapse()" style="padding:9px 20px;background:#7213EA;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Use These Results in Pipeline</button>
+ </div>
  </div>
  </div>
 
@@ -1361,22 +1523,22 @@
  <div class="bg-white rounded-xl shadow-card p-6">
  <h2 class="font-bold text-navy text-base mb-5">Generate Reports</h2>
  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
- <div class="border border-slate-border rounded-xl p-5 hover:border-kpmg hover:shadow-card cursor-pointer transition" onclick="runFullPipeline()">
+ <div class="border border-slate-border rounded-xl p-5 hover:border-kpmg hover:shadow-card cursor-pointer transition" onclick="startWizardPipeline()">
  <div class="w-10 h-10 rounded-lg bg-kpmg bg-opacity-10 flex items-center justify-center mb-3">
  <svg class="w-5 h-5 text-kpmg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
  </div>
  <p class="text-sm font-bold text-navy">EA Full Pipeline Report</p>
- <p class="text-xs text-gray-400 mt-1">TIME · Mapping · Maturity · Insights — full EA intelligence with PDF output</p>
- <span class="mt-3 inline-block text-xs font-semibold text-kpmg">Run Pipeline →</span>
+ <p class="text-xs text-gray-400 mt-1">Step-by-step: 6R → Mapping → Maturity → Insights → PDF</p>
+ <span class="mt-3 inline-block text-xs font-semibold text-kpmg">Start Wizard →</span>
  </div>
  <div class="border border-slate-border rounded-xl p-5 hover:border-blue-brand hover:shadow-card transition">
  <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-3">
  <svg class="w-5 h-5 text-blue-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
  </div>
  <p class="text-sm font-bold text-navy">Full EA Intelligence</p>
- <p class="text-xs text-gray-400 mt-1">Complete 4-stage pipeline: TIME → Mapping → Maturity → Insights</p>
+ <p class="text-xs text-gray-400 mt-1">Complete 4-stage pipeline: Rationalization → Mapping → Maturity → Insights</p>
  <p class="text-xs text-gray-300 mt-1" id="full-pipeline-status" style="display:none">Running…</p>
- <button id="full-pipeline-btn" onclick="runFullPipeline()" class="mt-3 text-xs font-semibold text-blue-brand hover:underline">Run Pipeline →</button>
+ <button id="full-pipeline-btn" onclick="startWizardPipeline()" class="mt-3 text-xs font-semibold text-blue-brand hover:underline">Run Pipeline →</button>
  </div>
  <div class="border border-slate-border rounded-xl p-5 hover:border-purple-500 hover:shadow-card cursor-pointer transition" onclick="showPage('maturity')">
  <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center mb-3">
@@ -1387,6 +1549,157 @@
  <span class="mt-3 inline-block text-xs font-semibold text-purple-600">Assess →</span>
  </div>
  </div>
+ </div>
+
+ <!-- ══ STEP-BY-STEP PIPELINE WIZARD ══════════════════════════ -->
+ <div id="pipeline-wizard" style="display:none;margin-top:20px">
+
+ <!-- Step bar -->
+ <div style="background:#fff;border:1px solid #B8DEFF;border-radius:14px;padding:20px 28px;margin-bottom:16px">
+ <div style="display:flex;align-items:center;gap:0;overflow-x:auto">
+ <div class="wiz-step" id="wiz-indicator-1" style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+ <div id="wiz-dot-1" style="width:28px;height:28px;border-radius:50%;background:#7213EA;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">1</div>
+ <div><div style="font-size:11px;font-weight:700;color:#0C233C">6R Framework</div><div style="font-size:10px;color:#94A3B8">Portfolio Analysis</div></div>
+ </div>
+ <div style="flex:1;min-width:20px;height:2px;background:#E2E8F0;margin:0 8px"></div>
+ <div class="wiz-step" id="wiz-indicator-2" style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+ <div id="wiz-dot-2" style="width:28px;height:28px;border-radius:50%;background:#E2E8F0;color:#94A3B8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">2</div>
+ <div><div style="font-size:11px;font-weight:700;color:#94A3B8" id="wiz-label-2">Mapping</div><div style="font-size:10px;color:#94A3B8">Dependency Analysis</div></div>
+ </div>
+ <div style="flex:1;min-width:20px;height:2px;background:#E2E8F0;margin:0 8px"></div>
+ <div class="wiz-step" id="wiz-indicator-3" style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+ <div id="wiz-dot-3" style="width:28px;height:28px;border-radius:50%;background:#E2E8F0;color:#94A3B8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">3</div>
+ <div><div style="font-size:11px;font-weight:700;color:#94A3B8" id="wiz-label-3">Maturity</div><div style="font-size:10px;color:#94A3B8">Assessment</div></div>
+ </div>
+ <div style="flex:1;min-width:20px;height:2px;background:#E2E8F0;margin:0 8px"></div>
+ <div class="wiz-step" id="wiz-indicator-4" style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+ <div id="wiz-dot-4" style="width:28px;height:28px;border-radius:50%;background:#E2E8F0;color:#94A3B8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">4</div>
+ <div><div style="font-size:11px;font-weight:700;color:#94A3B8" id="wiz-label-4">Insights</div><div style="font-size:10px;color:#94A3B8">Executive Synthesis</div></div>
+ </div>
+ <div style="flex:1;min-width:20px;height:2px;background:#E2E8F0;margin:0 8px"></div>
+ <div class="wiz-step" id="wiz-indicator-5" style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+ <div id="wiz-dot-5" style="width:28px;height:28px;border-radius:50%;background:#E2E8F0;color:#94A3B8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">5</div>
+ <div><div style="font-size:11px;font-weight:700;color:#94A3B8" id="wiz-label-5">Report</div><div style="font-size:10px;color:#94A3B8">Download PDF</div></div>
+ </div>
+ </div>
+ </div>
+
+ <!-- Step 1 panel: 6R / TIME Results -->
+ <div id="wiz-panel-1" style="display:none;background:#fff;border:1px solid #B8DEFF;border-radius:14px;padding:24px;margin-bottom:16px">
+ <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+ <div style="width:36px;height:36px;border-radius:8px;background:#0D948810;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#0D9488" stroke-width="2"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg></div>
+ <div><div style="font-size:14px;font-weight:800;color:#0C233C">Step 1 — 6R Framework Analysis</div><div style="font-size:12px;color:#64748B">Portfolio scored and classified by Rationalization + 6R</div></div>
+ <div id="wiz-s1-loading" style="margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#7213EA"><span class="spin inline-block w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full"></span>Analysing…</div>
+ </div>
+ <div id="wiz-s1-content" style="display:none">
+ <div id="wiz-s1-summary" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px"></div>
+ <div style="overflow-x:auto">
+ <table style="width:100%;border-collapse:collapse;font-size:12px">
+ <thead><tr style="background:#F8FAFC;border-bottom:2px solid #E2E8F0">
+ <th style="padding:8px 12px;text-align:left;font-weight:700;color:#0C233C">Application</th>
+ <th style="padding:8px 12px;text-align:left;font-weight:700;color:#0C233C">Vendor</th>
+ <th style="padding:8px 12px;text-align:left;font-weight:700;color:#0C233C">Category</th>
+ <th style="padding:8px 12px;text-align:center;font-weight:700;color:#0C233C">Score</th>
+ <th style="padding:8px 12px;text-align:left;font-weight:700;color:#0C233C">Rationalization</th>
+ <th style="padding:8px 12px;text-align:left;font-weight:700;color:#0C233C">6R Action</th>
+ <th style="padding:8px 12px;text-align:right;font-weight:700;color:#0C233C">Cost</th>
+ </tr></thead>
+ <tbody id="wiz-s1-table-body"></tbody>
+ </table>
+ </div>
+ <div style="margin-top:16px;text-align:right">
+ <button onclick="wizStep2()" style="padding:10px 28px;background:#1E49E2;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Next: Dependency Mapping →</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- Step 2 panel: Mapping -->
+ <div id="wiz-panel-2" style="display:none;background:#fff;border:1px solid #B8DEFF;border-radius:14px;padding:24px;margin-bottom:16px">
+ <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+ <div style="width:36px;height:36px;border-radius:8px;background:#00B8F510;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#00B8F5" stroke-width="2"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path stroke-linecap="round" d="M7 12h10M17 7l2 3M17 17l2-2"/></svg></div>
+ <div><div style="font-size:14px;font-weight:800;color:#0C233C">Step 2 — Dependency Mapping</div><div style="font-size:12px;color:#64748B">Impact analysis for ELIMINATE/MIGRATE apps</div></div>
+ <div id="wiz-s2-loading" style="margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#00B8F5"><span class="spin inline-block w-4 h-4 border-2 border-teal-400 border-t-transparent rounded-full"></span>Mapping…</div>
+ </div>
+ <div id="wiz-s2-content" style="display:none">
+ <div id="wiz-s2-body" style="font-size:13px;color:#334155;margin-bottom:16px"></div>
+ <div style="margin-top:8px;text-align:right">
+ <button onclick="wizStep3()" style="padding:10px 28px;background:#7213EA;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Next: Maturity Assessment →</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- Step 3 panel: Inline questionnaire (wizard context) -->
+ <div id="wiz-panel-3" style="display:none;background:#fff;border:1px solid #B8DEFF;border-radius:14px;padding:24px;margin-bottom:16px">
+ <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+ <div style="width:36px;height:36px;border-radius:8px;background:#7213EA10;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#7213EA" stroke-width="2"><path stroke-linecap="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>
+ <div><div style="font-size:14px;font-weight:800;color:#0C233C">Step 3 — EA Maturity Assessment</div><div style="font-size:12px;color:#64748B">30-question structured questionnaire • up to 15 respondents</div></div>
+ </div>
+ <!-- Wizard questionnaire sub-panels -->
+ <div id="wiz-q-name" style="padding:8px 0;text-align:center">
+ <div style="font-size:14px;font-weight:700;color:#0C233C;margin-bottom:10px">Who is responding?</div>
+ <input id="wiz-q-respondent" type="text" placeholder="Name or role" style="border:1px solid #CBD5E1;border-radius:8px;padding:10px 14px;font-size:13px;width:260px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')wizQStart()"/>
+ <div style="margin-top:10px"><button onclick="wizQStart()" style="padding:9px 22px;background:#7213EA;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Start →</button></div>
+ <div id="wiz-q-respondents-done" style="margin-top:14px;font-size:12px;color:#64748B"></div>
+ </div>
+ <div id="wiz-q-questions" style="display:none">
+ <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+ <div>
+ <div id="wiz-q-sec-label" style="font-size:10px;font-weight:700;color:#7213EA;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Section</div>
+ <div id="wiz-q-sec-title" style="font-size:15px;font-weight:800;color:#0C233C"></div>
+ <div style="font-size:11px;color:#64748B;margin-top:2px">As: <span id="wiz-q-user-label" style="font-weight:600;color:#0C233C"></span></div>
+ </div>
+ <div>
+ <div style="width:160px;height:5px;background:#E2E8F0;border-radius:99px;overflow:hidden"><div id="wiz-q-prog" style="height:100%;background:#7213EA;border-radius:99px;width:0%;transition:width .3s"></div></div>
+ <div id="wiz-q-prog-text" style="font-size:10px;color:#94A3B8;margin-top:3px;text-align:right">0/30</div>
+ </div>
+ </div>
+ <div id="wiz-q-list" style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px"></div>
+ <div style="display:flex;gap:10px;justify-content:space-between">
+ <button id="wiz-q-prev" onclick="wizQSection(-1)" style="padding:8px 18px;background:#F1F5F9;color:#64748B;border:1px solid #CBD5E1;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">← Prev</button>
+ <button id="wiz-q-next" onclick="wizQSection(1)" style="padding:8px 18px;background:#1E49E2;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">Next →</button>
+ <button id="wiz-q-submit" onclick="wizQSubmit()" style="display:none;padding:8px 18px;background:#16A34A;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">Submit</button>
+ </div>
+ </div>
+ <div id="wiz-q-gauge" style="display:none;margin-top:16px">
+ <div id="wiz-q-gauge-body" style="margin-bottom:16px"></div>
+ <div style="display:flex;gap:10px;flex-wrap:wrap">
+ <button onclick="wizQAddRespondent()" style="padding:8px 18px;background:#EEF2FF;color:#1E49E2;border:1px solid #C7D2FE;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">+ Add Respondent</button>
+ <button onclick="wizStep4()" id="wiz-run-insights-btn" style="padding:9px 22px;background:#0C233C;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Run Executive Insights →</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- Step 4 panel: Insights -->
+ <div id="wiz-panel-4" style="display:none;background:#fff;border:1px solid #B8DEFF;border-radius:14px;padding:24px;margin-bottom:16px">
+ <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+ <div style="width:36px;height:36px;border-radius:8px;background:#16A34A10;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#16A34A" stroke-width="2"><path stroke-linecap="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+ <div><div style="font-size:14px;font-weight:800;color:#0C233C">Step 4 — Executive Insights</div><div style="font-size:12px;color:#64748B">AI synthesis across all stages</div></div>
+ <div id="wiz-s4-loading" style="margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#16A34A"><span class="spin inline-block w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full"></span>Generating insights…</div>
+ </div>
+ <div id="wiz-s4-content" style="display:none">
+ <div id="wiz-s4-body" style="font-size:13px;color:#334155;margin-bottom:16px"></div>
+ <div style="text-align:right">
+ <button onclick="wizStep5()" style="padding:10px 28px;background:#0C233C;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Generate Full Report →</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- Step 5 panel: Report preview + download -->
+ <div id="wiz-panel-5" style="display:none;background:#fff;border:1px solid #B8DEFF;border-radius:14px;padding:24px;margin-bottom:16px">
+ <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+ <div style="width:36px;height:36px;border-radius:8px;background:#1E49E210;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#1E49E2" stroke-width="2"><path stroke-linecap="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+ <div><div style="font-size:14px;font-weight:800;color:#0C233C">Step 5 — Full EA Report</div><div style="font-size:12px;color:#64748B">Complete pipeline report — ready to download</div></div>
+ </div>
+ <div id="wiz-report-download-bar" style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+ <div>
+ <div style="font-size:14px;font-weight:700;color:#14532D">Report ready</div>
+ <div style="font-size:12px;color:#16A34A">All 4 stages complete — click to download the full PDF</div>
+ </div>
+ <button id="wiz-download-btn" onclick="wizDownloadReport()" style="padding:11px 28px;background:#16A34A;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Download PDF Report ↓</button>
+ </div>
+ <div id="wiz-report-preview" style="font-size:13px;color:#334155"></div>
+ </div>
+
  </div>
  </div>
 
@@ -1590,7 +1903,7 @@
  <rect x="42" y="330" width="84" height="26" rx="5" fill="rgba(255,255,255,.15)">
  <animate attributeName="fill" values="rgba(255,255,255,.15);rgba(255,255,255,.45);rgba(255,255,255,.15)" dur="7.5s" begin="0s" repeatCount="indefinite"/>
  </rect>
- <text x="84" y="347" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">TIME</text>
+ <text x="84" y="347" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">RATIO</text>
  <rect x="134" y="330" width="94" height="26" rx="5" fill="rgba(255,255,255,.15)">
  <animate attributeName="fill" values="rgba(255,255,255,.15);rgba(255,255,255,.45);rgba(255,255,255,.15)" dur="7.5s" begin="1.5s" repeatCount="indefinite"/>
  </rect>
@@ -1768,10 +2081,10 @@
  <text x="380" y="276" font-family="Arial,sans-serif" font-size="10" fill="#90CAF9" text-anchor="middle">Context · Aggregation</text>
  <!-- TIME agent (breathing) -->
  <rect x="44" y="100" width="136" height="108" rx="10" fill="#0D9488" filter="url(#sh2)" class="node-breathe"/>
- <text x="112" y="128" font-family="Arial,sans-serif" font-size="14" font-weight="800" fill="#fff" text-anchor="middle">TIME</text>
+ <text x="112" y="128" font-family="Arial,sans-serif" font-size="14" font-weight="800" fill="#fff" text-anchor="middle">RATIO</text>
  <text x="112" y="146" font-family="Arial,sans-serif" font-size="10" fill="#CCFBF1" text-anchor="middle">Portfolio</text>
  <text x="112" y="161" font-family="Arial,sans-serif" font-size="10" fill="#CCFBF1" text-anchor="middle">Rationalization</text>
- <text x="112" y="180" font-family="Arial,sans-serif" font-size="9" fill="rgba(255,255,255,.55)" text-anchor="middle">6R · TIME scoring</text>
+ <text x="112" y="180" font-family="Arial,sans-serif" font-size="9" fill="rgba(255,255,255,.55)" text-anchor="middle">6R · Rationalization</text>
  <text x="112" y="196" font-family="Arial,sans-serif" font-size="9" fill="rgba(255,255,255,.55)" text-anchor="middle">Duplication detect</text>
  <!-- ARB agent -->
  <rect x="580" y="100" width="136" height="108" rx="10" fill="#D97706" filter="url(#sh2)" class="node-breathe" style="animation-delay:.6s"/>
@@ -1918,7 +2231,7 @@
  <rect x="338" y="158" width="96" height="80" rx="8" fill="#FFFBEB" stroke="#F59E0B" stroke-width="2" filter="url(#sh3)"/>
  <text x="386" y="182" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#92400E" text-anchor="middle">STEP 3</text>
  <text x="386" y="200" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#78350F" text-anchor="middle">Orchestrate</text>
- <text x="386" y="218" font-family="Arial,sans-serif" font-size="10" fill="#64748B" text-anchor="middle">TIME→MAP</text>
+ <text x="386" y="218" font-family="Arial,sans-serif" font-size="10" fill="#64748B" text-anchor="middle">RATIO→MAP</text>
  <text x="386" y="230" font-family="Arial,sans-serif" font-size="9" fill="#94A3B8" text-anchor="middle">→MAT→INS</text>
  <!-- Step 4: AI Processing (AI Engine lane) -->
  <rect x="464" y="278" width="96" height="44" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="2" filter="url(#sh3)"/>
@@ -2437,7 +2750,7 @@ const PAGE_META = {
  overview: { title: 'Overview', sub: 'EA AI Intelligence Platform — Enterprise Architecture Command' },
  dashboard: { title: 'Dashboard', sub: 'Application portfolio with 6R classification and EA metrics' },
  'command-center':{ title: 'Command Center', sub: 'Real-time EA intelligence and portfolio signals' },
- 'ea-analysis': { title: 'EA Analysis', sub: 'Upload application data for TIME scoring and full EA intelligence pipeline' },
+ 'ea-analysis': { title: 'EA Analysis', sub: 'Upload application data for portfolio rationalization and full EA intelligence pipeline' },
  agents: { title: 'AI Agents', sub: 'Run queries against individual EA agents' },
  arb: { title: 'ARB Decisions', sub: 'Architecture Review Board proposal evaluation' },
  maturity: { title: 'Maturity Scores', sub: '8-dimension EA maturity assessment' },
@@ -2473,9 +2786,27 @@ function showPage(id) {
  setNavToggle(id);
 
  if (id === 'settings') checkHealth();
- if (id === 'overview') loadOverviewKPIs();
+ if (id === 'overview') { loadOverviewKPIs(); triggerOverviewAnimation(); }
  if (id === 'dashboard') refreshPortfolioTable();
  if (id === 'command-center') refreshCommandCenter();
+ // Update chatbot page context
+ if (typeof chatSetPage === 'function') chatSetPage(id);
+ // If chat is open, inject page-aware hint
+ if (chatOpen && typeof appendChatMsg === 'function') {
+  const g = CHAT_PAGE_GUIDANCE && CHAT_PAGE_GUIDANCE[id];
+  if (g) {
+   const feed = document.getElementById('chat-feed');
+   if (feed) {
+    const div = document.createElement('div');
+    div.style.cssText = 'font-size:10.5px;color:#94A3B8;text-align:center;padding:4px 0;font-style:italic;font-family:Inter,sans-serif';
+    div.textContent = '— Navigated to ' + g.title + ' —';
+    feed.appendChild(div);
+    appendChatMsg('assistant', g.intro);
+    _renderChatChips(id);
+    feed.scrollTop = feed.scrollHeight;
+   }
+  }
+ }
 }
 
 // ── TOP NAV TOGGLE ────────────────────────────────────────────
@@ -2572,13 +2903,18 @@ function selectAgent(el) {
 }
 
 function selectAgentPage(el) {
+ const agentColors = { ARB:'#1E49E2', TIME:'#00338D', MAPPING:'#0D9488', MATURITY:'#7213EA', INSIGHTS:'#16A34A' };
+ const agentBg    = { ARB:'#EFF6FF', TIME:'#F0F7FF', MAPPING:'#F0FDFA', MATURITY:'#F5F3FF', INSIGHTS:'#F0FDF4' };
  document.querySelectorAll('.agent-card-p').forEach(c => {
- c.classList.remove('selected', 'border-blue-brand', 'border-kpmg', 'border-teal-500', 'border-purple-500', 'bg-blue-50');
- c.classList.add('border-transparent');
+  c.classList.remove('selected');
+  c.style.borderColor = '#E2E8F0';
+  c.style.background  = '#fff';
  });
- el.classList.remove('border-transparent');
- el.classList.add('selected', 'border-blue-brand', 'bg-blue-50');
- selectedAgentPage = el.dataset.agent;
+ el.classList.add('selected');
+ const agent = el.dataset.agent;
+ el.style.borderColor = agentColors[agent] || '#1E49E2';
+ el.style.background  = agentBg[agent]    || '#EFF6FF';
+ selectedAgentPage = agent;
 }
 
 // ── SAMPLE LOADER ─────────────────────────────────────────────
@@ -2694,7 +3030,7 @@ function renderResult(agent, result) {
  ${apps.length ? `<div class="overflow-x-auto rounded-lg border border-slate-border">
  <table class="w-full text-xs"><thead class="bg-slate-ui"><tr>
  <th class="text-left px-3 py-2 font-semibold text-gray-400 uppercase">App</th>
- <th class="text-left px-3 py-2 font-semibold text-gray-400 uppercase">TIME</th>
+ <th class="text-left px-3 py-2 font-semibold text-gray-400 uppercase">Rationalization</th>
  <th class="text-left px-3 py-2 font-semibold text-gray-400 uppercase">6R</th>
  <th class="text-left px-3 py-2 font-semibold text-gray-400 uppercase">Score</th>
  </tr></thead><tbody class="divide-y divide-slate-border">
@@ -3058,42 +3394,37 @@ async function runEAFullPipelineFromAnalysis() {
 }
 
 async function downloadPipelinePDF() {
- // If b64 not in memory but we have portfolio data, re-run pipeline to get fresh PDF
  if (!pipelineReportB64) {
- if (lastPipelineData) {
- toast('Regenerating PDF — please wait…', 'info');
- try {
- const res = await fetch(API + '/ea-full', {
- method: 'POST',
- headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({
- applications: lastPipelineData.TIME?.applications || [],
- ea_context: getContextPayload(),
- mapping_context: getMappingContextPayload(),
- assessment_results: assessmentResults || null,
- })
- });
- if (!res.ok) throw new Error(await res.text());
- const data = await res.json();
- pipelineReportB64 = data.report_b64 || null;
- pipelineReportFilename = data.report_filename || 'ea_full_report.pdf';
- if (!pipelineReportB64) { toast('PDF generation failed — please run the pipeline again', 'error'); return; }
- } catch(e) { toast('Error: ' + e.message, 'error'); return; }
- } else {
- toast('Run the full pipeline first to generate a report', 'warn'); return;
+  if (lastPipelineData) {
+   toast('Regenerating PDF — please wait…', 'info');
+   try {
+    const res = await fetch(API + '/ea-full', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({
+      applications: (lastPipelineData.TIME || lastPipelineData.RATIONALIZATION || {}).applications || [],
+      ea_context: getContextPayload(),
+      mapping_context: getMappingContextPayload(),
+      assessment_results: assessmentResults || null,
+     })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    if (!data.report_b64) {
+     const errMsg = data.report_error ? 'Backend error: ' + data.report_error : 'PDF generation failed on server';
+     toast(errMsg, 'error');
+     return;
+    }
+    pipelineReportB64      = data.report_b64;
+    pipelineReportFilename = data.report_filename || 'ea_full_report.pdf';
+    lastPipelineData       = { ...lastPipelineData, report_compressed: data.report_compressed };
+   } catch(e) { toast('Error: ' + e.message, 'error'); return; }
+  } else {
+   toast('Run the full pipeline first to generate a report', 'warn'); return;
+  }
  }
- }
- try {
- const bytes = Uint8Array.from(atob(pipelineReportB64), c => c.charCodeAt(0));
- const blob = new Blob([bytes], { type: 'application/pdf' });
- const a = document.createElement('a');
- a.href = URL.createObjectURL(blob);
- a.download = pipelineReportFilename || 'ea_full_report.pdf';
- a.click();
- toast('PDF downloaded successfully', 'success');
- } catch(e) {
- toast('Download failed: ' + e.message, 'error');
- }
+ const compressed = !!(lastPipelineData && lastPipelineData.report_compressed);
+ await downloadBase64PDF(pipelineReportB64, pipelineReportFilename || 'ea_full_report.pdf', compressed);
 }
 
 async function runFullPipeline() {
@@ -3111,7 +3442,7 @@ async function triggerFullPipeline(body) {
  const btn = document.getElementById('full-pipeline-btn');
  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Running Full Pipeline…'; }
  const statusEl = document.getElementById('full-pipeline-status');
- const stages = ['Stage 1/4 — TIME: Application Scoring…','Stage 2/4 — MAPPING: Dependency Analysis…','Stage 3/4 — MATURITY: EA Capability Assessment…','Stage 4/4 — INSIGHTS: Executive Synthesis…'];
+ const stages = ['Stage 1/4 — Rationalization: Application Scoring…','Stage 2/4 — MAPPING: Dependency Analysis…','Stage 3/4 — MATURITY: EA Capability Assessment…','Stage 4/4 — INSIGHTS: Executive Synthesis…'];
  let si = 0;
  const stageTimer = setInterval(() => { if (statusEl && si < stages.length) { statusEl.classList.remove('hidden'); statusEl.textContent = stages[si++]; } }, 12000);
 
@@ -3440,9 +3771,9 @@ function _renderPipelinePreview(data) {
  <!-- ══ SECTION 3: TIME PORTFOLIO CLASSIFICATION ══ -->
  <div style="margin-bottom:32px">
  ${SEC('03','Portfolio Rationalization — TIME Classification')}
- <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">${timeBdCards||'<p style="color:#94A3B8;font-style:italic">Run pipeline to see TIME breakdown</p>'}</div>
+ <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">${timeBdCards||'<p style="color:#94A3B8;font-style:italic">Run pipeline to see Rationalization breakdown</p>'}</div>
  <table style="width:100%;border-collapse:collapse;font-size:12.5px">
- ${TH(['Application','Vendor','Category','Annual Cost','Users','Business Value','Tech Health','Cost Eff.','Composite','TIME','6R Action','Confidence'])}
+ ${TH(['Application','Vendor','Category','Annual Cost','Users','Business Value','Tech Health','Cost Eff.','Composite','Rationalization','6R Action','Confidence'])}
  <tbody>${appDetailRows||'<tr><td colspan="12" style="padding:16px;color:#94A3B8;text-align:center;font-style:italic">Upload application data and run the pipeline to populate this table</td></tr>'}</tbody>
  </table>
  </div>
@@ -3495,7 +3826,7 @@ function _renderPipelinePreview(data) {
  ${mapData.data_limitations ? ` &nbsp;·&nbsp; <em style="color:#D97706">${esc(mapData.data_limitations)}</em>` : ''}
  </div>
  <table style="width:100%;border-collapse:collapse;font-size:12.5px">
- ${TH(['Application','TIME','Impact Level','Coupling Score','Known Dependencies','Data Confidence'])}
+ ${TH(['Application','Rationalization','Impact Level','Coupling Score','Known Dependencies','Data Confidence'])}
  <tbody>${mapRows}</tbody>
  </table>
  ${(mapData.recommended_migration_order||[]).length ? `
@@ -3643,7 +3974,7 @@ function _renderPipelinePreview(data) {
  const existing = document.getElementById('pipeline-output');
  if (existing) existing.remove();
  document.getElementById('page-reports').insertAdjacentHTML('beforeend',
- `<div class="bg-white rounded-xl shadow-card overflow-hidden mt-5">${reportPreview}</div>`);
+ `<div id="pipeline-output" class="bg-white rounded-xl shadow-card overflow-hidden mt-5">${reportPreview}</div>`);
  renderSavedReports();
 }
 
@@ -3999,9 +4330,10 @@ function saveReportToStorage(data, b64, filename) {
       tolerate:  timeBd.TOLERATE  || 0,
       migrate:   timeBd.MIGRATE   || 0,
       eliminate: timeBd.ELIMINATE || 0,
-      filename:  filename || 'ea_full_report.pdf',
-      b64:       b64 || null,
-      pipeline:  JSON.stringify(data).slice(0, 200000), // cap at ~200KB per report
+      filename:   filename || 'ea_full_report.pdf',
+      b64:        b64 || null,
+      compressed: data.report_compressed || false,
+      pipeline:   JSON.stringify(data).slice(0, 200000), // cap at ~200KB per report
     };
     existing.unshift(entry);           // newest first
     const trimmed = existing.slice(0, 20); // keep last 20
@@ -4061,18 +4393,10 @@ function loadSavedReport(id) {
   } catch(e) { toast('Could not load report: ' + e.message, 'error'); }
 }
 
-function downloadSavedReport(id) {
+async function downloadSavedReport(id) {
   const r = getSavedReports().find(x => x.id === id);
   if (!r || !r.b64) { toast('No PDF saved for this report', 'warn'); return; }
-  try {
-    const bytes = Uint8Array.from(atob(r.b64), c => c.charCodeAt(0));
-    const blob = new Blob([bytes], { type: 'application/pdf' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = r.filename || 'ea_full_report.pdf';
-    a.click();
-    toast('PDF downloaded', 'success');
-  } catch(e) { toast('Download failed: ' + e.message, 'error'); }
+  await downloadBase64PDF(r.b64, r.filename || 'ea_full_report.pdf', r.compressed || false);
 }
 
 function deleteSavedReport(id) {
@@ -4353,20 +4677,118 @@ function toggleAdvisorySection(sectionId, el) {
  if (sec.include) toast('Section will be included in next report download', 'success');
 }
 
+// ── Page-aware chatbot context ────────────────────────────────
+let _chatCurrentPage = 'overview';
+
+const CHAT_PAGE_GUIDANCE = {
+ 'overview': {
+  title: 'Overview',
+  intro: 'Welcome to EA AI Intelligence!\n\nYou\'re on the Overview page — your command dashboard.\n\nNEXT STEP → Go to EA Analysis (left sidebar) and upload your application portfolio (CSV, Excel, JSON, PDF or image) to begin your assessment.',
+  hints: ['Upload portfolio on EA Analysis', 'View your KPIs here after running the pipeline', 'Click any hex node to explore EA dimensions'],
+ },
+ 'ea-analysis': {
+  title: 'EA Analysis',
+  intro: 'You\'re on the EA Analysis page.\n\nNEXT STEP → Upload your application inventory file (CSV, Excel, JSON, PDF, PPTX or screenshot) using the Upload button, then click Analyse Portfolio.\n\nSupported columns: Application Name, Vendor, Category, Annual Cost, Users, Criticality.',
+  hints: ['Drag & drop or click Upload to add your portfolio file', 'Add industry context in the Additional Context section for better results', 'After analysis, go to Reports → Run Pipeline for full EA intelligence'],
+ },
+ 'agents': {
+  title: 'AI Agents',
+  intro: 'You\'re on the AI Agents page.\n\nAvailable agents:\n• ARB — Architecture Review Board governance\n• TIME — Portfolio 6R rationalization\n• MAPPING — Dependency impact analysis\n• MATURITY — EA capability scoring\n• INSIGHTS — Executive synthesis\n\nNEXT STEP → Select an agent, type your query, and click Run.',
+  hints: ['ARB: paste a proposal or architecture decision for review', 'TIME: ask about specific application classifications', 'Type /ea-full to trigger all agents at once'],
+ },
+ 'arb': {
+  title: 'ARB Decisions',
+  intro: 'You\'re on the ARB (Architecture Review Board) page.\n\nNEXT STEP → Type an architecture proposal or technology decision in the query box. The ARB agent will return APPROVE / REJECT / CONDITIONAL with a compliance score and risk flags.',
+  hints: ['Include technology name, purpose, and integration points', 'Mention security, compliance, or cloud requirements', 'Review the ARB history in Supabase for past decisions'],
+ },
+ 'maturity': {
+  title: 'Maturity Assessment',
+  intro: 'You\'re on the EA Maturity Assessment page.\n\nNEXT STEP → Click "Start Assessment ↓" to open the inline 30-question questionnaire. Answer all 8 sections. Multiple team members can each submit responses — answers are averaged.\n\nAfter completing, click "Use These Results in Pipeline" to attach them to your next pipeline run.',
+  hints: ['All 30 questions must be answered before submitting', 'Add more respondents for majority-vote accuracy', 'Results feed directly into the full pipeline maturity stage'],
+ },
+ 'mapping': {
+  title: 'Dependency Mapping',
+  intro: 'You\'re on the Dependency Mapping page.\n\nNEXT STEP → Enter a target application name (or leave blank for full portfolio). Expand "Additional Context" to add integration patterns, cloud targets, and CMDB tool info for more accurate results.\n\nClick Run Mapping Analysis.',
+  hints: ['More context = more accurate dependency output', 'ELIMINATE/MIGRATE apps get the deepest analysis', 'Coupling scores (0–10) indicate migration risk'],
+ },
+ 'reports': {
+  title: 'Reports',
+  intro: 'You\'re on the Reports page.\n\nNEXT STEP → Click "Start Wizard →" to run the full 4-stage pipeline step by step:\n  Step 1 → 6R Framework Analysis\n  Step 2 → Dependency Mapping\n  Step 3 → Maturity Assessment (questionnaire)\n  Step 4 → Executive Insights\n  Step 5 → Download PDF Report',
+  hints: ['Complete EA Analysis upload first before running the pipeline', 'Complete the Maturity questionnaire before Step 3 for best results', 'The PDF report includes all 4 agent outputs in consulting format'],
+ },
+ 'advisory': {
+  title: 'AI Advisory Console',
+  intro: 'You\'re on the AI Advisory Console.\n\nThis console lets you interrogate your pipeline report with AI.\n\nNEXT STEP → Run the full pipeline first (Reports page), then return here to ask questions like:\n• "Summarise the key findings"\n• "What is our top cost reduction opportunity?"\n• "Give me a 12-month maturity improvement roadmap"',
+  hints: ['Use the quick prompts at the top for common queries', 'Ask about specific applications by name', 'Export your AI analysis as part of the full report'],
+ },
+ 'dashboard': {
+  title: 'Dashboard',
+  intro: 'You\'re on the Dashboard.\n\nThis page shows live portfolio KPIs, agent status, and pipeline activity.\n\nNEXT STEP → If you haven\'t run the pipeline yet, go to Reports → Start Wizard. Once done, KPIs here will auto-populate.',
+  hints: ['Green status = agent online and ready', 'KPI cards update after each pipeline run', 'Check the Activity feed for recent agent interactions'],
+ },
+ 'command-center': {
+  title: 'Command Center',
+  intro: 'You\'re in the Command Center.\n\nThis is the real-time EA intelligence hub showing live agent activity, portfolio signals and the AI Intelligence Stack architecture.\n\nNEXT STEP → Use the top tabs to switch between Overview, Dashboard, and Command Center views.',
+  hints: ['Click "AI Stack" to view the full multi-agent architecture', 'Agent pulse indicators show live status', 'Portfolio signals update as you run agents'],
+ },
+ 'settings': {
+  title: 'Settings',
+  intro: 'You\'re on the Settings page.\n\nHere you can check API health, configure your environment, and review agent status.\n\nNEXT STEP → If agents show "offline", check your API endpoint and Supabase credentials in the .env file.',
+  hints: ['API health check runs automatically on page load', 'Supabase connection is required for memory and auth', 'Contact your EA platform admin if agents are unavailable'],
+ },
+};
+
+function _chatGetPageGuide(page) {
+ return CHAT_PAGE_GUIDANCE[page] || CHAT_PAGE_GUIDANCE['overview'];
+}
+
+function _chatGetWelcome(page) {
+ const g = _chatGetPageGuide(page);
+ return g.intro;
+}
+
+function chatSetPage(page) {
+ _chatCurrentPage = page;
+ // If chat is open, send a context update silently (no new message unless guidance differs)
+}
+
 function toggleChat() {
  chatOpen = !chatOpen;
  const panel = document.getElementById('chat-panel');
  const btn = document.getElementById('chat-toggle-btn');
+ const icon = document.getElementById('chat-icon-open');
  if (chatOpen) {
- panel.style.display = 'flex';
- btn.classList.add('bg-navy-light');
- document.getElementById('chat-input').focus();
- if (chatHistory.length === 0) appendChatMsg('assistant',
- 'Welcome to EA Intelligence!\n\nSTEP 1 — Click AI Agents in the left sidebar to run individual EA agent queries.\n\nOr click Reports → Run Full Pipeline to run the complete 4-stage EA analysis.\n\nType "next" after each step and I\'ll guide you to the next one.');
+  panel.style.display = 'flex';
+  btn.style.background = '#1E49E2';
+  if (icon) icon.setAttribute('stroke','#fff');
+  document.getElementById('chat-input').focus();
+  if (chatHistory.length === 0) {
+   appendChatMsg('assistant', _chatGetWelcome(_chatCurrentPage));
+   // Also show quick-action chips
+   _renderChatChips(_chatCurrentPage);
+  }
  } else {
- panel.style.display = 'none';
- btn.classList.remove('bg-navy-light');
+  panel.style.display = 'none';
+  btn.style.background = '#0C233C';
+  if (icon) icon.setAttribute('stroke','#fff');
  }
+}
+
+function _renderChatChips(page) {
+ const g = _chatGetPageGuide(page);
+ if (!g.hints || !g.hints.length) return;
+ const feed = document.getElementById('chat-feed');
+ const div = document.createElement('div');
+ div.style.cssText = 'display:flex;flex-direction:column;gap:5px;margin-top:6px;margin-bottom:4px';
+ div.innerHTML = g.hints.map(h => `<button onclick="sendChatDirect('${h.replace(/'/g,"\\'")}')" style="background:#EEF2FF;border:1px solid #C7D2FE;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:500;color:#1E49E2;cursor:pointer;text-align:left;font-family:Inter,sans-serif;transition:background .15s" onmouseover="this.style.background='#DBEAFE'" onmouseout="this.style.background='#EEF2FF'">${esc(h)}</button>`).join('');
+ feed.appendChild(div);
+ feed.scrollTop = feed.scrollHeight;
+}
+
+function sendChatDirect(text) {
+ const input = document.getElementById('chat-input');
+ input.value = text;
+ sendChat();
 }
 
 function appendChatMsg(role, text) {
@@ -4483,9 +4905,45 @@ function downloadDiagram(svgId, filename) {
  .chat-dot:nth-child(2) { animation-delay: .2s; }
  .chat-dot:nth-child(3) { animation-delay: .4s; }
  @keyframes chatBounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+ /* ── Overview hex node animations ── */
+ @keyframes hexNodeIn {
+  0%   { opacity:0; transform:scale(0.4) translateY(20px); }
+  60%  { transform:scale(1.08) translateY(-4px); }
+  100% { opacity:1; transform:scale(1) translateY(0); }
+ }
+ @keyframes coreIn {
+  0%   { opacity:0; transform:scale(0.2); }
+  70%  { transform:scale(1.12); }
+  100% { opacity:1; transform:scale(1); }
+ }
+ @keyframes ringsIn {
+  0%   { opacity:0; transform:scale(0.5); }
+  100% { opacity:1; transform:scale(1); }
+ }
+ .ov-hex-anim { opacity:0; }
+ .ov-core-anim { opacity:0; }
+ .ov-rings-anim { opacity:0; }
+
+ /* Hex tooltip */
+ .ov-tooltip {
+  position:absolute; bottom:calc(100% + 10px); left:50%; transform:translateX(-50%);
+  background:#0C233C; color:#fff; border-radius:10px; padding:10px 14px;
+  font-size:11px; line-height:1.6; width:200px; z-index:100;
+  box-shadow:0 8px 24px rgba(0,0,0,.2); pointer-events:none;
+  opacity:0; transition:opacity .2s; font-family:'Inter',sans-serif;
+  white-space:normal; text-align:left;
+ }
+ .ov-tooltip::after {
+  content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+  border:6px solid transparent; border-top-color:#0C233C;
+ }
+ .ov-hex-wrap { position:absolute; cursor:pointer; }
+ .ov-hex-wrap:hover .ov-tooltip { opacity:1; }
+ .ov-hex-wrap:hover .ov-hex-node { box-shadow:0 8px 28px rgba(0,51,141,.22); border-color:rgba(0,51,141,.5) !important; }
 </style>
 
-<div id="chat-widget" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:12px">
+<div id="chat-widget" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:none;flex-direction:column;align-items:flex-end;gap:12px">
 
  <!-- Chat Panel -->
  <div id="chat-panel" style="display:none">
@@ -4543,6 +5001,8 @@ function downloadDiagram(svgId, filename) {
 
  function _showDashboard(email) {
  document.getElementById('login-screen').style.display = 'none';
+ const chatWidget = document.getElementById('chat-widget');
+ if (chatWidget) chatWidget.style.display = 'flex';
  if (email) {
  const el = document.getElementById('sidebar-user-email');
  if (el) el.textContent = email;
@@ -4559,6 +5019,8 @@ function downloadDiagram(svgId, filename) {
  document.getElementById('login-email').value = '';
  document.getElementById('login-password').value = '';
  document.getElementById('login-error').style.display = 'none';
+ const chatWidget = document.getElementById('chat-widget');
+ if (chatWidget) chatWidget.style.display = 'none';
  }
 
  async function checkAuth() {
@@ -4634,249 +5096,231 @@ function downloadDiagram(svgId, filename) {
  </div>
  </div>
 
- <!-- Diagram -->
- <div style="padding:28px 32px 36px;overflow-x:auto;background:#f4f6fb">
- <svg viewBox="0 0 680 790" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:680px;margin:0 auto">
+ <!-- Diagram — scrollable container -->
+ <div style="padding:24px 28px 32px;overflow-x:auto;overflow-y:auto;max-height:72vh;background:#f4f6fb;scrollbar-width:thin;scrollbar-color:#CBD5E1 #f4f6fb">
+ <svg viewBox="0 0 800 920" width="800" xmlns="http://www.w3.org/2000/svg" style="display:block;min-width:800px">
  <defs>
- <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
- <path d="M1,1 L7,4 L1,7 Z" fill="#93C5FD"/>
+ <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+  <path d="M1.5,1.5 L8.5,5 L1.5,8.5 Z" fill="#93C5FD"/>
  </marker>
  </defs>
 
- <!-- ═══════════════════════════════════════════
- LAYER 0 — USER QUERY (Entry Point)
- Box: x=210 y=14 w=260 h=72 cx=340
- ═══════════════════════════════════════════ -->
- <rect x="210" y="14" width="260" height="72" rx="10" fill="#fff" stroke="#93C5FD" stroke-width="1.5"/>
- <text x="340" y="34" font-size="9" font-weight="700" fill="#1E49E2" text-anchor="middle" letter-spacing="2" font-family="Inter,sans-serif">USER QUERY</text>
- <text x="340" y="55" font-size="15" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">User Query</text>
- <text x="340" y="70" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Portfolio analyst or executive submits request</text>
- <rect x="296" y="76" width="88" height="13" rx="3" fill="#DBEAFE"/>
- <text x="340" y="85" font-size="7.5" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">ENTRY POINT</text>
+ <!-- ══ LAYER 0 — USER QUERY ══════════════════════════════════
+  Box: x=240 y=20 w=320 h=82 cx=400
+ ══════════════════════════════════════════════════════════ -->
+ <rect x="240" y="20" width="320" height="82" rx="12" fill="#fff" stroke="#93C5FD" stroke-width="2"/>
+ <text x="400" y="43" font-size="9" font-weight="700" fill="#1E49E2" text-anchor="middle" letter-spacing="2.5" font-family="Inter,sans-serif">USER QUERY</text>
+ <text x="400" y="64" font-size="16" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">User Query</text>
+ <text x="400" y="80" font-size="9.5" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Portfolio analyst or executive submits request</text>
+ <rect x="348" y="87" width="104" height="15" rx="4" fill="#DBEAFE"/>
+ <text x="400" y="98" font-size="8" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">ENTRY POINT</text>
 
- <!-- Arrow down from User Query to Cognitive label -->
- <line x1="340" y1="86" x2="340" y2="112" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
+ <!-- Arrow: User Query → Cognitive section label -->
+ <line x1="400" y1="102" x2="400" y2="128" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
 
- <!-- ═══════════════════════════════════════════
- SECTION LABEL — COGNITIVE LAYERS
- ═══════════════════════════════════════════ -->
- <line x1="20" y1="118" x2="290" y2="118" stroke="#CBD5E1" stroke-width="0.8"/>
- <text x="340" y="122" font-size="8.5" font-weight="700" fill="#94A3B8" text-anchor="middle" letter-spacing="2.5" font-family="Inter,sans-serif">COGNITIVE LAYERS</text>
- <line x1="390" y1="118" x2="660" y2="118" stroke="#CBD5E1" stroke-width="0.8"/>
+ <!-- ══ SECTION: COGNITIVE LAYERS ══════════════════════════════ -->
+ <line x1="20" y1="136" x2="348" y2="136" stroke="#CBD5E1" stroke-width="1"/>
+ <text x="400" y="141" font-size="9" font-weight="700" fill="#94A3B8" text-anchor="middle" letter-spacing="3" font-family="Inter,sans-serif">COGNITIVE LAYERS</text>
+ <line x1="452" y1="136" x2="780" y2="136" stroke="#CBD5E1" stroke-width="1"/>
 
- <!-- ═══════════════════════════════════════════
- LAYER 1 — MEMORY LAYER (left box)
- x=14 y=130 w=286 h=66 cx=157
- ═══════════════════════════════════════════ -->
- <rect x="14" y="130" width="286" height="66" rx="8" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="14" y="130" width="4" height="66" rx="2" fill="#0C233C"/>
- <rect x="26" y="143" width="18" height="18" rx="4" fill="#EEF2FF"/>
- <text x="35" y="156" font-size="10" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">M</text>
- <text x="54" y="148" font-size="10" font-weight="700" fill="#0C233C" font-family="Inter,sans-serif">Memory Layer</text>
- <text x="54" y="163" font-size="8.5" fill="#64748B" font-family="Inter,sans-serif">Short + long-term context storage</text>
- <text x="54" y="175" font-size="8.5" fill="#64748B" font-family="Inter,sans-serif">for portfolio sessions &amp; history</text>
+ <!-- ══ LAYER 1 — MEMORY LAYER (left) cx=190 ═════════════════
+  x=20 y=152 w=300 h=76
+ ══════════════════════════════════════════════════════════ -->
+ <rect x="20" y="152" width="300" height="76" rx="10" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="20" y="152" width="5" height="76" rx="3" fill="#0C233C"/>
+ <rect x="34" y="167" width="22" height="22" rx="5" fill="#EEF2FF"/>
+ <text x="45" y="182" font-size="11" fill="#0C233C" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">M</text>
+ <text x="66" y="172" font-size="11" font-weight="700" fill="#0C233C" font-family="Inter,sans-serif">Memory Layer</text>
+ <text x="66" y="188" font-size="9" fill="#64748B" font-family="Inter,sans-serif">Short + long-term context storage</text>
+ <text x="66" y="201" font-size="9" fill="#64748B" font-family="Inter,sans-serif">for portfolio sessions &amp; history</text>
 
- <!-- LAYER 1 — PLANNING LAYER (right box)
- x=380 y=130 w=286 h=66 cx=523 -->
- <rect x="380" y="130" width="286" height="66" rx="8" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="380" y="130" width="4" height="66" rx="2" fill="#1E49E2"/>
- <rect x="392" y="143" width="18" height="18" rx="4" fill="#EEF2FF"/>
- <text x="401" y="156" font-size="10" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">P</text>
- <text x="420" y="148" font-size="10" font-weight="700" fill="#0C233C" font-family="Inter,sans-serif">Planning Layer</text>
- <text x="420" y="163" font-size="8.5" fill="#64748B" font-family="Inter,sans-serif">ReAct + Chain-of-Thought reasoning</text>
- <text x="420" y="175" font-size="8.5" fill="#64748B" font-family="Inter,sans-serif">for multi-step analysis</text>
+ <!-- ══ LAYER 1 — PLANNING LAYER (right) cx=610 ══════════════
+  x=480 y=152 w=300 h=76
+ ══════════════════════════════════════════════════════════ -->
+ <rect x="480" y="152" width="300" height="76" rx="10" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="480" y="152" width="5" height="76" rx="3" fill="#1E49E2"/>
+ <rect x="494" y="167" width="22" height="22" rx="5" fill="#EEF2FF"/>
+ <text x="505" y="182" font-size="11" fill="#1E49E2" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">P</text>
+ <text x="526" y="172" font-size="11" font-weight="700" fill="#0C233C" font-family="Inter,sans-serif">Planning Layer</text>
+ <text x="526" y="188" font-size="9" fill="#64748B" font-family="Inter,sans-serif">ReAct + Chain-of-Thought reasoning</text>
+ <text x="526" y="201" font-size="9" fill="#64748B" font-family="Inter,sans-serif">for multi-step analysis</text>
 
- <!-- CONVERGE LINES → COMBINED
- Memory bottom-center (157,196) → down to (157,218) → right to (340,218)
- Planning bottom-center (523,196) → down to (523,218) → left to (340,218) -->
- <polyline points="157,196 157,218 340,218" fill="none" stroke="#93C5FD" stroke-width="1.5"/>
- <polyline points="523,196 523,218 340,218" fill="none" stroke="#93C5FD" stroke-width="1.5"/>
- <line x1="340" y1="218" x2="340" y2="228" stroke="#93C5FD" stroke-width="1.5"/>
+ <!-- Converge lines → COMBINED pill
+  Memory bottom-center (170,228) → (170,252) → (400,252)
+  Planning bottom-center (630,228) → (630,252) → (400,252) -->
+ <polyline points="170,228 170,252 400,252" fill="none" stroke="#93C5FD" stroke-width="1.5"/>
+ <polyline points="630,228 630,252 400,252" fill="none" stroke="#93C5FD" stroke-width="1.5"/>
+ <line x1="400" y1="252" x2="400" y2="264" stroke="#93C5FD" stroke-width="1.5"/>
+ <rect x="328" y="264" width="144" height="24" rx="12" fill="#0C233C"/>
+ <text x="400" y="280" font-size="9" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="2.5" font-family="Inter,sans-serif">COMBINED</text>
 
- <!-- COMBINED pill cx=340 y=228 -->
- <rect x="278" y="228" width="124" height="22" rx="11" fill="#0C233C"/>
- <text x="340" y="243" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="2" font-family="Inter,sans-serif">COMBINED</text>
+ <!-- Arrow: COMBINED → Orchestrator -->
+ <line x1="400" y1="288" x2="400" y2="314" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
 
- <!-- Arrow down to Orchestrator -->
- <line x1="340" y1="250" x2="340" y2="272" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
+ <!-- ══ LAYER 2 — ORCHESTRATOR ═══════════════════════════════
+  x=190 y=314 w=420 h=84 cx=400
+ ══════════════════════════════════════════════════════════ -->
+ <rect x="190" y="314" width="420" height="84" rx="12" fill="#fff" stroke="#93C5FD" stroke-width="2"/>
+ <text x="240" y="334" font-size="9" font-weight="700" fill="#1E49E2" letter-spacing="2" font-family="Inter,sans-serif">ORCHESTRATOR</text>
+ <rect x="224" y="340" width="26" height="26" rx="6" fill="#EEF2FF"/>
+ <text x="237" y="358" font-size="15" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">&#9889;</text>
+ <text x="400" y="360" font-size="15" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">FastAPI Router</text>
+ <text x="400" y="377" font-size="9.5" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Routes and coordinates all specialist agents based on query intent and context</text>
+ <rect x="548" y="328" width="56" height="15" rx="4" fill="#DBEAFE"/>
+ <text x="576" y="339" font-size="7.5" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">ORCHESTRATOR</text>
 
- <!-- ═══════════════════════════════════════════
- LAYER 2 — ORCHESTRATOR
- x=170 y=272 w=340 h=74 cx=340
- ═══════════════════════════════════════════ -->
- <rect x="170" y="272" width="340" height="74" rx="10" fill="#fff" stroke="#93C5FD" stroke-width="1.5"/>
- <text x="208" y="290" font-size="8.5" font-weight="700" fill="#1E49E2" letter-spacing="1.5" font-family="Inter,sans-serif">ORCHESTRATOR</text>
- <rect x="186" y="295" width="22" height="22" rx="5" fill="#EEF2FF"/>
- <text x="197" y="311" font-size="13" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">&#9889;</text>
- <text x="340" y="315" font-size="14" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">FastAPI Router</text>
- <text x="340" y="330" font-size="8.5" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Routes and coordinates all specialist agents</text>
- <text x="340" y="341" font-size="8.5" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">based on query intent and context</text>
- <rect x="453" y="289" width="50" height="13" rx="3" fill="#DBEAFE"/>
- <text x="478" y="298" font-size="7" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">ORCHESTRATOR</text>
+ <!-- ══ SECTION: SPECIALIST AGENTS (label ABOVE fan-out) ══ -->
+ <line x1="20" y1="408" x2="308" y2="408" stroke="#CBD5E1" stroke-width="1"/>
+ <text x="400" y="413" font-size="9" font-weight="700" fill="#94A3B8" text-anchor="middle" letter-spacing="3" font-family="Inter,sans-serif">SPECIALIST AGENTS</text>
+ <line x1="492" y1="408" x2="780" y2="408" stroke="#CBD5E1" stroke-width="1"/>
 
- <!-- Fan-out: single line down to horizontal bar, then 5 branches -->
- <!-- Vertical stem from Orchestrator bottom -->
- <line x1="340" y1="346" x2="340" y2="366" stroke="#93C5FD" stroke-width="1.5"/>
- <!-- Horizontal bar spanning all 5 agent centers: x=82 to x=598 at y=366 -->
- <line x1="82" y1="366" x2="598" y2="366" stroke="#93C5FD" stroke-width="1.5"/>
- <!-- 5 vertical drops with arrows to agent tops at y=392 -->
- <line x1="82" y1="366" x2="82" y2="390" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
- <line x1="212" y1="366" x2="212" y2="390" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
- <line x1="340" y1="366" x2="340" y2="390" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
- <line x1="468" y1="366" x2="468" y2="390" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
- <line x1="598" y1="366" x2="598" y2="390" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
+ <!-- Fan-out lines: stem from orchestrator bottom (400,398) → horizontal bar at y=430
+  Agents: ARB cx=88, TIME cx=236, MAP cx=400, MAT cx=564, INS cx=712
+  → bar from x=88 to x=712
+ ══════════════════════════════════════════════════════════ -->
+ <line x1="400" y1="398" x2="400" y2="430" stroke="#93C5FD" stroke-width="1.5"/>
+ <line x1="88" y1="430" x2="712" y2="430" stroke="#93C5FD" stroke-width="1.5"/>
+ <line x1="88" y1="430" x2="88" y2="452" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
+ <line x1="236" y1="430" x2="236" y2="452" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
+ <line x1="400" y1="430" x2="400" y2="452" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
+ <line x1="564" y1="430" x2="564" y2="452" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
+ <line x1="712" y1="430" x2="712" y2="452" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
 
- <!-- ═══════════════════════════════════════════
- SECTION LABEL — SPECIALIST AGENTS
- ═══════════════════════════════════════════ -->
- <line x1="20" y1="376" x2="212" y2="376" stroke="#CBD5E1" stroke-width="0.8"/>
- <text x="340" y="380" font-size="8.5" font-weight="700" fill="#94A3B8" text-anchor="middle" letter-spacing="2.5" font-family="Inter,sans-serif">SPECIALIST AGENTS</text>
- <line x1="468" y1="376" x2="660" y2="376" stroke="#CBD5E1" stroke-width="0.8"/>
-
- <!-- ═══════════════════════════════════════════
- 5 AGENT BOXES — y=390 h=74
- Width=114, gap=14 → total=5*114+4*14=626 → margin=(680-626)/2=27
- ARB cx=84 x=27
- TIME cx=212 x=155
- MAP cx=340 x=283
- MAT cx=468 x=411
- INS cx=596 x=539
- ═══════════════════════════════════════════ -->
+ <!-- ══ 5 AGENT BOXES — y=452 h=90
+  w=128 gap=20  total=5*128+4*20=720  margin=(800-720)/2=40  wait… agents are at cx 88,236,400,564,712
+  x= 88-64=24, 236-64=172, 400-64=336, 564-64=500, 712-64=648  w=128
+ ══════════════════════════════════════════════════════════ -->
  <!-- ARB -->
- <rect x="27" y="390" width="114" height="74" rx="8" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="27" y="390" width="114" height="4" rx="2" fill="#0C233C"/>
- <text x="84" y="417" font-size="13" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">ARB</text>
- <text x="84" y="431" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Architecture</text>
- <text x="84" y="442" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Review Board</text>
- <rect x="54" y="453" width="60" height="11" rx="3" fill="#DBEAFE"/>
- <text x="84" y="461" font-size="7" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">AGENT</text>
+ <rect x="24" y="452" width="128" height="90" rx="10" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="24" y="452" width="128" height="5" rx="3" fill="#0C233C"/>
+ <text x="88" y="480" font-size="14" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">ARB</text>
+ <text x="88" y="497" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Architecture</text>
+ <text x="88" y="509" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Review Board</text>
+ <rect x="54" y="519" width="68" height="13" rx="4" fill="#DBEAFE"/>
+ <text x="88" y="529" font-size="7.5" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">AGENT</text>
 
  <!-- TIME -->
- <rect x="155" y="390" width="114" height="74" rx="8" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="155" y="390" width="114" height="4" rx="2" fill="#1E49E2"/>
- <text x="212" y="417" font-size="13" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">TIME</text>
- <text x="212" y="431" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Portfolio scoring</text>
- <text x="212" y="442" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">&amp; 6R actions</text>
- <rect x="182" y="453" width="60" height="11" rx="3" fill="#DBEAFE"/>
- <text x="212" y="461" font-size="7" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">AGENT</text>
+ <rect x="172" y="452" width="128" height="90" rx="10" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="172" y="452" width="128" height="5" rx="3" fill="#1E49E2"/>
+ <text x="236" y="480" font-size="14" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">RATIO</text>
+ <text x="236" y="497" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Portfolio scoring</text>
+ <text x="236" y="509" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">&amp; 6R actions</text>
+ <rect x="202" y="519" width="68" height="13" rx="4" fill="#DBEAFE"/>
+ <text x="236" y="529" font-size="7.5" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">AGENT</text>
 
  <!-- MAPPING -->
- <rect x="283" y="390" width="114" height="74" rx="8" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="283" y="390" width="114" height="4" rx="2" fill="#0094C5"/>
- <text x="340" y="417" font-size="11" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">MAPPING</text>
- <text x="340" y="431" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Dependency</text>
- <text x="340" y="442" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">&amp; impact analysis</text>
- <rect x="310" y="453" width="60" height="11" rx="3" fill="#DBEAFE"/>
- <text x="340" y="461" font-size="7" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">AGENT</text>
+ <rect x="336" y="452" width="128" height="90" rx="10" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="336" y="452" width="128" height="5" rx="3" fill="#0094C5"/>
+ <text x="400" y="480" font-size="12" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">MAPPING</text>
+ <text x="400" y="497" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Dependency</text>
+ <text x="400" y="509" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">&amp; impact analysis</text>
+ <rect x="366" y="519" width="68" height="13" rx="4" fill="#DBEAFE"/>
+ <text x="400" y="529" font-size="7.5" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">AGENT</text>
 
  <!-- MATURITY -->
- <rect x="411" y="390" width="114" height="74" rx="8" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="411" y="390" width="114" height="4" rx="2" fill="#7213EA"/>
- <text x="468" y="417" font-size="11" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">MATURITY</text>
- <text x="468" y="431" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">8-dimension EA</text>
- <text x="468" y="442" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">maturity assessment</text>
- <rect x="438" y="453" width="60" height="11" rx="3" fill="#DBEAFE"/>
- <text x="468" y="461" font-size="7" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">AGENT</text>
+ <rect x="500" y="452" width="128" height="90" rx="10" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="500" y="452" width="128" height="5" rx="3" fill="#7213EA"/>
+ <text x="564" y="480" font-size="12" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">MATURITY</text>
+ <text x="564" y="497" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">8-dimension EA</text>
+ <text x="564" y="509" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">maturity assessment</text>
+ <rect x="530" y="519" width="68" height="13" rx="4" fill="#EDE9FE"/>
+ <text x="564" y="529" font-size="7.5" font-weight="700" fill="#7213EA" text-anchor="middle" font-family="Inter,sans-serif">AGENT</text>
 
  <!-- INSIGHTS -->
- <rect x="539" y="390" width="114" height="74" rx="8" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="539" y="390" width="114" height="4" rx="2" fill="#16A34A"/>
- <text x="596" y="417" font-size="11" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">INSIGHTS</text>
- <text x="596" y="431" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Executive synthesis</text>
- <text x="596" y="442" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">KPIs &amp; strategy</text>
- <rect x="566" y="453" width="60" height="11" rx="3" fill="#DBEAFE"/>
- <text x="596" y="461" font-size="7" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">AGENT</text>
+ <rect x="648" y="452" width="128" height="90" rx="10" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="648" y="452" width="128" height="5" rx="3" fill="#16A34A"/>
+ <text x="712" y="480" font-size="12" font-weight="800" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">INSIGHTS</text>
+ <text x="712" y="497" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Executive synthesis</text>
+ <text x="712" y="509" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">KPIs &amp; strategy</text>
+ <rect x="678" y="519" width="68" height="13" rx="4" fill="#D1FAE5"/>
+ <text x="712" y="529" font-size="7.5" font-weight="700" fill="#16A34A" text-anchor="middle" font-family="Inter,sans-serif">AGENT</text>
 
- <!-- Single arrow down from agent row to DATA label -->
- <line x1="340" y1="464" x2="340" y2="488" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
+ <!-- Arrow: agents → data tools -->
+ <line x1="400" y1="542" x2="400" y2="568" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
 
- <!-- ═══════════════════════════════════════════
- SECTION LABEL — DATA & TOOLS
- ═══════════════════════════════════════════ -->
- <line x1="20" y1="482" x2="280" y2="482" stroke="#CBD5E1" stroke-width="0.8"/>
- <text x="340" y="486" font-size="8.5" font-weight="700" fill="#94A3B8" text-anchor="middle" letter-spacing="2.5" font-family="Inter,sans-serif">DATA &amp; TOOLS</text>
- <line x1="400" y1="482" x2="660" y2="482" stroke="#CBD5E1" stroke-width="0.8"/>
+ <!-- ══ SECTION: DATA & TOOLS ═════════════════════════════ -->
+ <line x1="20" y1="576" x2="342" y2="576" stroke="#CBD5E1" stroke-width="1"/>
+ <text x="400" y="581" font-size="9" font-weight="700" fill="#94A3B8" text-anchor="middle" letter-spacing="3" font-family="Inter,sans-serif">DATA &amp; TOOLS</text>
+ <line x1="458" y1="576" x2="780" y2="576" stroke="#CBD5E1" stroke-width="1"/>
 
- <!-- ═══════════════════════════════════════════
- 4 DATA BOXES — y=494 h=68
- Width=148, gap=12 → total=4*148+3*12=628 → margin=(680-628)/2=26
- Portfolio cx=100 x=26
- Assessment cx=260 x=186
- Industry cx=420 x=346
- Supabase cx=580 x=506
- ═══════════════════════════════════════════ -->
+ <!-- ══ 4 DATA BOXES — y=590 h=80
+  w=172 gap=16  total=4*172+3*16=736  margin=(800-736)/2=32
+  Portfolio cx=118 x=32
+  Assessment cx=322 x=236
+  Industry cx=526 x=440
+  Supabase cx=730 x=644
+ ══════════════════════════════════════════════════════════ -->
  <!-- Portfolio Data -->
- <rect x="26" y="494" width="148" height="68" rx="7" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="26" y="494" width="4" height="68" rx="2" fill="#16A34A"/>
- <text x="100" y="516" font-size="10" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">Portfolio Data</text>
- <text x="100" y="530" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">CSV · Excel · JSON</text>
- <text x="100" y="541" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">PDF · PPTX · Images</text>
- <rect x="65" y="550" width="70" height="11" rx="3" fill="#D1FAE5"/>
- <text x="100" y="558" font-size="7" font-weight="700" fill="#065F46" text-anchor="middle" font-family="Inter,sans-serif">LIVE</text>
+ <rect x="32" y="590" width="172" height="80" rx="9" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="32" y="590" width="5" height="80" rx="3" fill="#16A34A"/>
+ <text x="118" y="616" font-size="11" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">Portfolio Data</text>
+ <text x="118" y="632" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">CSV · Excel · JSON</text>
+ <text x="118" y="645" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">PDF · PPTX · Images</text>
+ <rect x="83" y="655" width="70" height="13" rx="4" fill="#D1FAE5"/>
+ <text x="118" y="665" font-size="8" font-weight="700" fill="#065F46" text-anchor="middle" font-family="Inter,sans-serif">LIVE</text>
 
  <!-- Assessment Tool -->
- <rect x="186" y="494" width="148" height="68" rx="7" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="186" y="494" width="4" height="68" rx="2" fill="#1E49E2"/>
- <text x="260" y="516" font-size="10" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">Assessment Tool</text>
- <text x="260" y="530" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">30-question survey</text>
- <text x="260" y="541" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">up to 15 respondents</text>
- <rect x="225" y="550" width="70" height="11" rx="3" fill="#DBEAFE"/>
- <text x="260" y="558" font-size="7" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">INTERACTIVE</text>
+ <rect x="220" y="590" width="172" height="80" rx="9" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="220" y="590" width="5" height="80" rx="3" fill="#1E49E2"/>
+ <text x="306" y="616" font-size="11" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">Assessment Tool</text>
+ <text x="306" y="632" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">30-question survey</text>
+ <text x="306" y="645" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">up to 15 respondents</text>
+ <rect x="271" y="655" width="70" height="13" rx="4" fill="#DBEAFE"/>
+ <text x="306" y="665" font-size="8" font-weight="700" fill="#1E49E2" text-anchor="middle" font-family="Inter,sans-serif">INTERACTIVE</text>
 
  <!-- Industry Context -->
- <rect x="346" y="494" width="148" height="68" rx="7" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="346" y="494" width="4" height="68" rx="2" fill="#0094C5"/>
- <text x="420" y="516" font-size="10" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">Industry Context</text>
- <text x="420" y="530" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Sector benchmarks</text>
- <text x="420" y="541" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">governance frameworks</text>
- <rect x="385" y="550" width="70" height="11" rx="3" fill="#E0F2FE"/>
- <text x="420" y="558" font-size="7" font-weight="700" fill="#0369A1" text-anchor="middle" font-family="Inter,sans-serif">CONTEXT</text>
+ <rect x="408" y="590" width="172" height="80" rx="9" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="408" y="590" width="5" height="80" rx="3" fill="#0094C5"/>
+ <text x="494" y="616" font-size="11" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">Industry Context</text>
+ <text x="494" y="632" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Sector benchmarks</text>
+ <text x="494" y="645" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">governance frameworks</text>
+ <rect x="459" y="655" width="70" height="13" rx="4" fill="#E0F2FE"/>
+ <text x="494" y="665" font-size="8" font-weight="700" fill="#0369A1" text-anchor="middle" font-family="Inter,sans-serif">CONTEXT</text>
 
  <!-- Supabase Memory -->
- <rect x="506" y="494" width="148" height="68" rx="7" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="506" y="494" width="4" height="68" rx="2" fill="#7213EA"/>
- <text x="580" y="516" font-size="10" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">Supabase Memory</text>
- <text x="580" y="530" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Decisions, scores</text>
- <text x="580" y="541" font-size="8" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">ARB history, rules</text>
- <rect x="545" y="550" width="70" height="11" rx="3" fill="#EDE9FE"/>
- <text x="580" y="558" font-size="7" font-weight="700" fill="#7213EA" text-anchor="middle" font-family="Inter,sans-serif">MEMORY STORE</text>
+ <rect x="596" y="590" width="172" height="80" rx="9" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="596" y="590" width="5" height="80" rx="3" fill="#7213EA"/>
+ <text x="682" y="616" font-size="11" font-weight="700" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">Supabase Memory</text>
+ <text x="682" y="632" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Decisions, scores</text>
+ <text x="682" y="645" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">ARB history, rules</text>
+ <rect x="647" y="655" width="70" height="13" rx="4" fill="#EDE9FE"/>
+ <text x="682" y="665" font-size="8" font-weight="700" fill="#7213EA" text-anchor="middle" font-family="Inter,sans-serif">MEMORY STORE</text>
 
- <!-- Arrow down to Infrastructure -->
- <line x1="340" y1="562" x2="340" y2="582" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
+ <!-- Arrow: data → infrastructure -->
+ <line x1="400" y1="670" x2="400" y2="696" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
 
- <!-- ═══════════════════════════════════════════
- INFRASTRUCTURE ROW — y=582 h=52
- ═══════════════════════════════════════════ -->
- <rect x="14" y="582" width="652" height="52" rx="8" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
- <rect x="14" y="582" width="4" height="52" rx="2" fill="#0C233C"/>
- <rect x="22" y="592" width="18" height="18" rx="4" fill="#EEF2FF"/>
- <text x="31" y="605" font-size="9" fill="#0C233C" text-anchor="middle" font-family="Inter,sans-serif">V</text>
- <text x="50" y="600" font-size="10" font-weight="700" fill="#0C233C" font-family="Inter,sans-serif">Vercel Secure Cloud Hosting</text>
- <text x="50" y="614" font-size="8" fill="#64748B" font-family="Inter,sans-serif">Managed serverless · FastAPI · Python 3.12 · fpdf2</text>
- <line x1="330" y1="582" x2="330" y2="634" stroke="#E2E8F0" stroke-width="1"/>
- <text x="430" y="600" font-size="8.5" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Supabase Auth</text>
- <text x="430" y="614" font-size="8" fill="#94A3B8" text-anchor="middle" font-family="Inter,sans-serif">Supabase PostgreSQL</text>
- <line x1="530" y1="582" x2="530" y2="634" stroke="#E2E8F0" stroke-width="1"/>
- <text x="596" y="607" font-size="8.5" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Vercel Serverless</text>
- <rect x="608" y="582" width="52" height="14" rx="3" fill="#F0FDF4"/>
- <text x="634" y="591" font-size="7" font-weight="700" fill="#16A34A" text-anchor="middle" font-family="Inter,sans-serif">ACTIVE</text>
+ <!-- ══ INFRASTRUCTURE ROW — y=696 h=64 ═════════════════════ -->
+ <rect x="16" y="696" width="768" height="64" rx="10" fill="#fff" stroke="#BFDBFE" stroke-width="1.5"/>
+ <rect x="16" y="696" width="5" height="64" rx="3" fill="#0C233C"/>
+ <rect x="28" y="710" width="24" height="24" rx="6" fill="#EEF2FF"/>
+ <text x="40" y="726" font-size="11" fill="#0C233C" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">V</text>
+ <text x="62" y="718" font-size="11" font-weight="700" fill="#0C233C" font-family="Inter,sans-serif">Vercel Secure Cloud Hosting</text>
+ <text x="62" y="733" font-size="9" fill="#64748B" font-family="Inter,sans-serif">Managed serverless · FastAPI · Python 3.12 · fpdf2</text>
+ <line x1="360" y1="696" x2="360" y2="760" stroke="#E2E8F0" stroke-width="1"/>
+ <text x="490" y="718" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Supabase Auth</text>
+ <text x="490" y="733" font-size="8.5" fill="#94A3B8" text-anchor="middle" font-family="Inter,sans-serif">Supabase PostgreSQL</text>
+ <line x1="620" y1="696" x2="620" y2="760" stroke="#E2E8F0" stroke-width="1"/>
+ <text x="710" y="718" font-size="9" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">Vercel Serverless</text>
+ <rect x="718" y="696" width="60" height="16" rx="4" fill="#F0FDF4"/>
+ <text x="748" y="708" font-size="8" font-weight="700" fill="#16A34A" text-anchor="middle" font-family="Inter,sans-serif">ACTIVE</text>
 
- <!-- Arrow down to Foundation Model -->
- <line x1="340" y1="634" x2="340" y2="654" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
+ <!-- Arrow: infrastructure → foundation model -->
+ <line x1="400" y1="760" x2="400" y2="786" stroke="#93C5FD" stroke-width="1.5" marker-end="url(#arrow)"/>
 
- <!-- ═══════════════════════════════════════════
- FOUNDATION MODEL — y=654 h=54
- ═══════════════════════════════════════════ -->
- <rect x="14" y="654" width="652" height="54" rx="8" fill="#0C233C" stroke="#1E49E2" stroke-width="1.5"/>
- <rect x="22" y="664" width="20" height="20" rx="5" fill="#1E49E2"/>
- <text x="32" y="678" font-size="11" fill="#fff" text-anchor="middle" font-family="Inter,sans-serif">C</text>
- <text x="52" y="674" font-size="12" font-weight="700" fill="#fff" font-family="Inter,sans-serif">Claude Sonnet 4.6</text>
- <text x="52" y="688" font-size="8.5" fill="#94A3B8" font-family="Inter,sans-serif">Inference, scoring &amp; output generation</text>
- <text x="52" y="699" font-size="8" fill="#64748B" font-family="Inter,sans-serif">Anthropic API · Real-time streaming</text>
- <rect x="540" y="664" width="118" height="14" rx="3" fill="#1E49E2"/>
- <text x="599" y="673" font-size="7.5" font-weight="700" fill="#fff" text-anchor="middle" font-family="Inter,sans-serif">FOUNDATION MODEL</text>
+ <!-- ══ FOUNDATION MODEL — y=786 h=68 ═══════════════════════ -->
+ <rect x="16" y="786" width="768" height="68" rx="10" fill="#0C233C" stroke="#1E49E2" stroke-width="2"/>
+ <rect x="26" y="800" width="24" height="24" rx="6" fill="#1E49E2"/>
+ <text x="38" y="817" font-size="12" fill="#fff" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">C</text>
+ <text x="62" y="812" font-size="13" font-weight="700" fill="#fff" font-family="Inter,sans-serif">Claude Sonnet 4.6</text>
+ <text x="62" y="828" font-size="9.5" fill="#94A3B8" font-family="Inter,sans-serif">Inference, scoring &amp; output generation</text>
+ <text x="62" y="842" font-size="8.5" fill="#64748B" font-family="Inter,sans-serif">Anthropic API · Real-time streaming</text>
+ <rect x="626" y="800" width="140" height="16" rx="4" fill="#1E49E2"/>
+ <text x="696" y="812" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle" font-family="Inter,sans-serif">FOUNDATION MODEL</text>
 
-
+ </svg>
+ </div><!-- end diagram scroll container -->
+ </div><!-- end ai-stack modal card -->
+</div><!-- end ai-stack-overlay -->
 
 <script>
 function openAIStack() {
@@ -4890,6 +5334,767 @@ function closeAIStack() {
 document.getElementById('ai-stack-overlay').addEventListener('click', function(e) {
  if (e.target === this) closeAIStack();
 });
+
+// ═══════════════════════════════════════════════════════════════
+// SHARED QUESTIONNAIRE DATA (used by inline maturity + wizard)
+// ═══════════════════════════════════════════════════════════════
+const IQ_SECTIONS = [
+ {id:"vision_strategy",label:"Vision & Strategy",questions:["q1","q2","q3","q4"]},
+ {id:"organization",label:"Organization",questions:["q5","q6"]},
+ {id:"leadership_governance",label:"Leadership & Governance",questions:["q7","q8"]},
+ {id:"behavior_culture",label:"Behavior & Culture",questions:["q9","q10"]},
+ {id:"metrics_analysis",label:"Metrics & Analysis",questions:["q11","q12","q13"]},
+ {id:"policy_standards",label:"Policy & Standards",questions:["q14","q15","q16","q17","q18","q19"]},
+ {id:"enabling_processes",label:"Enabling Processes",questions:["q20","q21","q22","q23","q24","q25","q26","q27","q28","q29"]},
+ {id:"tools_technology",label:"Tools & Technology",questions:["q30"]},
+];
+const IQ_QUESTIONS = [
+ {id:"q1",s:"vision_strategy",text:"What is the vision and ambition around establishing EA capability?",opts:{A:"No ambition for a defined EA vision",B:"Need for EA has been identified",C:"Organisation has begun to identify EA tasks and resource requirements",D:"Clear EA vision is defined / being defined",E:"EA vision is being realised through an EA roadmap"}},
+ {id:"q2",s:"vision_strategy",text:"What is the current capability to develop an EA strategy, roadmap and implement identified initiatives?",opts:{A:"Not a key consideration",B:"Insufficient capability exists",C:"EA strategy capability exists in limited capacity",D:"Internal teams leading EA efforts using industry standards",E:"EA capability is mature, strategic, and continuously improved"}},
+ {id:"q3",s:"vision_strategy",text:"What is the involvement of EA considerations in business strategy?",opts:{A:"EA viewpoints not considered in business strategy",B:"Insufficient involvement in strategic planning",C:"EA processes occasionally referenced in IT strategy",D:"Majority of IT acquisitions guided by EA",E:"No unplanned IT investment without EA viewpoints"}},
+ {id:"q4",s:"vision_strategy",text:"What is the extent of business linkages with EA activities?",opts:{A:"Minimal or limited linkage with business strategy",B:"Explicit linkage to business strategies",C:"EA integrated with capital planning and investment control",D:"EA contributes to periodic re-examination of business drivers",E:"Architecture metrics used to optimise business linkages"}},
+ {id:"q5",s:"organization",text:"What is the current state of business and technical roles needed for an EA program?",opts:{A:"Dedicated roles not a key requirement",B:"Need for specialised roles identified",C:"Some roles defined but responsibilities unclear",D:"Governance committees established with clear roles",E:"Governance roles reviewed and updated with EA framework changes"}},
+ {id:"q6",s:"organization",text:"Is there a community of practice to share EA methodology insights?",opts:{A:"EA insights not being shared",B:"Inadequate community practices",C:"EA CoP exists in key domains with limited engagement",D:"EA communities actively share insights",E:"EA CoP drives continuous improvement and methodology evolution"}},
+ {id:"q7",s:"leadership_governance",text:"Are EA principles enforced across business functions and initiatives?",opts:{A:"Minimal adoption of EA processes",B:"Limited adoption in functions",C:"Most business elements participating in EA process",D:"Widespread adoption of EA activities",E:"Feedback from all units drives architecture improvements"}},
+ {id:"q8",s:"leadership_governance",text:"How effectively do business and IT stakeholders align architecture with strategic goals?",opts:{A:"Minimal interest; decisions made in isolation by IT",B:"Business leaders acknowledge EA value but collaboration informal",C:"Occasional engagement; alignment inconsistent",D:"Business stakeholders regularly involved in architecture reviews",E:"EA is fully integrated; business and IT co-own architecture decisions"}},
+ {id:"q9",s:"behavior_culture",text:"What is the extent of communication on EA measures?",opts:{A:"No ambition for EA awareness",B:"Need to create awareness identified",C:"Planning educational sessions to increase EA awareness",D:"Regular training and awareness sessions conducted",E:"Widespread understanding of architecture principles exists"}},
+ {id:"q10",s:"behavior_culture",text:"What is the perception of EA's role in driving transformation?",opts:{A:"EA not recognised as a strategic function",B:"EA practice gaining traction with some stakeholders",C:"EA practice widely adopted across the organisation",D:"EA deeply embedded in organisational fabric",E:"EA recognised as a critical success factor in all processes"}},
+ {id:"q11",s:"metrics_analysis",text:"Are KPIs and metrics defined for the EA program?",opts:{A:"No framework to measure EA performance",B:"Activities reviewed but metrics not formally identified",C:"Metrics defined but not measured adequately",D:"Metrics defined and measured but not integrated with corrective actions",E:"Metrics defined, measured periodically with formal review mechanism"}},
+ {id:"q12",s:"metrics_analysis",text:"Are EA insights used in strategic planning and performance reviews?",opts:{A:"Architectural thinking ad hoc with minimal visibility",B:"EA insights occasionally referenced reactively",C:"Some business units use EA data; usage inconsistent",D:"Governance structures ensure consistent application",E:"EA insights integral to enterprise-wide planning"}},
+ {id:"q13",s:"metrics_analysis",text:"How well established is the process for collecting and analysing EA-related data?",opts:{A:"Data collection and analysis are ad hoc",B:"Some data collected; processes inconsistent",C:"Standardised procedures but limited adoption",D:"Defined processes practised consistently",E:"Automated tools and integrated systems used"}},
+ {id:"q14",s:"policy_standards",text:"What is the current state of Architectural Development Methods?",opts:{A:"Minimal formal methods; processes ad hoc",B:"Limited documentation; practices localised",C:"Adequate standards defined but detailed guidelines missing",D:"ADM policies and standards enforced across projects",E:"Policies continuously improved and aligned with EA frameworks"}},
+ {id:"q15",s:"policy_standards",text:"How well are technology standards defined and enforced across the enterprise?",opts:{A:"Minimal guidelines; no ambition to define standards",B:"Standards defined with limited context; inconsistently applied",C:"Standards defined but not managed or enforced",D:"Standards documented and enforced across most domains",E:"Standards enforced enterprise-wide with governance mechanisms"}},
+ {id:"q16",s:"policy_standards",text:"How has the organisation adopted healthcare interoperability standards?",opts:{A:"No formal adoption; minimal integration",B:"Limited and inconsistent adoption",C:"Standards adopted in major systems; not fully integrated",D:"Standards consistently implemented; interoperability well-governed",E:"Interoperability standards deeply embedded in architecture"}},
+ {id:"q17",s:"policy_standards",text:"To what extent are standardised architecture principles enforced across all domains?",opts:{A:"Inadequate focus on architectural standards",B:"Standards defined but followed in silos",C:"Documentation exists at limited scale but not standardised",D:"Clear definition of standards for most IT investments",E:"Clear definition of standards for all IT investments"}},
+ {id:"q18",s:"policy_standards",text:"Are data governance policies enforced across lifecycle stages?",opts:{A:"Inadequate focus on governance policies",B:"Policies exist but applied inconsistently",C:"Enforced in key lifecycle stages; traceability limited",D:"Lifecycle-wide enforcement with governance checkpoints",E:"Fully enforced with automation and audit integration"}},
+ {id:"q19",s:"policy_standards",text:"What is the approach to compliance with data protection regulations (HIPAA, GDPR)?",opts:{A:"No formal approach; minimal awareness",B:"Inadequate adherence to regulations",C:"Data protection at limited scale; few policies enforced",D:"Regulations addressed through documented policies",E:"Compliance embedded in architecture; proactively enforced"}},
+ {id:"q20",s:"enabling_processes",text:"What are tangible benefits derived from EA initiatives?",opts:{A:"EA not expected to contribute business outcomes",B:"EA delivered limited value; benefits not tracked",C:"EA shows measurable outcomes tied to business goals",D:"EA contributes to agility, innovation, and customer experience",E:"EA is a key enabler of continuous enterprise transformation"}},
+ {id:"q21",s:"enabling_processes",text:"What is the current state of EA Tools and Repository?",opts:{A:"No formal EA repository required",B:"Basic digital repositories; usage inconsistent",C:"Digital repositories updated periodically",D:"Architecture documents updated regularly",E:"Documents updated regularly and frequently reviewed for standards"}},
+ {id:"q22",s:"enabling_processes",text:"How mature is the process for evaluating and adopting emerging technologies?",opts:{A:"Emerging technologies adopted sporadically",B:"Adoption not strategically planned; driven by immediate needs",C:"Technologies evaluated systematically for fit and feasibility",D:"Technologies assessed based on strategic alignment and EA principles",E:"Technology scouting embedded in EA with continuous innovation tracking"}},
+ {id:"q23",s:"enabling_processes",text:"What is the capability to manage the lifecycle and standardisation of apps?",opts:{A:"Applications managed in silos; minimal lifecycle planning",B:"Some applications follow basic lifecycle stages",C:"Application lifecycle documented and managed",D:"Application lifecycle integrated into EA processes",E:"Lifecycle continuously optimised; enhancements driven by strategy"}},
+ {id:"q24",s:"enabling_processes",text:"How well is security highlighted in existing architecture layers?",opts:{A:"Inadequate focus on security in any architecture layer",B:"Insufficient security measures; lacks integration",C:"Security incorporated in some layers with basic measures",D:"Security consistently integrated across most architecture layers",E:"Security foundational across all layers; measures risk-based"}},
+ {id:"q25",s:"enabling_processes",text:"How well is infrastructure lifecycle management handled?",opts:{A:"Minimal management; processes largely manual and reactive",B:"Limited lifecycle management; not standardised",C:"Lifecycle processes documented and followed for most components",D:"Lifecycle management automated using tools",E:"Lifecycle management digital and integrated with EA tools"}},
+ {id:"q26",s:"enabling_processes",text:"How well do data models reflect business logic, regulatory requirements, and traceability?",opts:{A:"Minimal data models and flows defined",B:"Partial alignment in select models; informal documentation",C:"Data models aligned in key domains; mapped to business rules",D:"Structured mapping to rules and regulations; version-controlled",E:"Embedded with compliance logic, traceable, continuously reviewed"}},
+ {id:"q27",s:"enabling_processes",text:"How mature are capabilities to ensure continuity of critical business services?",opts:{A:"Minimal architectural provisions for continuity",B:"Basic resilience exists; coverage limited",C:"Most critical services supported by resilient architecture",D:"All critical services architected for continuity and recovery",E:"Resilience continuously optimised and aligned with business strategy"}},
+ {id:"q28",s:"enabling_processes",text:"How effectively are IT services designed to support business capabilities?",opts:{A:"Services designed ad hoc without alignment",B:"Services partially aligned; alignment inconsistent",C:"Services aligned to support key business capabilities",D:"Service design driven by business capability models",E:"Services core enabler of business agility, innovation, and transformation"}},
+ {id:"q29",s:"enabling_processes",text:"How well established and effective is the Architecture Review Board (ARB)?",opts:{A:"No ARB exists; no ambition to establish",B:"Architecture reviews happen in silos; not through ARB",C:"ARB exists in limited or informal capacity",D:"ARB formally established; conducts regular reviews",E:"ARB is a strategic body with executive sponsorship"}},
+ {id:"q30",s:"tools_technology",text:"How effectively are EA tools used to support architecture development and governance?",opts:{A:"Minimal usage; architectural work largely manual",B:"Some tools used informally; project-specific",C:"EA tools consistently used; centralised repository exists",D:"EA tools integrated across domains with other enterprise systems",E:"Enterprise-wide tools used; activities automated with real-time decisions"}},
+];
+const IQ_SCORE_MAP = {A:1,B:2,C:3,D:4,E:5};
+
+function iqGetMajority(users){
+ const res={};
+ IQ_QUESTIONS.forEach(q=>{
+  const v={A:0,B:0,C:0,D:0,E:0};
+  users.forEach(u=>{if(u.answers&&u.answers[q.id])v[u.answers[q.id]]++;});
+  const nz=Object.entries(v).filter(([,x])=>x>0);
+  if(!nz.length){res[q.id]=null;return;}
+  nz.sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+  res[q.id]=nz[0][0];
+ });
+ return res;
+}
+function iqComputeDims(majority){
+ return IQ_SECTIONS.map(sec=>{
+  const qs=sec.questions.filter(qid=>majority[qid]);
+  if(!qs.length)return{...sec,score:null,band:'N/A'};
+  const avg=qs.reduce((s,qid)=>s+IQ_SCORE_MAP[majority[qid]],0)/qs.length;
+  const score=parseFloat(avg.toFixed(2));
+  const band=score<=2?'Low':score<=3.5?'Medium':'High';
+  return{...sec,score,band};
+ });
+}
+function iqComputeOverall(dims){
+ const v=dims.filter(d=>d.score!==null);
+ if(!v.length)return null;
+ return parseFloat((v.reduce((s,d)=>s+d.score,0)/v.length).toFixed(2));
+}
+function iqBuildGaugeHTML(score){
+ if(score===null)return '';
+ const pct=Math.min(100,Math.max(0,((score-1)/4)*100));
+ const xPos=8+(pct/100)*104;
+ const col=score<=2?'#ef4444':score<=3.5?'#f59e0b':'#22c55e';
+ const band=score<=2?'Low':score<=3.5?'Medium':'High';
+ return `<div style="text-align:center;padding:20px 0">
+  <svg viewBox="0 0 120 38" width="180" height="57" style="display:block;margin:0 auto 8px">
+   <defs><linearGradient id="gLg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ef4444"/><stop offset="40%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#22c55e"/></linearGradient></defs>
+   <rect x="8" y="16" width="104" height="8" rx="4" fill="url(#gLg)"/>
+   <polygon points="${xPos},15 ${xPos-5},5 ${xPos+5},5" fill="#0f172a" stroke="#94a3b8" stroke-width="0.5"/>
+   <line x1="${xPos}" y1="5" x2="${xPos}" y2="16" stroke="#0f172a" stroke-width="1.5"/>
+   <text x="8" y="34" font-size="9" fill="#ef4444" font-weight="bold" text-anchor="middle">L</text>
+   <text x="60" y="34" font-size="9" fill="#f59e0b" font-weight="bold" text-anchor="middle">M</text>
+   <text x="112" y="34" font-size="9" fill="#22c55e" font-weight="bold" text-anchor="middle">H</text>
+  </svg>
+  <div style="font-size:32px;font-weight:900;color:${col}">${score}<span style="font-size:16px;font-weight:400;color:#94a3b8">/5</span></div>
+  <div style="font-size:14px;font-weight:700;color:${col};margin-top:4px">${band} Maturity</div>
+ </div>`;
+}
+function iqBuildDimGrid(dims){
+ const colMap={High:'#16A34A,#D1FAE5',Medium:'#D97706,#FEF3C7',Low:'#DC2626,#FEE2E2','N/A':'#64748B,#F1F5F9'};
+ return dims.map(d=>{
+  const [fc,bg]=(colMap[d.band]||'#64748B,#F1F5F9').split(',');
+  return `<div style="background:${bg};border-radius:8px;padding:10px 14px">
+   <div style="font-size:10px;font-weight:700;color:${fc};text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">${d.label}</div>
+   <div style="font-size:18px;font-weight:800;color:${fc}">${d.score!==null?d.score:'—'}<span style="font-size:10px">/5</span></div>
+   <div style="font-size:10px;color:${fc};opacity:.8">${d.band}</div>
+  </div>`;
+ }).join('');
+}
+
+// ── Inline Questionnaire (Maturity Page) ──────────────────────
+let iqSession = {users:[]};
+let iqCurrentUser = '';
+let iqCurrentAnswers = {};
+let iqCurrentSection = 0;
+
+function toggleInlineQuestionnaire(){
+ const panel=document.getElementById('inline-q-panel');
+ const btn=document.getElementById('mat-toggle-q-btn');
+ if(!panel)return;
+ const isOpen=panel.style.display!=='none';
+ panel.style.display=isOpen?'none':'block';
+ btn.textContent=isOpen?'Start Assessment ↓':'Close Assessment ↑';
+ if(!isOpen){ iqShowNameView(); }
+}
+function iqShowNameView(){
+ document.getElementById('iq-name-view').style.display='block';
+ document.getElementById('iq-question-view').style.display='none';
+ document.getElementById('iq-results-view').style.display='none';
+ iqRenderRespondentList();
+}
+function iqRenderRespondentList(){
+ const el=document.getElementById('iq-respondents-list');
+ if(!el||!iqSession.users.length)return;
+ el.innerHTML=`<div style="font-size:12px;font-weight:600;color:#64748B;margin-bottom:8px">${iqSession.users.length} respondent(s) so far</div>`
+  +iqSession.users.map((u,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #F1F5F9">
+   <div style="width:28px;height:28px;border-radius:50%;background:#EEF2FF;color:#1E49E2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">${u.name[0]||'?'}</div>
+   <span style="font-size:13px;color:#0C233C;font-weight:500">${esc(u.name)}</span>
+   <span style="margin-left:auto;font-size:11px;color:#16A34A;font-weight:600">Done</span>
+  </div>`).join('');
+}
+function startIQRespondent(){
+ const nameEl=document.getElementById('iq-respondent-name');
+ const errEl=document.getElementById('iq-name-err');
+ const name=(nameEl.value||'').trim();
+ if(!name){errEl.textContent='Please enter your name.';return;}
+ if(iqSession.users.find(u=>u.name.toLowerCase()===name.toLowerCase())){errEl.textContent='This name already responded.';return;}
+ errEl.textContent='';
+ iqCurrentUser=name;
+ iqCurrentAnswers={};
+ iqCurrentSection=0;
+ document.getElementById('iq-name-view').style.display='none';
+ document.getElementById('iq-question-view').style.display='block';
+ document.getElementById('iq-user-label').textContent=name;
+ nameEl.value='';
+ iqRenderSection();
+}
+function iqRenderSection(){
+ const sec=IQ_SECTIONS[iqCurrentSection];
+ document.getElementById('iq-section-label').textContent=`Section ${iqCurrentSection+1} of ${IQ_SECTIONS.length}`;
+ document.getElementById('iq-section-title').textContent=sec.label;
+ const total=IQ_QUESTIONS.length;
+ const answered=Object.keys(iqCurrentAnswers).length;
+ document.getElementById('iq-progress-bar').style.width=`${Math.round(answered/total*100)}%`;
+ document.getElementById('iq-progress-text').textContent=`${answered}/${total} answered`;
+ const qs=sec.questions.map(qid=>IQ_QUESTIONS.find(q=>q.id===qid)).filter(Boolean);
+ document.getElementById('iq-questions-list').innerHTML=qs.map(q=>`
+  <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:14px 16px">
+   <div style="font-size:13px;font-weight:600;color:#0C233C;margin-bottom:10px">${esc(q.text)}</div>
+   <div style="display:flex;flex-direction:column;gap:6px">
+    ${Object.entries(q.opts).map(([k,v])=>`
+     <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;padding:6px 10px;border-radius:7px;border:1px solid ${iqCurrentAnswers[q.id]===k?'#7213EA':'#E2E8F0'};background:${iqCurrentAnswers[q.id]===k?'#F5F0FF':'#fff'};transition:all .15s">
+      <input type="radio" name="iq_${q.id}" value="${k}" ${iqCurrentAnswers[q.id]===k?'checked':''} onchange="iqAnswer('${q.id}','${k}')" style="margin-top:2px;accent-color:#7213EA;flex-shrink:0"/>
+      <span style="font-size:12px;color:#334155"><strong style="color:#7213EA">${k}:</strong> ${esc(v)}</span>
+     </label>`).join('')}
+   </div>
+  </div>`).join('');
+ document.getElementById('iq-prev-btn').style.visibility=iqCurrentSection===0?'hidden':'visible';
+ const isLast=iqCurrentSection===IQ_SECTIONS.length-1;
+ document.getElementById('iq-next-btn').style.display=isLast?'none':'inline-block';
+ document.getElementById('iq-submit-btn').style.display=isLast?'inline-block':'none';
+}
+function iqAnswer(qid,val){
+ iqCurrentAnswers[qid]=val;
+ // re-highlight selected option without full re-render
+ document.querySelectorAll(`[name="iq_${qid}"]`).forEach(r=>{
+  const lbl=r.closest('label');
+  if(lbl){lbl.style.borderColor=r.checked?'#7213EA':'#E2E8F0';lbl.style.background=r.checked?'#F5F0FF':'#fff';}
+ });
+ const total=IQ_QUESTIONS.length;
+ const answered=Object.keys(iqCurrentAnswers).length;
+ document.getElementById('iq-progress-bar').style.width=`${Math.round(answered/total*100)}%`;
+ document.getElementById('iq-progress-text').textContent=`${answered}/${total} answered`;
+}
+function iqChangeSection(dir){
+ const next=iqCurrentSection+dir;
+ if(next<0||next>=IQ_SECTIONS.length)return;
+ iqCurrentSection=next;
+ iqRenderSection();
+}
+function iqSubmitAnswers(){
+ const unanswered=IQ_QUESTIONS.filter(q=>!iqCurrentAnswers[q.id]);
+ if(unanswered.length>0){
+  toast(`${unanswered.length} question(s) unanswered — scroll up to complete all sections`,'warn');
+  return;
+ }
+ iqSession.users.push({name:iqCurrentUser,answers:{...iqCurrentAnswers}});
+ document.getElementById('iq-question-view').style.display='none';
+ document.getElementById('iq-results-view').style.display='block';
+ iqRenderResults();
+}
+function iqRenderResults(){
+ const majority=iqGetMajority(iqSession.users);
+ const dims=iqComputeDims(majority);
+ const overall=iqComputeOverall(dims);
+ document.getElementById('iq-gauge-area').innerHTML=iqBuildGaugeHTML(overall)+`<div style="font-size:12px;color:#64748B;text-align:center;margin-top:4px">${iqSession.users.length} respondent(s): ${iqSession.users.map(u=>esc(u.name)).join(', ')}</div>`;
+ document.getElementById('iq-dim-grid').innerHTML=iqBuildDimGrid(dims);
+}
+function iqAddRespondent(){
+ document.getElementById('iq-results-view').style.display='none';
+ iqShowNameView();
+}
+function iqSaveToMainAndCollapse(){
+ const majority=iqGetMajority(iqSession.users);
+ const dims=iqComputeDims(majority);
+ const overall=iqComputeOverall(dims);
+ const band=overall===null?'N/A':overall<=2?'Low':overall<=3.5?'Medium':'High';
+ assessmentResults={
+  source:'inline_questionnaire',
+  respondent_count:iqSession.users.length,
+  respondent_names:iqSession.users.map(u=>u.name),
+  overall_score:overall,
+  overall_band:band,
+  dimensions:dims.map(d=>({id:d.id,label:d.label,score:d.score,band:d.band})),
+  majority_answers:majority,
+  completed_at:new Date().toISOString(),
+ };
+ localStorage.setItem('ea_assessment_results',JSON.stringify(assessmentResults));
+ renderAssessmentPreview(assessmentResults);
+ const statusEl=document.getElementById('mat-sync-status');
+ const textEl=document.getElementById('mat-sync-text');
+ if(statusEl)statusEl.style.display='flex';
+ if(textEl)textEl.textContent=`Assessment saved — ${assessmentResults.respondent_count} respondent(s) · Overall: ${overall}/5 (${band})`;
+ toggleInlineQuestionnaire();
+ toast('Assessment results saved — ready for pipeline','success');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STEP-BY-STEP PIPELINE WIZARD
+// ═══════════════════════════════════════════════════════════════
+let wizTimeResult   = null;
+let wizMappingResult= null;
+let wizAssessment   = null; // questionnaire results collected in wizard step 3
+let wizPipelineData = null;
+let wizReportB64    = null;
+
+// Wizard questionnaire state (separate from maturity page IQ)
+let wizQSession    = {users:[]};
+let wizQUser       = '';
+let wizQAnswers    = {};
+let wizQSectionIdx = 0;
+
+function startWizardPipeline(){
+ if(!portIngestData||!portIngestData.applications||!portIngestData.applications.length){
+  toast('Upload your application portfolio on the EA Analysis page first.','warn');
+  showPage('ea-analysis');
+  return;
+ }
+ showPage('reports');
+ const wiz=document.getElementById('pipeline-wizard');
+ if(wiz){wiz.style.display='block';wiz.scrollIntoView({behavior:'smooth',block:'start'});}
+ // reset wizard state
+ wizTimeResult=null; wizMappingResult=null; wizAssessment=assessmentResults||null;
+ wizPipelineData=null; wizReportB64=null;
+ wizQSession={users:[]}; wizQUser=''; wizQAnswers={}; wizQSectionIdx=0;
+ [1,2,3,4,5].forEach(n=>{
+  const p=document.getElementById('wiz-panel-'+n);
+  if(p)p.style.display='none';
+ });
+ wizActivateStep(1);
+ wizRunStep1();
+}
+
+function wizActivateStep(n){
+ for(let i=1;i<=5;i++){
+  const dot=document.getElementById('wiz-dot-'+i);
+  const lbl=document.getElementById('wiz-label-'+i);
+  if(!dot)continue;
+  if(i<n){dot.style.background='#16A34A';dot.style.color='#fff';dot.textContent='✓';}
+  else if(i===n){dot.style.background='#7213EA';dot.style.color='#fff';dot.textContent=String(i);}
+  else{dot.style.background='#E2E8F0';dot.style.color='#94A3B8';dot.textContent=String(i);}
+  if(lbl){lbl.style.color=i<=n?'#0C233C':'#94A3B8';lbl.style.fontWeight=i===n?'700':'400';}
+ }
+}
+
+// ── Step 1: TIME / 6R ─────────────────────────────────────────
+async function wizRunStep1(){
+ const p=document.getElementById('wiz-panel-1');
+ if(p)p.style.display='block';
+ document.getElementById('wiz-s1-loading').style.display='flex';
+ document.getElementById('wiz-s1-content').style.display='none';
+ try{
+  const ctx=getContextPayload();
+  const fd=new FormData();
+  // re-use already ingested data if available, else re-run
+  if(portIngestData&&portIngestData.applications){
+   wizTimeResult=portIngestData;
+  } else {
+   const file=document.getElementById('ea-file')&&document.getElementById('ea-file').files[0];
+   if(file)fd.append('file',file);
+   if(ctx.industry)fd.append('industry',ctx.industry);
+   const res=await fetch(API+'/time/ingest',{method:'POST',body:fd});
+   if(!res.ok)throw new Error(await res.text());
+   wizTimeResult=await res.json();
+  }
+  document.getElementById('wiz-s1-loading').style.display='none';
+  document.getElementById('wiz-s1-content').style.display='block';
+  wizRenderStep1();
+  addActivity('TIME','6R Analysis Complete','success');
+ }catch(e){
+  document.getElementById('wiz-s1-loading').style.display='none';
+  document.getElementById('wiz-s1-content').innerHTML=`<div style="color:#DC2626;font-size:13px">Error: ${esc(e.message)}</div>`;
+  document.getElementById('wiz-s1-content').style.display='block';
+  toast('Step 1 error: '+e.message,'error');
+ }
+}
+
+function wizRenderStep1(){
+ const apps=(wizTimeResult&&wizTimeResult.applications)||[];
+ const summary=(wizTimeResult&&(wizTimeResult.portfolio_summary||wizTimeResult.summary))||{};
+ const tc={};
+ apps.forEach(a=>{const k=a.time_classification||'TOLERATE';tc[k]=(tc[k]||0)+1;});
+ const timeCls={'INVEST':'#155724,#d4edda','TOLERATE':'#004085,#cce5ff','MIGRATE':'#856404,#fff3cd','ELIMINATE':'#721c24,#f8d7da'};
+ const actCls={'Retain':'#155724,#d4edda','Rehost':'#004085,#cce5ff','Replatform':'#856404,#fff3cd','Refactor':'#7d3c00,#fde8d8','Replace':'#721c24,#f8d7da','Retire':'#383d41,#e2e3e5'};
+ function tbadge(txt,map){const k=Object.keys(map).find(k=>k.toLowerCase()===(txt||'').toLowerCase())||Object.keys(map)[0];const[fg,bg]=(map[k]||'#383d41,#e2e3e5').split(',');return`<span style="padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700;color:${fg};background:${bg}">${(txt||'').toUpperCase()}</span>`;}
+ // Summary cards
+ const smry=document.getElementById('wiz-s1-summary');
+ smry.innerHTML=Object.entries(tc).map(([k,v])=>{const[fg,bg]=(timeCls[k]||'#383d41,#e2e3e5').split(',');return`<div style="border-top:3px solid ${fg};background:#fff;border:1px solid ${bg};border-top:3px solid ${fg};border-radius:6px;padding:10px 14px;min-width:110px"><div style="font-size:10px;font-weight:700;color:${fg};text-transform:uppercase">${k}</div><div style="font-size:22px;font-weight:800;color:#0C233C">${v}</div></div>`;}).join('');
+ // Table
+ const tbody=document.getElementById('wiz-s1-table-body');
+ tbody.innerHTML=apps.slice(0,50).map((a,i)=>{
+  const cost=a.annual_cost?'$'+Number(a.annual_cost).toLocaleString():'-';
+  const bg=i%2===0?'#f8fbff':'#fff';
+  return`<tr style="background:${bg};border-bottom:1px solid #EEF2FF">
+   <td style="padding:7px 12px;font-weight:600;color:#0C233C">${esc(a.name||'-')}</td>
+   <td style="padding:7px 12px;color:#64748B">${esc(a.vendor||'-')}</td>
+   <td style="padding:7px 12px;color:#64748B">${esc(a.category||'-')}</td>
+   <td style="padding:7px 12px;text-align:center;font-weight:700;color:${(a.composite_score||0)>=7?'#16A34A':(a.composite_score||0)>=5?'#D97706':'#DC2626'}">${(a.composite_score||0).toFixed(1)}</td>
+   <td style="padding:7px 12px">${tbadge(a.time_classification||'TOLERATE',timeCls)}</td>
+   <td style="padding:7px 12px">${tbadge(a.rationalization_action||'TBD',actCls)}</td>
+   <td style="padding:7px 12px;text-align:right;color:#334155">${cost}</td>
+  </tr>`;
+ }).join('');
+}
+
+// ── Step 2: Mapping ───────────────────────────────────────────
+async function wizStep2(){
+ wizActivateStep(2);
+ const p=document.getElementById('wiz-panel-2');
+ if(p)p.style.display='block';
+ document.getElementById('wiz-s2-loading').style.display='flex';
+ document.getElementById('wiz-s2-content').style.display='none';
+ p.scrollIntoView({behavior:'smooth',block:'start'});
+ try{
+  const apps=(wizTimeResult&&wizTimeResult.applications)||[];
+  const ctx=getContextPayload();
+  const mapCtx=getMappingContextPayload();
+  const flagged=apps.filter(a=>['ELIMINATE','MIGRATE'].includes(a.time_classification));
+  const body={
+   agent_override:'MAPPING',
+   query:'dependency mapping for pipeline',
+   data:{
+    applications:flagged.length?flagged:apps.slice(0,10),
+    all_apps:apps,
+    industry:ctx.industry||'',
+    sub_sector:ctx.sub_sector||'',
+    mapping_context:mapCtx,
+    ea_context:ctx,
+   }
+  };
+  const res=await fetch(API+'/ea-agent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok)throw new Error(await res.text());
+  const data=await res.json();
+  wizMappingResult=data.result&&data.result.MAPPING?data.result.MAPPING:data.result||{};
+  document.getElementById('wiz-s2-loading').style.display='none';
+  document.getElementById('wiz-s2-content').style.display='block';
+  wizRenderStep2();
+  addActivity('MAPPING','Dependency Mapping Complete','success');
+ }catch(e){
+  document.getElementById('wiz-s2-loading').style.display='none';
+  wizMappingResult={skipped:true,reason:'Mapping error: '+e.message};
+  document.getElementById('wiz-s2-body').innerHTML=`<div style="color:#D97706;font-size:13px;background:#FFF3CD;border-radius:8px;padding:12px">Mapping returned an error — pipeline will continue. ${esc(e.message)}</div>`;
+  document.getElementById('wiz-s2-content').style.display='block';
+  toast('Mapping error (non-fatal): '+e.message,'warn');
+ }
+}
+
+function wizRenderStep2(){
+ const mapData=wizMappingResult||{};
+ const mapApps=mapData.app_analyses||[];
+ const impact=mapData.overall_impact_level||mapData.impact||'';
+ let html='';
+ if(mapData.skipped){
+  html=`<div style="color:#64748B;font-size:13px;font-style:italic">${esc(mapData.reason||'No flagged apps to map.')}</div>`;
+ } else {
+  html=`<div style="margin-bottom:12px;font-size:13px;color:#334155">`;
+  if(impact)html+=`<div style="margin-bottom:10px"><strong>Overall Impact Level:</strong> <span style="font-weight:700;color:#7213EA">${esc(impact)}</span></div>`;
+  if(mapApps.length){
+   html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="background:#F8FAFC;border-bottom:2px solid #E2E8F0">
+     <th style="padding:7px 10px;text-align:left;font-weight:700;color:#0C233C">App</th>
+     <th style="padding:7px 10px;text-align:left;font-weight:700;color:#0C233C">Rationalization</th>
+     <th style="padding:7px 10px;text-align:left;font-weight:700;color:#0C233C">Impact</th>
+     <th style="padding:7px 10px;text-align:center;font-weight:700;color:#0C233C">Coupling</th>
+    </tr></thead>
+    <tbody>${mapApps.map((a,i)=>`<tr style="background:${i%2===0?'#f8fbff':'#fff'};border-bottom:1px solid #EEF2FF">
+     <td style="padding:7px 10px;font-weight:600;color:#0C233C">${esc(a.app_name||'-')}</td>
+     <td style="padding:7px 10px;font-size:11px">${esc(a.time_classification||'-')}</td>
+     <td style="padding:7px 10px;font-size:11px;font-weight:700;color:${a.impact_level==='CRITICAL'?'#DC2626':a.impact_level==='HIGH'?'#D97706':'#16A34A'}">${esc(a.impact_level||'-')}</td>
+     <td style="padding:7px 10px;text-align:center;font-weight:700">${a.coupling_score!=null?a.coupling_score+'/10':'-'}</td>
+    </tr>`).join('')}</tbody>
+   </table></div>`;
+  } else {
+   html+=`<div style="color:#64748B;font-size:13px;font-style:italic">No flagged apps required mapping analysis.</div>`;
+  }
+  html+=`</div>`;
+ }
+ document.getElementById('wiz-s2-body').innerHTML=html;
+}
+
+// ── Step 3: Maturity Questionnaire (wizard) ───────────────────
+function wizStep3(){
+ wizActivateStep(3);
+ const p=document.getElementById('wiz-panel-3');
+ if(p)p.style.display='block';
+ p.scrollIntoView({behavior:'smooth',block:'start'});
+ // Questionnaire is ALWAYS mandatory in the wizard — never skip
+ wizAssessment=null;
+ wizQSession={users:[]}; wizQUser=''; wizQAnswers={}; wizQSectionIdx=0;
+ wizQRenderRespondentsDone();
+ document.getElementById('wiz-q-name').style.display='block';
+ document.getElementById('wiz-q-questions').style.display='none';
+ document.getElementById('wiz-q-gauge').style.display='none';
+ // Ensure Insights button is locked until questionnaire submitted
+ const insBtn=document.getElementById('wiz-run-insights-btn');
+ if(insBtn){ insBtn.disabled=true; insBtn.style.opacity='0.4'; insBtn.style.cursor='not-allowed'; insBtn.title='Complete the questionnaire first'; }
+}
+
+function wizQRenderRespondentsDone(){
+ const el=document.getElementById('wiz-q-respondents-done');
+ if(!el)return;
+ el.innerHTML=wizQSession.users.length
+  ?`<span style="color:#16A34A;font-weight:600">${wizQSession.users.length} respondent(s): ${wizQSession.users.map(u=>esc(u.name)).join(', ')}</span>`
+  :'';
+}
+
+function wizQStart(){
+ const nameEl=document.getElementById('wiz-q-respondent');
+ const name=(nameEl.value||'').trim();
+ if(!name){toast('Enter your name to begin.','warn');return;}
+ if(wizQSession.users.find(u=>u.name.toLowerCase()===name.toLowerCase())){toast('This name already responded.','warn');return;}
+ wizQUser=name; wizQAnswers={}; wizQSectionIdx=0;
+ document.getElementById('wiz-q-name').style.display='none';
+ document.getElementById('wiz-q-questions').style.display='block';
+ document.getElementById('wiz-q-gauge').style.display='none';
+ document.getElementById('wiz-q-user-label').textContent=name;
+ nameEl.value='';
+ wizQRenderSection();
+}
+
+function wizQRenderSection(){
+ const sec=IQ_SECTIONS[wizQSectionIdx];
+ document.getElementById('wiz-q-sec-label').textContent=`Section ${wizQSectionIdx+1} of ${IQ_SECTIONS.length}`;
+ document.getElementById('wiz-q-sec-title').textContent=sec.label;
+ const total=IQ_QUESTIONS.length;
+ const answered=Object.keys(wizQAnswers).length;
+ document.getElementById('wiz-q-prog').style.width=`${Math.round(answered/total*100)}%`;
+ document.getElementById('wiz-q-prog-text').textContent=`${answered}/${total}`;
+ const qs=sec.questions.map(qid=>IQ_QUESTIONS.find(q=>q.id===qid)).filter(Boolean);
+ document.getElementById('wiz-q-list').innerHTML=qs.map(q=>`
+  <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:9px;padding:12px 14px">
+   <div style="font-size:12.5px;font-weight:600;color:#0C233C;margin-bottom:8px">${esc(q.text)}</div>
+   <div style="display:flex;flex-direction:column;gap:5px">
+    ${Object.entries(q.opts).map(([k,v])=>`
+     <label style="display:flex;align-items:flex-start;gap:7px;cursor:pointer;padding:5px 9px;border-radius:6px;border:1px solid ${wizQAnswers[q.id]===k?'#7213EA':'#E2E8F0'};background:${wizQAnswers[q.id]===k?'#F5F0FF':'#fff'}">
+      <input type="radio" name="wq_${q.id}" value="${k}" ${wizQAnswers[q.id]===k?'checked':''} onchange="wizQAnswer('${q.id}','${k}')" style="margin-top:2px;accent-color:#7213EA;flex-shrink:0"/>
+      <span style="font-size:11.5px;color:#334155"><strong style="color:#7213EA">${k}:</strong> ${esc(v)}</span>
+     </label>`).join('')}
+   </div>
+  </div>`).join('');
+ document.getElementById('wiz-q-prev').style.visibility=wizQSectionIdx===0?'hidden':'visible';
+ const isLast=wizQSectionIdx===IQ_SECTIONS.length-1;
+ document.getElementById('wiz-q-next').style.display=isLast?'none':'inline-block';
+ document.getElementById('wiz-q-submit').style.display=isLast?'inline-block':'none';
+}
+
+function wizQAnswer(qid,val){
+ wizQAnswers[qid]=val;
+ document.querySelectorAll(`[name="wq_${qid}"]`).forEach(r=>{
+  const lbl=r.closest('label');
+  if(lbl){lbl.style.borderColor=r.checked?'#7213EA':'#E2E8F0';lbl.style.background=r.checked?'#F5F0FF':'#fff';}
+ });
+ const answered=Object.keys(wizQAnswers).length;
+ document.getElementById('wiz-q-prog').style.width=`${Math.round(answered/IQ_QUESTIONS.length*100)}%`;
+ document.getElementById('wiz-q-prog-text').textContent=`${answered}/${IQ_QUESTIONS.length}`;
+}
+
+function wizQSection(dir){
+ const next=wizQSectionIdx+dir;
+ if(next<0||next>=IQ_SECTIONS.length)return;
+ wizQSectionIdx=next;
+ wizQRenderSection();
+}
+
+function wizQSubmit(){
+ const unanswered=IQ_QUESTIONS.filter(q=>!wizQAnswers[q.id]);
+ if(unanswered.length>0){toast(`${unanswered.length} question(s) still unanswered`,'warn');return;}
+ wizQSession.users.push({name:wizQUser,answers:{...wizQAnswers}});
+ document.getElementById('wiz-q-questions').style.display='none';
+ wizShowWizGauge();
+ wizQRenderRespondentsDone();
+}
+
+function wizShowWizGauge(){
+ // Questionnaire is mandatory — only use wizard responses
+ if(!wizQSession.users.length){
+  toast('Complete the questionnaire before proceeding.','warn');
+  return;
+ }
+ const majority=iqGetMajority(wizQSession.users);
+ const dims=iqComputeDims(majority);
+ const overall=iqComputeOverall(dims);
+ const band=overall===null?'N/A':overall<=2?'Low':overall<=3.5?'Medium':'High';
+ wizAssessment={
+  source:'wizard_questionnaire',
+  respondent_count:wizQSession.users.length,
+  respondent_names:wizQSession.users.map(u=>u.name),
+  overall_score:overall, overall_band:band,
+  dimensions:dims.map(d=>({id:d.id,label:d.label,score:d.score,band:d.band})),
+  majority_answers:majority,
+  completed_at:new Date().toISOString(),
+ };
+ const gaugeHTML=iqBuildGaugeHTML(overall);
+ const dimHTML=iqBuildDimGrid(dims);
+ const respondentTag=`<div style="font-size:12px;color:#64748B;text-align:center;margin-top:6px">
+  ${wizQSession.users.length} respondent(s): ${wizQSession.users.map(u=>esc(u.name)).join(', ')}
+ </div>`;
+ document.getElementById('wiz-q-gauge-body').innerHTML=
+  `<div style="background:#F9F5FF;border:1px solid #DDD6FE;border-radius:10px;padding:16px;margin-bottom:4px">${gaugeHTML}${respondentTag}</div>`
+  +`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:12px">${dimHTML}</div>`;
+ document.getElementById('wiz-q-gauge').style.display='block';
+ // Unlock the Insights button now that questionnaire is done
+ const insBtn=document.getElementById('wiz-run-insights-btn');
+ if(insBtn){ insBtn.disabled=false; insBtn.style.opacity='1'; insBtn.style.cursor='pointer'; insBtn.title=''; }
+}
+
+function wizQAddRespondent(){
+ document.getElementById('wiz-q-gauge').style.display='none';
+ document.getElementById('wiz-q-name').style.display='block';
+ wizQRenderRespondentsDone();
+}
+
+// ── Step 4: Insights + MATURITY via backend ───────────────────
+async function wizStep4(){
+ if(!wizAssessment||!wizAssessment.respondent_count){
+  toast('You must complete the Maturity Assessment questionnaire before running Insights.','warn');
+  return;
+ }
+ wizActivateStep(4);
+ const p=document.getElementById('wiz-panel-4');
+ if(p)p.style.display='block';
+ document.getElementById('wiz-s4-loading').style.display='flex';
+ document.getElementById('wiz-s4-content').style.display='none';
+ p.scrollIntoView({behavior:'smooth',block:'start'});
+ try{
+  const ctx=getContextPayload();
+  const body={
+   time_result:wizTimeResult||{},
+   mapping_result:wizMappingResult||null,
+   assessment_results:wizAssessment||null,
+   industry:ctx.industry||'',
+   sub_sector:ctx.sub_sector||'',
+   governance:ctx.governance||'',
+   ea_framework:ctx.ea_framework||'',
+   ea_tools:ctx.ea_tools||'',
+   cloud_strategy:ctx.cloud_strategy||'',
+   additional_context:ctx.additional_context||'',
+  };
+  const res=await fetch(API+'/ea-pipeline/step',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok)throw new Error(await res.text());
+  wizPipelineData=await res.json();
+  wizReportB64=wizPipelineData.report_b64||null;
+  pipelineReportB64=wizReportB64;
+  pipelineReportFilename=wizPipelineData.report_filename||null;
+  lastPipelineData=wizPipelineData;
+  document.getElementById('wiz-s4-loading').style.display='none';
+  document.getElementById('wiz-s4-content').style.display='block';
+  wizRenderInsights();
+  populateDashboardFromPipeline(wizPipelineData);
+  updateAdvisoryStatus(wizPipelineData);
+  saveReportToStorage(wizPipelineData,wizReportB64,pipelineReportFilename);
+  if(wizPipelineData.TIME)updateKPIsFromResult('TIME',wizPipelineData.TIME);
+  if(wizPipelineData.MATURITY)updateKPIsFromResult('MATURITY',wizPipelineData.MATURITY);
+  addActivity('INSIGHTS','Executive Insights Complete','success');
+  toast('Insights generated — click Generate Full Report','success');
+ }catch(e){
+  document.getElementById('wiz-s4-loading').style.display='none';
+  document.getElementById('wiz-s4-body').innerHTML=`<div style="color:#DC2626;font-size:13px">Error: ${esc(e.message)}</div>`;
+  document.getElementById('wiz-s4-content').style.display='block';
+  toast('Insights error: '+e.message,'error');
+ }
+}
+
+function wizRenderInsights(){
+ const ins=(wizPipelineData&&wizPipelineData.INSIGHTS)||{};
+ const mat=(wizPipelineData&&wizPipelineData.MATURITY)||{};
+ const ps=(wizPipelineData&&wizPipelineData.pipeline_summary)||{};
+ const recs=(ins.strategic_recommendations||[]).slice(0,4);
+ const wins=(ins.quick_wins||[]).slice(0,3);
+ const matScore=mat.overall_maturity_score;
+ const matLevel=mat.maturity_level||'';
+ const execSum=ins.executive_summary||'';
+ let html='';
+ // Exec summary
+ if(execSum)html+=`<div style="background:#F0F7FF;border-left:4px solid #1E49E2;border-radius:4px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#0C233C;line-height:1.7">${esc(execSum)}</div>`;
+ // Maturity score
+ if(matScore){
+  const col=matScore>=4?'#16A34A':matScore>=3?'#D97706':'#DC2626';
+  html+=`<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+   <div style="background:#F9F5FF;border:1px solid #DDD6FE;border-radius:10px;padding:14px 20px;text-align:center">
+    <div style="font-size:28px;font-weight:900;color:${col}">${Number(matScore).toFixed(1)}<span style="font-size:13px;font-weight:400;color:#94A3B8">/5</span></div>
+    <div style="font-size:11px;font-weight:700;color:${col};margin-top:2px">${matLevel}</div>
+    <div style="font-size:10px;color:#94A3B8">EA Maturity</div>
+   </div>
+   ${ps.total_annual_cost?`<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:14px 20px;text-align:center"><div style="font-size:20px;font-weight:900;color:#16A34A">$${fmtNum(ps.potential_savings||0)}</div><div style="font-size:10px;color:#16A34A;font-weight:700">Potential Savings</div></div>`:''}
+  </div>`;
+ }
+ // Recommendations
+ if(recs.length){
+  html+=`<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Strategic Recommendations</div>
+   ${recs.map((r,i)=>`<div style="border-left:3px solid #1E49E2;padding:10px 14px;margin-bottom:8px;background:#F8FBFF;border-radius:0 6px 6px 0">
+    <div style="font-size:12.5px;font-weight:700;color:#0C233C"><span style="background:#0C233C;color:#fff;padding:1px 7px;border-radius:3px;font-size:11px;margin-right:6px">${i+1}</span>${esc(r.title||r.recommendation||'')}</div>
+    ${r.description?`<div style="font-size:12px;color:#64748B;margin-top:4px">${esc(r.description)}</div>`:''}
+   </div>`).join('')}
+  </div>`;
+ }
+ // Quick wins
+ if(wins.length){
+  html+=`<div><div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Quick Wins</div>
+   <ul style="padding-left:18px;margin:0">${wins.map(w=>`<li style="font-size:12.5px;color:#334155;margin-bottom:5px">${esc(typeof w==='string'?w:w.title||JSON.stringify(w))}</li>`).join('')}</ul>
+  </div>`;
+ }
+ document.getElementById('wiz-s4-body').innerHTML=html||'<div style="color:#64748B;font-size:13px">Insights generated — see full report for details.</div>';
+}
+
+// ── Step 5: Report preview + download ────────────────────────
+function wizStep5(){
+ wizActivateStep(5);
+ const p=document.getElementById('wiz-panel-5');
+ if(p)p.style.display='block';
+ p.scrollIntoView({behavior:'smooth',block:'start'});
+ if(wizPipelineData){
+  _renderPipelinePreview(wizPipelineData);
+  // Also mirror the full preview into the wizard panel
+  const fullPreview=document.getElementById('pipeline-output');
+  const wizPreviewEl=document.getElementById('wiz-report-preview');
+  if(fullPreview&&wizPreviewEl)wizPreviewEl.innerHTML=fullPreview.outerHTML;
+ }
+ toast('Report ready — click Download PDF Report','success');
+}
+
+// ── Overview hub animation ────────────────────────────────────
+let _ovAnimDone = false;
+function triggerOverviewAnimation() {
+ if (_ovAnimDone) return;
+ _ovAnimDone = true;
+ const rings = document.querySelectorAll('.ov-slow-rotate, #page-overview svg');
+ rings.forEach(r => { r.classList.add('ov-rings-anim'); });
+ // Animate rings first
+ const animEl = (el, delay, cls, dur) => {
+  if (!el) return;
+  el.style.animation = 'none';
+  el.style.opacity = '0';
+  setTimeout(() => {
+   el.style.animation = `${cls} ${dur}s cubic-bezier(.34,1.56,.64,1) forwards`;
+  }, delay);
+ };
+ const core = document.getElementById('ov-core');
+ const nodes = [
+  document.getElementById('ov-node-strategy'),
+  document.getElementById('ov-node-architecture'),
+  document.getElementById('ov-node-insights'),
+  document.getElementById('ov-node-roadmaps'),
+  document.getElementById('ov-node-governance'),
+  document.getElementById('ov-node-operations'),
+ ];
+ // Core appears first
+ animEl(core, 100, 'coreIn', 0.7);
+ // Nodes appear one by one with stagger
+ nodes.forEach((n, i) => animEl(n, 350 + i * 160, 'hexNodeIn', 0.55));
+}
+
+// ── Core PDF download helper (async, handles zlib-compressed b64) ────────────
+async function downloadBase64PDF(b64, filename, compressed){
+ try {
+  if (!b64) { toast('No PDF data available — re-run the pipeline', 'error'); return; }
+  // Decode base64 → raw bytes
+  const raw = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  let pdfBytes = raw;
+  // Decompress if backend used zlib.compress()
+  if (compressed) {
+   try {
+    const ds = new DecompressionStream('deflate');
+    const writer = ds.writable.getWriter();
+    const reader = ds.readable.getReader();
+    writer.write(raw);
+    writer.close();
+    const chunks = [];
+    while (true) {
+     const { done, value } = await reader.read();
+     if (done) break;
+     chunks.push(value);
+    }
+    const total = chunks.reduce((s, c) => s + c.length, 0);
+    pdfBytes = new Uint8Array(total);
+    let off = 0;
+    for (const c of chunks) { pdfBytes.set(c, off); off += c.length; }
+   } catch(decomErr) {
+    // DecompressionStream not available — fall through with raw bytes
+    console.warn('DecompressionStream failed, using raw bytes:', decomErr.message);
+    pdfBytes = raw;
+   }
+  }
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename || 'ea_report.pdf';
+  // Must be in DOM for Firefox/Safari
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  toast('PDF downloaded — check your Downloads folder', 'success');
+ } catch(e) {
+  toast('PDF download error: ' + e.message, 'error');
+  console.error('downloadBase64PDF error:', e);
+ }
+}
+
+// ── Wizard download (calls core helper) ──────────────────────────────────────
+async function wizDownloadReport(){
+ const b64 = wizReportB64 || pipelineReportB64;
+ if (b64) {
+  const compressed = !!(wizPipelineData && wizPipelineData.report_compressed);
+  await downloadBase64PDF(b64, pipelineReportFilename || 'ea_pipeline_report.pdf', compressed);
+ } else if (pipelineReportFilename) {
+  // Fallback: fetch directly from server
+  window.location.href = API + '/ea-full/report/' + pipelineReportFilename;
+ } else {
+  toast('No report available — run the pipeline first', 'warn');
+ }
+}
 </script>
 
 </body>

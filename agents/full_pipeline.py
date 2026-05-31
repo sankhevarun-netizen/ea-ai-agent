@@ -204,3 +204,123 @@ def run_full_pipeline(input_data: dict) -> dict:
 
     print(f"[Pipeline] Complete. Stages: {pipeline['pipeline_summary']['stages_completed']}")
     return pipeline
+
+
+def run_pipeline_from_step3(input_data: dict) -> dict:
+    """
+    Step-by-step wizard: run MATURITY + INSIGHTS using pre-computed TIME + MAPPING results.
+    Called after the UI has already completed stages 1 (TIME) and 2 (MAPPING).
+    """
+    pipeline: dict = {}
+    errors:   dict = {}
+
+    time_result        = input_data.get("time_result", {})
+    mapping_result     = input_data.get("mapping_result") or {}
+    assessment_results = input_data.get("assessment_results") or {}
+
+    industry       = input_data.get("industry", "")
+    sub_sector     = input_data.get("sub_sector", "")
+    governance     = input_data.get("governance", "")
+    ea_framework   = input_data.get("ea_framework", "")
+    ea_tools       = input_data.get("ea_tools", "")
+    cloud_strategy = input_data.get("cloud_strategy", "")
+    additional_ctx = input_data.get("additional_context", "")
+
+    pipeline["TIME"]    = time_result
+    pipeline["MAPPING"] = mapping_result if mapping_result else {
+        "skipped": True, "reason": "Pre-computed in wizard step 2"
+    }
+
+    applications    = time_result.get("applications", [])
+    duplications    = time_result.get("duplications", [])
+    time_summary    = time_result.get("portfolio_summary") or time_result.get("summary") or {}
+    time_assessment = time_result.get("assessment", {})
+
+    # ── STAGE 3: MATURITY ────────────────────────────────────────
+    print("[WizardPipeline] Stage 3 — MATURITY...")
+    try:
+        avg_score = sum(a.get("composite_score", 5) for a in applications) / max(len(applications), 1)
+        categories = list({a.get("category", "Other") for a in applications})
+        eliminate_pct = round(
+            time_summary.get("time_breakdown", {}).get("ELIMINATE", 0)
+            / max(len(applications), 1) * 100
+        )
+        maturity_input = {
+            "industry":             industry,
+            "sub_sector":           sub_sector,
+            "governance":           governance,
+            "ea_framework":         ea_framework,
+            "ea_tools":             ea_tools,
+            "cloud_strategy":       cloud_strategy,
+            "additional_context":   additional_ctx,
+            "portfolio_size":       len(applications),
+            "avg_composite_score":  round(avg_score, 2),
+            "categories_covered":   categories,
+            "eliminate_percentage": eliminate_pct,
+            "duplications_found":   len(duplications),
+            "total_annual_cost":    time_summary.get("total_annual_cost", 0),
+            "time_breakdown":       time_summary.get("time_breakdown", {}),
+            "has_cmdb_data":        any(a.get("integrations") is not None for a in applications),
+            "has_cost_data":        any(a.get("annual_cost") is not None for a in applications),
+            "portfolio_health":     time_assessment.get("portfolio_overview", {}).get("portfolio_health", "Unknown"),
+            "mapping_complexity":   (mapping_result.get("overall_impact_level", "UNKNOWN")
+                                     if isinstance(mapping_result, dict) else "UNKNOWN"),
+            "assessment_results":   assessment_results,
+        }
+        pipeline["MATURITY"] = run_maturity(maturity_input)
+    except Exception as e:
+        errors["MATURITY"] = str(e)
+        pipeline["MATURITY"] = {}
+
+    # ── STAGE 4: INSIGHTS ────────────────────────────────────────
+    print("[WizardPipeline] Stage 4 — INSIGHTS...")
+    try:
+        insights_input = {
+            "pipeline":           "full_ea_intelligence",
+            "industry":           industry,
+            "sub_sector":         sub_sector,
+            "governance":         governance,
+            "ea_framework":       ea_framework,
+            "additional_context": additional_ctx,
+            "cloud_strategy":     cloud_strategy,
+            "time_output": {
+                "portfolio_summary":   time_summary,
+                "assessment":          time_assessment,
+                "duplications_count":  len(duplications),
+                "top_recommendations": time_assessment.get("top_recommendations", [])[:5],
+                "expected_outcomes":   time_assessment.get("expected_outcomes", {}),
+            },
+            "mapping_output":  pipeline.get("MAPPING", {}),
+            "maturity_output": {
+                "overall_score":  pipeline.get("MATURITY", {}).get("overall_maturity_score"),
+                "maturity_level": pipeline.get("MATURITY", {}).get("maturity_level"),
+                "top_priorities": pipeline.get("MATURITY", {}).get("top_priorities", []),
+                "dimensions":     pipeline.get("MATURITY", {}).get("dimensions", {}),
+            },
+        }
+        pipeline["INSIGHTS"] = run_insights(insights_input)
+    except Exception as e:
+        errors["INSIGHTS"] = str(e)
+        pipeline["INSIGHTS"] = {}
+
+    # ── Pipeline Summary ─────────────────────────────────────────
+    flagged = [a for a in applications if a.get("time_classification") in ("ELIMINATE", "MIGRATE")]
+    pipeline["pipeline_summary"] = {
+        "industry":            industry or "General",
+        "sub_sector":          sub_sector or "",
+        "governance":          governance or "",
+        "ea_framework":        ea_framework or "",
+        "cloud_strategy":      cloud_strategy or "",
+        "stages_completed":    [s for s in ["TIME", "MAPPING", "MATURITY", "INSIGHTS"] if s not in errors],
+        "stages_failed":       list(errors.keys()),
+        "errors":              errors,
+        "total_apps_assessed": len(applications),
+        "flagged_for_action":  len(flagged),
+        "maturity_score":      pipeline.get("MATURITY", {}).get("overall_maturity_score"),
+        "overall_risk":        pipeline.get("INSIGHTS", {}).get("risk_profile", {}).get("overall_risk"),
+        "potential_savings":   time_summary.get("potential_savings", 0),
+        "total_annual_cost":   time_summary.get("total_annual_cost", 0),
+    }
+
+    print(f"[WizardPipeline] Done. Stages: {pipeline['pipeline_summary']['stages_completed']}")
+    return pipeline

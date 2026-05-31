@@ -320,8 +320,51 @@ async def ea_full(body: Dict[str, Any]):
         # without a second request (Vercel /tmp is not shared across invocations)
         with open(report_path, "rb") as f:
             pdf_bytes = f.read()
-        pipeline["report_b64"] = base64.b64encode(pdf_bytes).decode("ascii")
-        pipeline["report_compressed"] = False
+        # Compress before base64 to stay within Vercel's 4.5 MB response limit
+        compressed = zlib.compress(pdf_bytes, level=9)
+        pipeline["report_b64"] = base64.b64encode(compressed).decode("ascii")
+        pipeline["report_compressed"] = True
+        pipeline["report_size_kb"] = round(len(pdf_bytes) / 1024, 1)
+    except Exception as e:
+        pipeline["report_error"] = str(e)
+        pipeline["report_filename"] = None
+        pipeline["report_b64"] = None
+
+    return pipeline
+
+
+@app.post("/ea-pipeline/step")
+async def pipeline_wizard_step(body: Dict[str, Any]):
+    """
+    Step-by-step wizard endpoint: accepts pre-computed TIME + MAPPING results,
+    runs MATURITY → INSIGHTS, generates PDF.  Called from the frontend wizard
+    after Steps 1 (TIME) and 2 (MAPPING) are already shown to the user.
+
+    Body keys:
+      time_result        — output from /time/ingest (full JSON)
+      mapping_result     — output from MAPPING agent (or null)
+      assessment_results — questionnaire answers from inline questionnaire
+      industry, sub_sector, governance, ea_framework, ea_tools,
+      cloud_strategy, additional_context
+    """
+    from agents.full_pipeline import run_pipeline_from_step3
+    try:
+        pipeline = run_pipeline_from_step3(body)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Wizard pipeline failed: {str(e)}")
+
+    try:
+        report_path = _reporter.generate_pipeline_pdf(
+            pipeline=pipeline,
+            output_dir=str(REPORTS_DIR),
+        )
+        pipeline["report_filename"] = Path(report_path).name
+        with open(report_path, "rb") as f:
+            pdf_bytes = f.read()
+        compressed = zlib.compress(pdf_bytes, level=9)
+        pipeline["report_b64"] = base64.b64encode(compressed).decode("ascii")
+        pipeline["report_compressed"] = True
+        pipeline["report_size_kb"] = round(len(pdf_bytes) / 1024, 1)
     except Exception as e:
         pipeline["report_error"] = str(e)
         pipeline["report_filename"] = None
