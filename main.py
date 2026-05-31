@@ -2,7 +2,7 @@ import base64
 import os
 import zlib
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -141,6 +141,123 @@ def handle_request(request: EARequest):
 
 
 # ─── TIME / Portfolio endpoints ───────────────────────────────────────────────
+
+# ── ARB proposal extraction prompt ───────────────────────────────────────────
+_ARB_EXTRACT_PROMPT = """You are an Enterprise Architecture governance expert.
+Extract architecture proposal details from the provided document, image or text.
+Return ONLY a valid JSON object with exactly these fields (use null for anything not found):
+{
+  "proposal_title": "...",
+  "description": "...",
+  "technology_stack": ["tech1", "tech2"],
+  "timeline": "...",
+  "estimated_cost": 0,
+  "annual_running_cost": 0,
+  "business_case": "...",
+  "current_system": "...",
+  "integration_points": "...",
+  "security_compliance": "...",
+  "data_sensitivity": "...",
+  "alternatives_considered": "..."
+}
+Extract every detail you can find. Do not invent information that is not in the source."""
+
+
+@app.post("/arb/ingest")
+async def arb_ingest(
+    file: Optional[UploadFile] = File(None),
+    free_text: Optional[str] = Form(None),
+):
+    """
+    Extract structured ARB proposal fields from an uploaded document or image.
+    Supports: PDF, PPTX, DOCX, TXT, MD, PNG, JPG, JPEG, GIF, WEBP.
+    Returns JSON with proposal_title, description, technology_stack, costs, etc.
+    """
+    from services.claude_service import call_claude, call_claude_vision
+    import json as _json
+
+    def _parse_result(raw: str) -> dict:
+        clean = raw.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
+        return _json.loads(clean)
+
+    # ── IMAGE / Vision path ───────────────────────────────────────────────────
+    if file and file.filename:
+        content = await file.read()
+        ext = Path(file.filename).suffix.lower()
+        media_map = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+                     ".gif": "image/gif", ".webp": "image/webp"}
+
+        if ext in media_map:
+            raw = call_claude_vision(
+                _ARB_EXTRACT_PROMPT, content, media_map[ext],
+                "Extract all architecture proposal details visible in this image. Return structured JSON."
+            )
+            try:
+                return _parse_result(raw)
+            except Exception:
+                raise HTTPException(422, f"Could not parse image extraction: {raw[:300]}")
+
+        # ── PDF ───────────────────────────────────────────────────────────────
+        if ext == ".pdf":
+            import pypdf, io as _io
+            reader = pypdf.PdfReader(_io.BytesIO(content))
+            extracted = "\n".join(page.extract_text() or "" for page in reader.pages)
+            if not extracted.strip():
+                # Scanned / image-based PDF — run vision on each page image
+                for page in reader.pages:
+                    for img_obj in page.images:
+                        raw = call_claude_vision(
+                            _ARB_EXTRACT_PROMPT, img_obj.data, "image/png",
+                            "This is a page from an architecture proposal document. Extract all proposal details."
+                        )
+                        try:
+                            return _parse_result(raw)
+                        except Exception:
+                            continue
+                raise HTTPException(422, "PDF appears to be image-only and no page images could be read.")
+
+        # ── PPTX / PPT ────────────────────────────────────────────────────────
+        elif ext in (".pptx", ".ppt"):
+            from pptx import Presentation
+            import io as _io
+            prs = Presentation(_io.BytesIO(content))
+            texts = []
+            for slide in prs.slides:
+                for shape in slide.shapes:
+                    if hasattr(shape, "text") and shape.text.strip():
+                        texts.append(shape.text.strip())
+            extracted = "\n".join(texts)
+
+        # ── DOCX ─────────────────────────────────────────────────────────────
+        elif ext in (".docx", ".doc"):
+            try:
+                import docx as _docx, io as _io
+                doc = _docx.Document(_io.BytesIO(content))
+                extracted = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+            except Exception:
+                extracted = content.decode("utf-8", errors="replace")
+
+        # ── Plain text / Markdown ─────────────────────────────────────────────
+        else:
+            extracted = content.decode("utf-8", errors="replace")
+
+    elif free_text:
+        extracted = free_text
+    else:
+        raise HTTPException(400, "No file or text provided.")
+
+    if not extracted.strip():
+        raise HTTPException(422, "No readable content found in the uploaded file.")
+
+    raw = call_claude(
+        _ARB_EXTRACT_PROMPT,
+        f"Extract the ARB proposal details from this document:\n\n{extracted[:8000]}"
+    )
+    try:
+        return _parse_result(raw)
+    except Exception:
+        raise HTTPException(422, f"Could not structure the extracted content. Raw: {raw[:300]}")
+
 
 @app.post("/time/ingest")
 async def time_ingest(
