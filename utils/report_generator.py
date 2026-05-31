@@ -10,7 +10,7 @@ from fpdf import FPDF
 
 _UNICODE_MAP = {
     '–': '-',    # en dash
-    '—': '-',    # em dash
+    '--': '-',    # em dash
     '‘': "'",    # left single quote
     '’': "'",    # right single quote
     '“': '"',    # left double quote
@@ -91,19 +91,19 @@ BADGE = {
 }
 
 TIME_DESC = {
-    "INVEST":    "High strategic value — continue and grow investment",
-    "TOLERATE":  "Functional but not strategic — maintain, no new investment",
+    "INVEST":    "High strategic value -- continue and grow investment",
+    "TOLERATE":  "Functional but not strategic -- maintain, no new investment",
     "MIGRATE":   "Move to a better platform, cloud, or replacement",
-    "ELIMINATE": "Decommission — retire or replace immediately",
+    "ELIMINATE": "Decommission -- retire or replace immediately",
 }
 
 ACTION_DESC = {
-    "Retain":     "Strategic and healthy — no immediate action required",
+    "Retain":     "Strategic and healthy -- no immediate action required",
     "Rehost":     "Lift-and-shift to cloud infrastructure",
     "Replatform": "Minor modernisation leveraging cloud-native services",
     "Refactor":   "Significant redesign and re-architecture required",
-    "Replace":    "Better market alternative exists — plan migration",
-    "Retire":     "Decommission — low value, high cost, or redundant",
+    "Replace":    "Better market alternative exists -- plan migration",
+    "Retire":     "Decommission -- low value, high cost, or redundant",
 }
 
 
@@ -113,7 +113,7 @@ def _badge(key: str):
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# EAPdf — custom FPDF subclass
+# EAPdf -- custom FPDF subclass
 # ════════════════════════════════════════════════════════════════════════════
 
 class EAPdf(FPDF):
@@ -585,15 +585,15 @@ class ReportGenerator:
             stages=stages,
         )
 
-        # ── Section 1 — Executive Intelligence Summary ────────────────────────
+        # ── Section 1 -- Executive Intelligence Summary ────────────────────────
         pdf.add_page()
         ins_exec = insights_data.get("executive_summary", "")
         time_exec = time_assess.get("executive_summary", "")
         pdf.section_title("1.", "Executive Intelligence Summary")
         if ins_exec:
-            pdf.exec_box(ins_exec, label="INSIGHTS — EXECUTIVE SUMMARY")
+            pdf.exec_box(ins_exec, label="INSIGHTS -- EXECUTIVE SUMMARY")
         elif time_exec:
-            pdf.exec_box(time_exec, label="PORTFOLIO — EXECUTIVE SUMMARY")
+            pdf.exec_box(time_exec, label="PORTFOLIO -- EXECUTIVE SUMMARY")
 
         # KPI overview
         pdf.kpi_row([
@@ -614,10 +614,10 @@ class ReportGenerator:
                 if v:
                     pdf.table_row([k.replace("_", " ").title(), str(v)], [80, 102], shade=i%2==0)
 
-        # ── Section 2 — Portfolio Rationalization (TIME) ──────────────────────
-        pdf.section_title("2.", "Portfolio Rationalization — TIME Analysis")
+        # ── Section 2 -- Portfolio Rationalization (TIME) ──────────────────────
+        pdf.section_title("2.", "Portfolio Rationalization -- TIME Analysis")
         if time_exec:
-            pdf.exec_box(time_exec, label="TIME AGENT — EXECUTIVE SUMMARY")
+            pdf.exec_box(time_exec, label="TIME AGENT -- EXECUTIVE SUMMARY")
 
         action_counts: Dict[str, int] = {}
         time_counts:   Dict[str, int] = {}
@@ -645,16 +645,16 @@ class ReportGenerator:
             pdf.sub_title("Portfolio Transformation Roadmap")
             pdf.roadmap_section(roadmap_t)
 
-        # ── Section 3 — Dependency Analysis (MAPPING) ────────────────────────
-        pdf.section_title("3.", "Dependency & Impact Analysis — MAPPING")
+        # ── Section 3 -- Dependency Analysis (MAPPING) ────────────────────────
+        pdf.section_title("3.", "Dependency & Impact Analysis -- MAPPING")
         self._pdf_mapping_section(pdf, mapping_data)
 
-        # ── Section 4 — EA Maturity Assessment ───────────────────────────────
-        pdf.section_title("4.", "EA Maturity Assessment — MATURITY")
+        # ── Section 4 -- EA Maturity Assessment ───────────────────────────────
+        pdf.section_title("4.", "EA Maturity Assessment -- MATURITY")
         self._pdf_maturity_section(pdf, maturity_data)
 
-        # ── Section 5 — Strategic Recommendations (INSIGHTS) ─────────────────
-        pdf.section_title("5.", "Strategic Recommendations — INSIGHTS")
+        # ── Section 5 -- Strategic Recommendations (INSIGHTS) ─────────────────
+        pdf.section_title("5.", "Strategic Recommendations -- INSIGHTS")
         self._pdf_insights_recs(pdf, insights_data)
 
         # Risk profile
@@ -686,7 +686,7 @@ class ReportGenerator:
             for i, (k, v) in enumerate(outcomes.items()):
                 pdf.table_row([k.replace("_"," ").title(), str(v)], [70, 112], shade=i%2==0)
 
-        # ── Appendix — Methodology ────────────────────────────────────────────
+        # ── Appendix -- Methodology ────────────────────────────────────────────
         pdf.add_page()
         self._pdf_methodology(pdf)
 
@@ -932,7 +932,7 @@ class ReportGenerator:
                 pdf.multi_cell(174, 5, str(w)[:110])
 
     def _pdf_methodology(self, pdf):
-        pdf.section_title("A.", "Appendix — Methodology & Scoring Framework")
+        pdf.section_title("A.", "Appendix -- Methodology & Scoring Framework")
 
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_text_color(*NAVY)
@@ -942,16 +942,16 @@ class ReportGenerator:
         pdf.set_text_color(*BLACK)
         pdf.set_x(14)
         pdf.multi_cell(182, 5,
-            "Tolerate: Application is functional but not strategic — maintain without new investment.\n"
-            "Invest: High business value and strategic alignment — continue and grow.\n"
+            "Tolerate: Application is functional but not strategic -- maintain without new investment.\n"
+            "Invest: High business value and strategic alignment -- continue and grow.\n"
             "Migrate: Move to a better platform, cloud service, or modern replacement.\n"
-            "Eliminate: Decommission — application is redundant, end-of-life, or low value.")
+            "Eliminate: Decommission -- application is redundant, end-of-life, or low value.")
         pdf.ln(3)
 
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_text_color(*NAVY)
         pdf.set_x(14)
-        pdf.cell(0, 6, "Scoring Engine — 7 Dimensions", ln=True)
+        pdf.cell(0, 6, "Scoring Engine -- 7 Dimensions", ln=True)
         dims_info = [
             ("Business Value",    "Category importance multiplied by criticality modifier."),
             ("Adoption Rate",     "User count mapped to a 0-10 utilisation score."),
@@ -974,7 +974,7 @@ class ReportGenerator:
         pdf.set_text_color(*BLACK)
         pdf.set_x(14)
         pdf.multi_cell(182, 5,
-            "Retain: No change required — application is strategic and healthy.\n"
+            "Retain: No change required -- application is strategic and healthy.\n"
             "Rehost: Lift-and-shift to cloud infrastructure with minimal code changes.\n"
             "Replatform: Targeted optimisations to leverage managed cloud services.\n"
             "Refactor: Significant redesign to cloud-native architecture.\n"
@@ -1095,9 +1095,9 @@ tbody tr:nth-child(even){{background:#f8fbff}}
             parts.append(
                 f'<div class="section"><h2>Transformation Roadmap</h2>'
                 f'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">'
-                f'<div style="border-top:4px solid #00A651;padding:16px;background:#f8fbff"><strong>Phase 1 — 0–6 Months</strong><br><small style="color:#666">Foundation &amp; Quick Wins</small><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("short_term")}</ul></div>'
-                f'<div style="border-top:4px solid #0063DC;padding:16px;background:#f8fbff"><strong>Phase 2 — 6–18 Months</strong><br><small style="color:#666">Execution &amp; Migration</small><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("medium_term")}</ul></div>'
-                f'<div style="border-top:4px solid #7B2FBE;padding:16px;background:#f8fbff"><strong>Phase 3 — 18–24 Months</strong><br><small style="color:#666">Optimisation &amp; Embedding</small><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("long_term")}</ul></div>'
+                f'<div style="border-top:4px solid #00A651;padding:16px;background:#f8fbff"><strong>Phase 1 -- 0–6 Months</strong><br><small style="color:#666">Foundation &amp; Quick Wins</small><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("short_term")}</ul></div>'
+                f'<div style="border-top:4px solid #0063DC;padding:16px;background:#f8fbff"><strong>Phase 2 -- 6–18 Months</strong><br><small style="color:#666">Execution &amp; Migration</small><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("medium_term")}</ul></div>'
+                f'<div style="border-top:4px solid #7B2FBE;padding:16px;background:#f8fbff"><strong>Phase 3 -- 18–24 Months</strong><br><small style="color:#666">Optimisation &amp; Embedding</small><ul style="margin-top:10px;padding-left:18px;font-size:13px">{pi("long_term")}</ul></div>'
                 f'</div></div>')
         return "\n".join(parts)
 

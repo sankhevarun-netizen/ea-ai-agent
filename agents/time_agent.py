@@ -281,34 +281,43 @@ def _normalize_tool(raw: Dict) -> Dict:
             except (ValueError, TypeError):
                 tool["integrations"] = None
 
-    # ── End of life aliases ──────────────────────────────────────────────────
-    if not tool.get("end_of_life"):
-        raw_eol = _get(
-            "end_of_life","end of life","eol","end-of-life","retired",
-            "sunset","decommissioned","legacy","is eol","eol flag",
-            "end of support","eos","past end of life","end of maintenance",
-            "eol?","is legacy","legacy system","is retired","retiring",
-            "end of life (y/n)","eol (y/n)","eol status","support status")
-        if raw_eol is not None:
-            v = str(raw_eol).strip().lower()
-            tool["end_of_life"] = v in ("yes","y","true","1","eol","sunset","legacy",
-                                         "retired","decommissioned","end of life",
-                                         "end of support","eos","past eol")
+    # ── End of life — ALWAYS coerce to proper bool ───────────────────────────
+    # CSV DictReader returns strings like "False"/"True" which are truthy strings.
+    # We must always normalize to a real Python bool.
+    _TRUE_VALS = {"yes","y","true","1","eol","sunset","legacy","retired",
+                  "decommissioned","end of life","end of support","eos","past eol"}
+    _FALSE_VALS = {"no","n","false","0","active","supported","live","current","in use"}
+    raw_eol = _get(
+        "end_of_life","end of life","eol","end-of-life","retired",
+        "sunset","decommissioned","legacy","is eol","eol flag",
+        "end of support","eos","past end of life","end of maintenance",
+        "eol?","is legacy","legacy system","is retired","retiring",
+        "end of life (y/n)","eol (y/n)","eol status","support status")
+    if raw_eol is None:
+        tool["end_of_life"] = False
+    elif isinstance(raw_eol, bool):
+        tool["end_of_life"] = raw_eol
+    else:
+        v = str(raw_eol).strip().lower()
+        tool["end_of_life"] = v in _TRUE_VALS
 
-    # ── Compliance aliases ───────────────────────────────────────────────────
-    if not tool.get("compliance_required"):
-        raw_comp = _get(
-            "compliance_required","compliance required","compliance","regulated",
-            "regulatory","hipaa","gdpr","sox","pci","compliance flag",
-            "needs compliance","compliance needed","regulatory requirement",
-            "compliance (y/n)","requires compliance","data regulation",
-            "data privacy","regulated data","compliance requirement",
-            "regulatory compliance","compliance applicable","subject to compliance")
-        if raw_comp is not None:
-            v = str(raw_comp).strip().lower()
-            tool["compliance_required"] = v in ("yes","y","true","1","required",
-                                                  "regulated","applicable","hipaa",
-                                                  "gdpr","sox","pci")
+    # ── Compliance — ALWAYS coerce to proper bool ─────────────────────────────
+    raw_comp = _get(
+        "compliance_required","compliance required","compliance","regulated",
+        "regulatory","hipaa","gdpr","sox","pci","compliance flag",
+        "needs compliance","compliance needed","regulatory requirement",
+        "compliance (y/n)","requires compliance","data regulation",
+        "data privacy","regulated data","compliance requirement",
+        "regulatory compliance","compliance applicable","subject to compliance")
+    if raw_comp is None:
+        tool["compliance_required"] = False
+    elif isinstance(raw_comp, bool):
+        tool["compliance_required"] = raw_comp
+    else:
+        v = str(raw_comp).strip().lower()
+        tool["compliance_required"] = v in {"yes","y","true","1","required",
+                                             "regulated","applicable","hipaa",
+                                             "gdpr","sox","pci"}
 
     # ── Business unit aliases ────────────────────────────────────────────────
     if _is_blank(tool.get("business_unit")):
