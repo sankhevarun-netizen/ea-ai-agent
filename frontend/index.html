@@ -1344,19 +1344,48 @@
        Submit ARB Review
       </button>
      </div>
-     <!-- Auto-populated flagged apps + editable context fields -->
+     <!-- Flagged apps context -->
      <div id="arb-prefill-area" style="background:#fff;border:1px solid #FDE68A;border-radius:8px;padding:12px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:#92400E;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Flagged Applications for ARB Review</div>
+      <div style="font-size:11px;font-weight:700;color:#92400E;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Applications Flagged by Rationalization</div>
       <div id="arb-flagged-list" style="font-size:12px;color:#78350F;font-style:italic">Run Rationalization first</div>
      </div>
-     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-      <div>
-       <label style="font-size:10.5px;font-weight:700;color:#92400E;display:block;margin-bottom:3px">Proposal Title (auto-generated, editable)</label>
-       <input id="arb-pip-title" type="text" style="width:100%;border:1px solid #FDE68A;border-radius:6px;padding:6px 10px;font-size:12px;font-family:inherit;box-sizing:border-box;background:#FFFDF0" placeholder="e.g. Portfolio Rationalization — 5 Application Changes"/>
+
+     <!-- Proposal source toggle -->
+     <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:#92400E;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Proposal Source</div>
+      <div style="display:flex;gap:0;border:1px solid #FDE68A;border-radius:8px;overflow:hidden;font-size:12px;width:fit-content">
+       <button id="arb-src-auto" onclick="setARBSource('auto')" style="padding:7px 16px;border:none;cursor:pointer;font-weight:700;font-family:inherit;background:#D97706;color:#fff;transition:.2s">Auto-generate from Rationalization</button>
+       <button id="arb-src-upload" onclick="setARBSource('upload')" style="padding:7px 16px;border:none;cursor:pointer;font-weight:600;font-family:inherit;background:#fff;color:#92400E;transition:.2s">Upload Proposal Document</button>
       </div>
-      <div>
-       <label style="font-size:10.5px;font-weight:700;color:#92400E;display:block;margin-bottom:3px">Timeline</label>
-       <input id="arb-pip-timeline" type="text" value="12-18 months" style="width:100%;border:1px solid #FDE68A;border-radius:6px;padding:6px 10px;font-size:12px;font-family:inherit;box-sizing:border-box;background:#FFFDF0"/>
+      <div style="font-size:11px;color:#B45309;margin-top:4px" id="arb-src-hint">ARB will evaluate a proposal auto-built from your Rationalization results.</div>
+     </div>
+
+     <!-- Upload zone (hidden by default) -->
+     <div id="arb-upload-zone" style="display:none;margin-bottom:12px">
+      <div style="border:2px dashed #FDE68A;border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:#FFFDF0;transition:all .2s"
+           onclick="document.getElementById('arb-pip-file').click()"
+           ondragover="event.preventDefault();this.style.borderColor='#D97706'"
+           ondragleave="this.style.borderColor='#FDE68A'"
+           ondrop="arbPipDrop(event)">
+       <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#D97706" stroke-width="1.5" style="margin:0 auto 8px;display:block"><path stroke-linecap="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+       <div id="arb-pip-file-label" style="font-size:12.5px;font-weight:600;color:#92400E">Drop your proposal document here or click to browse</div>
+       <div style="font-size:11px;color:#B45309;margin-top:3px">PDF · PPTX · DOCX · PNG · JPG — Claude extracts all proposal fields automatically</div>
+      </div>
+      <input type="file" id="arb-pip-file" accept=".pdf,.pptx,.ppt,.docx,.doc,.txt,.png,.jpg,.jpeg,.webp" style="display:none" onchange="arbPipFileSelected(this.files[0])"/>
+      <div id="arb-pip-extract-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:600"></div>
+     </div>
+
+     <!-- Auto-generate fields -->
+     <div id="arb-auto-fields">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+       <div>
+        <label style="font-size:10.5px;font-weight:700;color:#92400E;display:block;margin-bottom:3px">Proposal Title (auto-generated, editable)</label>
+        <input id="arb-pip-title" type="text" style="width:100%;border:1px solid #FDE68A;border-radius:6px;padding:6px 10px;font-size:12px;font-family:inherit;box-sizing:border-box;background:#FFFDF0" placeholder="e.g. Portfolio Rationalization — 5 Application Changes"/>
+       </div>
+       <div>
+        <label style="font-size:10.5px;font-weight:700;color:#92400E;display:block;margin-bottom:3px">Timeline</label>
+        <input id="arb-pip-timeline" type="text" value="12-18 months" style="width:100%;border:1px solid #FDE68A;border-radius:6px;padding:6px 10px;font-size:12px;font-family:inherit;box-sizing:border-box;background:#FFFDF0"/>
+       </div>
       </div>
      </div>
      <div>
@@ -3827,6 +3856,56 @@ function _setPipLine(id, active) {
  if (el) el.style.background = active ? '#22C55E' : '#E2E8F0';
 }
 
+// ── ARB source toggle ────────────────────────────────────────────
+let _arbUploadedProposal = null; // extracted proposal from uploaded doc
+
+function setARBSource(mode) {
+ const btnAuto   = document.getElementById('arb-src-auto');
+ const btnUpload = document.getElementById('arb-src-upload');
+ const autoFields = document.getElementById('arb-auto-fields');
+ const uploadZone = document.getElementById('arb-upload-zone');
+ const hint       = document.getElementById('arb-src-hint');
+ if (mode === 'auto') {
+  btnAuto.style.background='#D97706'; btnAuto.style.color='#fff';
+  btnUpload.style.background='#fff'; btnUpload.style.color='#92400E';
+  if (autoFields) autoFields.style.display='block';
+  if (uploadZone) uploadZone.style.display='none';
+  if (hint) hint.textContent = 'ARB will evaluate a proposal auto-built from your Rationalization results.';
+  _arbUploadedProposal = null;
+ } else {
+  btnUpload.style.background='#D97706'; btnUpload.style.color='#fff';
+  btnAuto.style.background='#fff'; btnAuto.style.color='#92400E';
+  if (uploadZone) uploadZone.style.display='block';
+  if (autoFields) autoFields.style.display='none';
+  if (hint) hint.textContent = 'Upload your architecture proposal document — Claude extracts all fields for ARB review.';
+ }
+}
+
+function arbPipDrop(e) {
+ e.preventDefault();
+ const f = e.dataTransfer.files[0];
+ if (f) arbPipFileSelected(f);
+}
+
+async function arbPipFileSelected(file) {
+ if (!file) return;
+ const lbl = document.getElementById('arb-pip-file-label');
+ const status = document.getElementById('arb-pip-extract-status');
+ if (lbl) lbl.textContent = file.name;
+ if (status) { status.style.display='flex'; status.style.background='#FFFBEB'; status.style.color='#92400E'; status.innerHTML='<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(217,119,6,.3);border-top-color:#D97706;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px"></span> Extracting proposal fields…'; }
+ try {
+  const fd = new FormData(); fd.append('file', file);
+  const res = await fetch(API + '/arb/ingest', { method: 'POST', body: fd });
+  if (!res.ok) throw new Error(await res.text());
+  _arbUploadedProposal = await res.json();
+  if (status) { status.style.background='#F0FDF4'; status.style.color='#14532D'; status.innerHTML='<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="margin-right:5px"><path stroke-linecap="round" d="M5 13l4 4L19 7"/></svg> Proposal extracted: ' + esc(_arbUploadedProposal.proposal_title || file.name); }
+  toast('Proposal extracted — ready for ARB review', 'success');
+ } catch(e) {
+  if (status) { status.style.background='#FEF2F2'; status.style.color='#B91C1C'; status.textContent = 'Extraction failed: ' + e.message.slice(0,80); }
+  toast('Proposal extraction failed: ' + e.message, 'error');
+ }
+}
+
 // ── STEP 2: ARB ─────────────────────────────────────────────────
 async function runARBFromRationalization() {
  if (!portIngestData?.applications?.length) { toast('Analyse applications first', 'warn'); return; }
@@ -3835,11 +3914,19 @@ async function runARBFromRationalization() {
  if (btn) { btn.disabled = true; btn.innerHTML = spin + 'Running ARB Review…'; }
  _setPipDot(2, 'running');
  try {
+  // If user uploaded a proposal doc, merge its extracted fields into the request
+  const uploaded = _arbUploadedProposal || {};
   const body = {
    applications: portIngestData.applications,
-   proposal_title: document.getElementById('arb-pip-title')?.value?.trim() || '',
-   business_case: document.getElementById('arb-pip-bizcase')?.value?.trim() || '',
-   timeline: document.getElementById('arb-pip-timeline')?.value?.trim() || '12-18 months',
+   proposal_title: uploaded.proposal_title || document.getElementById('arb-pip-title')?.value?.trim() || '',
+   business_case: uploaded.business_case || document.getElementById('arb-pip-bizcase')?.value?.trim() || '',
+   timeline: uploaded.timeline || document.getElementById('arb-pip-timeline')?.value?.trim() || '12-18 months',
+   technology_stack: uploaded.technology_stack || undefined,
+   estimated_cost: uploaded.estimated_cost || undefined,
+   integration_points: uploaded.integration_points || undefined,
+   security_compliance: uploaded.security_compliance || undefined,
+   data_sensitivity: uploaded.data_sensitivity || undefined,
+   alternatives_considered: uploaded.alternatives_considered || undefined,
    rationalization_summary: portIngestData.summary || {},
    ea_context: getContextPayload(),
   };
