@@ -81,6 +81,25 @@ def run_full_pipeline(input_data: dict) -> dict:
     time_summary    = pipeline["TIME"].get("portfolio_summary", {})
     time_assessment = pipeline["TIME"].get("assessment", {})
 
+    # ── ARB result (pre-computed by the stepper before this pipeline call) ────────
+    arb_result = input_data.get("arb_result") or {}
+    arb_decision    = arb_result.get("decision", "NOT_RUN")
+    arb_conditions  = arb_result.get("conditions", [])
+    arb_risks       = arb_result.get("risks", [])
+    arb_compliance  = arb_result.get("compliance_score", 0)
+    arb_summary = (
+        f"ARB Decision: {arb_decision}. "
+        f"Compliance score: {arb_compliance}. "
+        f"Conditions: {'; '.join(arb_conditions[:3]) if arb_conditions else 'None'}. "
+        f"Key risks: {'; '.join(arb_risks[:3]) if arb_risks else 'None'}."
+    ) if arb_result else ""
+    if arb_summary:
+        unified_context["arb_governance"] = arb_summary
+        if additional_ctx:
+            unified_context["additional_context"] = f"{additional_ctx}\n{arb_summary}"
+        else:
+            unified_context["additional_context"] = arb_summary
+
     # ── STAGE 2: MAPPING — Dependency Impact Analysis (flagged apps only) ───────
     # Only analyse apps flagged ELIMINATE or MIGRATE — others don't need migration impact
     flagged = [
@@ -172,6 +191,14 @@ def run_full_pipeline(input_data: dict) -> dict:
                 "expected_outcomes":     time_assessment.get("expected_outcomes", {}),
             },
             "mapping_output": pipeline.get("MAPPING", {}),
+            "arb_output": {
+                "decision":          arb_decision,
+                "compliance_score":  arb_compliance,
+                "conditions":        arb_conditions[:5],
+                "risks":             arb_risks[:5],
+                "recommendations":   arb_result.get("recommendations", [])[:5],
+                "integration_complexity": arb_result.get("integration_complexity", ""),
+            } if arb_result else {},
             "maturity_output": {
                 "overall_score":    pipeline.get("MATURITY", {}).get("overall_maturity_score"),
                 "maturity_level":   pipeline.get("MATURITY", {}).get("maturity_level"),

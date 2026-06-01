@@ -259,6 +259,124 @@ async def arb_ingest(
         raise HTTPException(422, f"Could not structure the extracted content. Raw: {raw[:300]}")
 
 
+@app.post("/arb/evaluate")
+async def arb_evaluate(body: Dict[str, Any]):
+    """
+    Run a full ARB governance decision using portfolio rationalization results.
+    Auto-builds the proposal from flagged applications, then calls the ARB agent.
+
+    Body keys:
+      applications          — full list from /time/ingest
+      proposal_title        — optional override
+      business_case         — optional override
+      timeline              — optional override (default "12-18 months")
+      ea_context            — context dict from frontend wizard
+      rationalization_summary — summary dict from /time/ingest
+    """
+    from agents.arb_agent import run_arb
+
+    applications = body.get("applications", [])
+    flagged = [
+        a for a in applications
+        if a.get("time_classification") in ("ELIMINATE", "MIGRATE")
+        or a.get("rationalization_action") in ("Replace", "Retire", "Refactor")
+    ]
+
+    # Build summary of flagged apps for the proposal
+    flagged_names = [a.get("name", "Unknown") for a in flagged]
+    vendors = list({a.get("vendor", "") for a in applications if a.get("vendor")})[:8]
+    total_cost = sum(a.get("annual_cost") or 0 for a in applications)
+    flagged_cost = sum(a.get("annual_cost") or 0 for a in flagged)
+
+    ea_ctx = body.get("ea_context") or {}
+    rat_summary = body.get("rationalization_summary") or {}
+
+    proposal = {
+        "proposal_title": body.get("proposal_title") or
+            f"Portfolio Rationalization — {len(flagged)} Application{'s' if len(flagged)!=1 else ''} Requiring Architectural Action",
+        "description": (
+            f"EA Rationalization analysis of {len(applications)} applications identifies "
+            f"{len(flagged)} requiring architectural change: "
+            f"{', '.join(flagged_names[:6])}{'...' if len(flagged_names)>6 else ''}. "
+            f"Annual portfolio spend: ${total_cost:,.0f}. "
+            f"Flagged application spend: ${flagged_cost:,.0f}."
+        ),
+        "technology_stack": vendors,
+        "timeline": body.get("timeline") or "12-18 months",
+        "estimated_cost": body.get("estimated_cost") or 0,
+        "annual_running_cost": body.get("annual_running_cost") or 0,
+        "business_case": body.get("business_case") or (
+            f"Portfolio analysis shows {len(flagged)} of {len(applications)} applications are "
+            f"classified ELIMINATE or MIGRATE. Rationalization will reduce technical debt, "
+            f"eliminate duplications ({rat_summary.get('duplications_found', 0)} found), "
+            f"and align the portfolio with strategic business outcomes. "
+            f"Industry: {ea_ctx.get('industry', 'not specified')}. "
+            f"EA framework: {ea_ctx.get('ea_framework', 'not specified')}. "
+            f"{ea_ctx.get('additional_context', '')}"
+        ).strip(),
+        "current_system": f"Portfolio of {len(applications)} applications",
+        "integration_points": body.get("integration_points") or
+            f"Applications span {len(set(a.get('category','') for a in applications if a.get('category')))} categories",
+        "security_compliance": ea_ctx.get("governance") or "To be assessed",
+        "data_sensitivity": body.get("data_sensitivity") or "Mixed — includes Critical and High business systems",
+        "alternatives_considered": body.get("alternatives_considered") or
+            "Maintain status quo (rejected — unsustainable cost and technical debt trajectory)",
+        "flagged_applications": [
+            {
+                "name": a.get("name"),
+                "vendor": a.get("vendor"),
+                "category": a.get("category"),
+                "rationalization_action": a.get("rationalization_action"),
+                "time_classification": a.get("time_classification"),
+                "annual_cost": a.get("annual_cost"),
+                "composite_score": a.get("composite_score"),
+                "end_of_life": a.get("end_of_life"),
+            }
+            for a in flagged
+        ],
+        "full_portfolio_summary": rat_summary,
+        "ea_context": ea_ctx,
+    }
+
+    try:
+        result = run_arb(proposal)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"ARB evaluation failed: {str(e)}")
+
+    # If run_arb returned a parse error, try to re-extract JSON from raw_response
+    if result.get("parse_error") and result.get("raw_response"):
+        import re as _re, json as _json2
+        raw = result["raw_response"]
+        # Try to find JSON block in the raw response
+        json_match = _re.search(r'\{[\s\S]*\}', raw)
+        if json_match:
+            try:
+                result = _json2.loads(json_match.group())
+            except Exception:
+                pass
+
+    # Normalise decision field
+    decision = str(result.get("decision", "")).upper()
+    if decision not in ("APPROVED", "REJECTED", "CONDITIONAL"):
+        decision = "CONDITIONAL"
+
+    return {
+        "decision": decision,
+        "confidence_score": result.get("confidence_score") or result.get("confidence") or 0,
+        "compliance_score": result.get("compliance_score") or result.get("compliance") or 0,
+        "risks": result.get("risks") or [],
+        "anti_patterns_detected": result.get("anti_patterns_detected") or [],
+        "redundancy_flags": result.get("redundancy_flags") or [],
+        "integration_complexity": result.get("integration_complexity") or "UNKNOWN",
+        "recommendations": result.get("recommendations") or [],
+        "conditions": result.get("conditions") or [],
+        "reasoning": result.get("reasoning") or "",
+        "proposal": proposal,
+        "flagged_count": len(flagged),
+        "total_apps": len(applications),
+    }
+
+
 @app.post("/time/ingest")
 async def time_ingest(
     file: Optional[UploadFile] = File(None),
@@ -429,7 +547,11 @@ async def time_ingest(
                   "service","solution","platform"}
     def _has_name(row: dict) -> bool:
         for k, v in row.items():
-            if str(k).strip().lower() in _NAME_KEYS and v and str(v).strip().lower() not in ("","nan","none","unknown"):
+            kl = str(k).strip().lower()
+            # Accept exact match OR any name key appearing as substring of column
+            # (handles templates that append " *", " (required)", etc.)
+            matched = kl in _NAME_KEYS or any(nk in kl for nk in _NAME_KEYS)
+            if matched and v and str(v).strip().lower() not in ("", "nan", "none", "unknown"):
                 return True
         return False
 

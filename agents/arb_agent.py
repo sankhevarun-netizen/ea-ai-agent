@@ -41,16 +41,23 @@ def run_arb(input_data: dict) -> dict:
     # 4. Call Claude
     result_str = call_claude(enriched_prompt, user_message)
 
-    # 5. Parse JSON — strip any accidental markdown fences
+    # 5. Parse JSON — robust extraction handles markdown fences and surrounding text
     result_str_clean = result_str.strip()
-    if result_str_clean.startswith("```"):
-        result_str_clean = result_str_clean.split("```")[-2] if "```" in result_str_clean else result_str_clean
-        result_str_clean = result_str_clean.lstrip("json").strip()
-
+    # Strip markdown code fences
+    result_str_clean = result_str_clean.lstrip("```json").lstrip("```").rstrip("```").strip()
     try:
         result = json.loads(result_str_clean)
     except json.JSONDecodeError:
-        result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
+        # Fallback: find the first {...} JSON block in the response
+        import re as _re
+        match = _re.search(r'\{[\s\S]*\}', result_str_clean)
+        if match:
+            try:
+                result = json.loads(match.group())
+            except json.JSONDecodeError:
+                result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
+        else:
+            result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
 
     # 6. Store decision to Supabase memory
     store_decision(input_data, json.dumps(result), agent="ARB")
