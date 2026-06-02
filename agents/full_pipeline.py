@@ -235,8 +235,8 @@ def run_full_pipeline(input_data: dict) -> dict:
 
 def run_pipeline_from_step3(input_data: dict) -> dict:
     """
-    Step-by-step wizard: run MATURITY + INSIGHTS using pre-computed TIME + MAPPING results.
-    Called after the UI has already completed stages 1 (TIME) and 2 (MAPPING).
+    Step-by-step wizard: run MATURITY + INSIGHTS using pre-computed TIME + MAPPING + ARB results.
+    Called after the UI has already completed stages 1 (TIME), 2 (MAPPING) and ARB.
     """
     pipeline: dict = {}
     errors:   dict = {}
@@ -244,6 +244,7 @@ def run_pipeline_from_step3(input_data: dict) -> dict:
     time_result        = input_data.get("time_result", {})
     mapping_result     = input_data.get("mapping_result") or {}
     assessment_results = input_data.get("assessment_results") or {}
+    arb_result         = input_data.get("arb_result") or {}
 
     industry       = input_data.get("industry", "")
     sub_sector     = input_data.get("sub_sector", "")
@@ -252,6 +253,20 @@ def run_pipeline_from_step3(input_data: dict) -> dict:
     ea_tools       = input_data.get("ea_tools", "")
     cloud_strategy = input_data.get("cloud_strategy", "")
     additional_ctx = input_data.get("additional_context", "")
+
+    # Thread ARB context into additional_ctx so all agents are aware
+    if arb_result:
+        arb_ctx = (
+            f"ARB Governance Decision: {arb_result.get('decision','NOT_RUN')}. "
+            f"Confidence: {arb_result.get('confidence_score',0)}/100. "
+            f"Compliance: {arb_result.get('compliance_score',0)}/100. "
+            f"Integration complexity: {arb_result.get('integration_complexity','')}. "
+            f"Key conditions: {'; '.join((arb_result.get('conditions') or [])[:3])}. "
+            f"Key risks: {'; '.join((arb_result.get('risks') or [])[:3])}."
+        )
+        additional_ctx = f"{additional_ctx}\n{arb_ctx}".strip()
+
+    pipeline["ARB"] = arb_result
 
     pipeline["TIME"]    = time_result
     pipeline["MAPPING"] = mapping_result if mapping_result else {
@@ -318,11 +333,22 @@ def run_pipeline_from_step3(input_data: dict) -> dict:
                 "expected_outcomes":   time_assessment.get("expected_outcomes", {}),
             },
             "mapping_output":  pipeline.get("MAPPING", {}),
+            "arb_output": {
+                "decision":           arb_result.get("decision", "NOT_RUN"),
+                "confidence_score":   arb_result.get("confidence_score", 0),
+                "compliance_score":   arb_result.get("compliance_score", 0),
+                "conditions":         (arb_result.get("conditions") or [])[:5],
+                "risks":              (arb_result.get("risks") or [])[:5],
+                "recommendations":    (arb_result.get("recommendations") or [])[:5],
+                "integration_complexity": arb_result.get("integration_complexity", ""),
+            } if arb_result else {},
             "maturity_output": {
                 "overall_score":  pipeline.get("MATURITY", {}).get("overall_maturity_score"),
-                "maturity_level": pipeline.get("MATURITY", {}).get("maturity_level"),
+                "overall_band":   pipeline.get("MATURITY", {}).get("overall_band", ""),
+                "maturity_level": pipeline.get("MATURITY", {}).get("maturity_level", ""),
                 "top_priorities": pipeline.get("MATURITY", {}).get("top_priorities", []),
                 "dimensions":     pipeline.get("MATURITY", {}).get("dimensions", {}),
+                "pillar_scores":  pipeline.get("MATURITY", {}).get("pillar_scores", {}),
             },
         }
         pipeline["INSIGHTS"] = run_insights(insights_input)

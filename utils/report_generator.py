@@ -554,6 +554,7 @@ class ReportGenerator:
         gen_date      = datetime.now().strftime("%d %B %Y  %H:%M")
         summary       = pipeline.get("pipeline_summary", {})
         time_data     = pipeline.get("TIME", {})
+        arb_data      = pipeline.get("ARB", {}) or {}
         mapping_data  = pipeline.get("MAPPING", {})
         maturity_data = pipeline.get("MATURITY", {})
         insights_data = pipeline.get("INSIGHTS", {})
@@ -646,16 +647,20 @@ class ReportGenerator:
             pdf.sub_title("Portfolio Transformation Roadmap")
             pdf.roadmap_section(roadmap_t)
 
-        # ── Section 3 -- Dependency Analysis (MAPPING) ────────────────────────
-        pdf.section_title("3.", "Dependency & Impact Analysis -- MAPPING")
+        # ── Section 3 -- ARB Governance Decision ──────────────────────────────
+        pdf.section_title("3.", "Architecture Review Board (ARB) -- Governance Decision")
+        self._pdf_arb_section(pdf, arb_data)
+
+        # ── Section 4 -- Dependency Analysis (MAPPING) ────────────────────────
+        pdf.section_title("4.", "Dependency & Impact Analysis -- MAPPING")
         self._pdf_mapping_section(pdf, mapping_data)
 
-        # ── Section 4 -- EA Maturity Assessment ───────────────────────────────
-        pdf.section_title("4.", "EA Maturity Assessment -- MATURITY")
+        # ── Section 5 -- EA Maturity Assessment (KPMG 4-Pillar Framework) ──────
+        pdf.section_title("5.", "EA Maturity Assessment -- 4 Pillars / 8 Dimensions")
         self._pdf_maturity_section(pdf, maturity_data)
 
-        # ── Section 5 -- Strategic Recommendations (INSIGHTS) ─────────────────
-        pdf.section_title("5.", "Strategic Recommendations -- INSIGHTS")
+        # ── Section 6 -- Strategic Recommendations (INSIGHTS) ─────────────────
+        pdf.section_title("6.", "Strategic Recommendations -- INSIGHTS")
         self._pdf_insights_recs(pdf, insights_data)
 
         # Risk profile
@@ -854,7 +859,63 @@ class ReportGenerator:
                 pdf.cell(10, 5, f"{i+1}.")
                 pdf.cell(0, 5, str(app)[:100], ln=True)
 
+    def _pdf_arb_section(self, pdf, arb):
+        """ARB Governance Decision section."""
+        if not arb or not arb.get("decision"):
+            pdf.set_font("Helvetica", "I", 9)
+            pdf.set_text_color(*DGREY)
+            pdf.set_x(14)
+            pdf.cell(0, 6, "ARB governance review not completed for this pipeline run.", ln=True)
+            return
+
+        decision   = _safe_str(arb.get("decision", "UNKNOWN")).upper()
+        confidence = arb.get("confidence_score", 0)
+        compliance = arb.get("compliance_score", 0)
+        complexity = _safe_str(arb.get("integration_complexity", "-"))
+        reasoning  = _safe_str(arb.get("reasoning", ""))
+        conditions = arb.get("conditions") or []
+        risks      = arb.get("risks") or []
+        recs       = arb.get("recommendations") or []
+
+        dec_colors = {"APPROVED": GREEN, "REJECTED": RED, "CONDITIONAL": AMBER}
+        dec_fill   = {"APPROVED": (212,237,218), "REJECTED": (248,215,218), "CONDITIONAL": (255,243,205)}
+        dc  = dec_colors.get(decision, SLATE)
+        dfg = dec_fill.get(decision, (226,227,229))
+
+        # Decision banner
+        pdf.set_fill_color(*dfg)
+        pdf.set_x(14)
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.set_text_color(*dc)
+        pdf.cell(182, 11, f"  ARB Decision: {decision}", fill=True, ln=True)
+        pdf.ln(4)
+
+        # Scores row
+        pdf.table_header(["Confidence Score", "Compliance Score", "Integration Complexity"], [60, 60, 62])
+        pdf.table_row([f"{confidence}/100", f"{compliance}/100", complexity], [60, 60, 62], shade=False)
+        pdf.ln(6)
+
+        # Reasoning
+        if reasoning:
+            pdf.sub_title("ARB Reasoning")
+            pdf.set_font("Helvetica", "", 8)
+            pdf.set_text_color(*BLACK)
+            pdf.set_x(14)
+            pdf.multi_cell(182, 5, reasoning[:500])
+            pdf.ln(3)
+
+        # Conditions / Risks / Recommendations columns
+        if conditions or risks or recs:
+            pdf.table_header(["Conditions", "Risk Flags", "Recommendations"], [60, 60, 62])
+            max_rows = max(len(conditions), len(risks), len(recs), 1)
+            for i in range(min(max_rows, 5)):
+                c = _safe_str(conditions[i] if i < len(conditions) else "")[:38]
+                r = _safe_str(risks[i]      if i < len(risks)      else "")[:38]
+                rec = _safe_str(recs[i]     if i < len(recs)       else "")[:38]
+                pdf.table_row([c, r, rec], [60, 60, 62], shade=i%2==0)
+
     def _pdf_maturity_section(self, pdf, maturity):
+        """EA Maturity Assessment — KPMG 4-pillar / 8-dimension framework."""
         if not maturity:
             pdf.set_font("Helvetica", "I", 9)
             pdf.set_text_color(*DGREY)
@@ -862,31 +923,109 @@ class ReportGenerator:
             pdf.cell(0, 6, "Maturity assessment not available.", ln=True)
             return
 
-        score = maturity.get("overall_maturity_score", "-")
-        level = maturity.get("maturity_level", "-")
+        score = maturity.get("overall_maturity_score", 0)
+        band  = _safe_str(maturity.get("overall_band") or maturity.get("maturity_level") or "Unknown")
 
-        # Score banner
-        pdf.set_fill_color(*NAVY)
+        band_c    = {"High": GREEN, "Medium": AMBER, "Low": RED}.get(band, SLATE)
+        band_fill = {"High": (212,237,218), "Medium": (255,243,205), "Low": (248,215,218)}.get(band, (226,227,229))
+
+        # Overall score banner
+        pdf.set_fill_color(*band_fill)
         pdf.set_x(14)
         pdf.set_font("Helvetica", "B", 11)
-        pdf.set_text_color(*WHITE)
-        pdf.cell(60, 10, f"  Overall Score: {score} / 5", fill=True)
-        pdf.set_fill_color(*BLUE)
+        pdf.set_text_color(*band_c)
+        pdf.cell(70, 10, f"  Overall Score: {score} / 5", fill=True)
+        pdf.set_fill_color(*NAVY)
         pdf.set_font("Helvetica", "B", 10)
-        pdf.cell(50, 10, f"  {level}", fill=True)
+        pdf.set_text_color(*WHITE)
+        pdf.cell(40, 10, f"  {band}", fill=True)
         pdf.ln(14)
 
+        # Pillar scores
+        pillar_scores = maturity.get("pillar_scores", {})
+        if pillar_scores:
+            pdf.sub_title("Pillar Scores -- 4 Key Pillars")
+            pdf.table_header(["Pillar", "Score / 5", "Band"], [80, 30, 72])
+            for i, (pillar, ps) in enumerate(pillar_scores.items()):
+                pb = "High" if ps >= 4 else "Medium" if ps >= 3 else "Low"
+                pdf.table_row([_safe_str(pillar), f"{ps:.1f}", pb], [80, 30, 72], shade=i%2==0)
+            pdf.ln(4)
+
+        # 8 Dimension detail
         dims = maturity.get("dimensions", {})
+        DIM_ORDER = [
+            "vision_and_strategy", "organization", "leadership_and_governance",
+            "behaviour_and_culture", "metrics_and_analysis", "policy_and_standards",
+            "enabling_processes", "tools_and_technology",
+        ]
+        DIM_LABELS = {
+            "vision_and_strategy": "Vision & Strategy",
+            "organization": "Organization",
+            "leadership_and_governance": "Leadership & Governance",
+            "behaviour_and_culture": "Behaviour & Culture",
+            "metrics_and_analysis": "Metrics & Analysis",
+            "policy_and_standards": "Policy & Standards",
+            "enabling_processes": "Enabling Processes",
+            "tools_and_technology": "Tools & Technology",
+        }
         if dims:
-            pdf.sub_title("Dimension Scores")
-            pdf.table_header(["Dimension", "Score", "Key Gaps"], [58, 18, 106])
-            for i, (dk, dv) in enumerate(dims.items()):
+            pdf.sub_title("8 Dimensions -- Maturity Variations")
+            pdf.table_header(["Dimension", "Score", "Band", "Pillar", "Key Improvement Areas"], [42, 14, 18, 30, 78])
+            for i, dk in enumerate(DIM_ORDER):
+                dv = dims.get(dk)
                 if not isinstance(dv, dict):
                     continue
-                gaps = ", ".join(dv.get("gaps", [])[:2]) or "-"
-                pdf.table_row(
-                    [dk.replace("_"," ").title(), f"{dv.get('score','-')}/5", gaps[:64]],
-                    [58, 18, 106], shade=i%2==0)
+                s     = dv.get("score", 0)
+                b     = _safe_str(dv.get("band") or ("High" if s>=4 else "Medium" if s>=3 else "Low"))
+                pillar= _safe_str(dv.get("pillar", ""))
+                imp   = dv.get("improvement_areas") or dv.get("gaps") or []
+                imp_txt = _safe_str(imp[0] if imp else "-")[:50]
+                lbl   = _safe_str(DIM_LABELS.get(dk, dk.replace("_", " ").title()))
+                pdf.table_row([lbl, f"{s:.1f}/5", b, pillar[:18], imp_txt], [42, 14, 18, 30, 78], shade=i%2==0)
+            pdf.ln(4)
+
+        # Per-dimension positive findings + improvement areas
+        if dims:
+            pdf.sub_title("Dimension Detail -- Findings & Improvement Areas")
+            for dk in DIM_ORDER:
+                dv = dims.get(dk)
+                if not isinstance(dv, dict):
+                    continue
+                s    = dv.get("score", 0)
+                b    = _safe_str(dv.get("band") or ("High" if s>=4 else "Medium" if s>=3 else "Low"))
+                lbl  = _safe_str(DIM_LABELS.get(dk, dk.replace("_", " ").title()))
+                pos  = dv.get("positive_findings") or []
+                imp  = dv.get("improvement_areas") or dv.get("gaps") or []
+
+                if pdf.get_y() > 250:
+                    pdf.add_page()
+
+                pdf.set_x(14)
+                pdf.set_font("Helvetica", "B", 9)
+                pdf.set_text_color(*NAVY)
+                bc = {"High": GREEN, "Medium": AMBER, "Low": RED}.get(b, SLATE)
+                pdf.cell(90, 6, lbl, ln=False)
+                pdf.set_font("Helvetica", "B", 8)
+                pdf.set_text_color(*bc)
+                pdf.cell(40, 6, f"{b}  ({s:.1f}/5)", ln=True)
+
+                for p in pos[:2]:
+                    pdf.set_x(18)
+                    pdf.set_font("Helvetica", "", 8)
+                    pdf.set_text_color(21, 87, 36)
+                    pdf.cell(4, 4, "+")
+                    pdf.set_text_color(*BLACK)
+                    pdf.multi_cell(174, 4, _safe_str(p)[:100])
+
+                for g in imp[:2]:
+                    pdf.set_x(18)
+                    pdf.set_font("Helvetica", "", 8)
+                    pdf.set_text_color(*RED)
+                    pdf.cell(4, 4, "-")
+                    pdf.set_text_color(*BLACK)
+                    pdf.multi_cell(174, 4, _safe_str(g)[:100])
+
+                pdf.ln(2)
 
         priorities = maturity.get("top_priorities", [])
         if priorities:
@@ -896,16 +1035,16 @@ class ReportGenerator:
                 pdf.set_font("Helvetica", "", 8)
                 pdf.set_text_color(*BLACK)
                 pdf.cell(4, 5, "-")
-                pdf.multi_cell(174, 5, str(p)[:110])
+                pdf.multi_cell(174, 5, _safe_str(str(p))[:110])
 
         roadmap = maturity.get("roadmap", [])
         if roadmap:
             pdf.sub_title("Maturity Improvement Roadmap")
             pdf.table_header(["Phase", "Key Actions"], [54, 128])
             for i, phase in enumerate(roadmap[:3]):
-                acts = "; ".join(phase.get("actions", [])[:3]) if isinstance(phase, dict) else str(phase)
+                acts = "; ".join(_safe_str(a) for a in phase.get("actions", [])[:3]) if isinstance(phase, dict) else str(phase)
                 pdf.table_row(
-                    [phase.get("phase","")[:30] if isinstance(phase,dict) else f"Phase {i+1}", acts[:76]],
+                    [_safe_str(phase.get("phase",""))[:30] if isinstance(phase,dict) else f"Phase {i+1}", acts[:76]],
                     [54, 128], shade=i%2==0)
 
     def _pdf_insights_recs(self, pdf, insights):
