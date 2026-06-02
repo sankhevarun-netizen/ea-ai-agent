@@ -1418,15 +1418,35 @@
    <!-- Panel 3: MAPPING -->
    <div id="pip-panel-3" style="display:none;margin-top:10px">
     <div style="border:1px solid #DBEAFE;border-radius:10px;padding:14px 16px;background:#EFF6FF">
-     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
       <div>
        <div style="font-size:12.5px;font-weight:800;color:#1E3A5F">Step 3 — Dependency &amp; Impact Analysis (MAPPING)</div>
-       <div style="font-size:11.5px;color:#3B82F6;margin-top:2px">Maps integration dependencies for ARB-approved changes. Results feed into Maturity and Insights.</div>
+       <div style="font-size:11.5px;color:#3B82F6;margin-top:2px">Maps integration dependencies for ARB-approved changes. Upload architecture docs for richer context.</div>
       </div>
       <button id="pip-run-3" onclick="runPipelineFromTimeData()" style="background:#1E49E2;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;flex-shrink:0;font-family:inherit;white-space:nowrap">
        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
        Run Mapping
       </button>
+     </div>
+     <!-- Optional mapping context upload -->
+     <div style="background:#fff;border:1px solid #DBEAFE;border-radius:8px;padding:10px 12px;margin-bottom:12px">
+      <div style="font-size:10.5px;font-weight:700;color:#1E3A5F;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Optional — Upload Architecture / Dependency Context</div>
+      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+       <div style="border:1.5px dashed #93C5FD;border-radius:7px;padding:12px 16px;text-align:center;cursor:pointer;background:#F0F9FF;flex:1;min-width:180px;transition:all .2s"
+            onclick="document.getElementById('map-pip-file').click()"
+            ondragover="event.preventDefault();this.style.borderColor='#1E49E2'"
+            ondragleave="this.style.borderColor='#93C5FD'"
+            ondrop="mapPipDrop(event)">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#3B82F6" stroke-width="1.5" style="margin:0 auto 5px;display:block"><path stroke-linecap="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <div id="map-pip-file-label" style="font-size:11.5px;font-weight:600;color:#1E3A5F">Drop CMDB export, architecture diagram, dependency doc</div>
+        <div style="font-size:10px;color:#64748B;margin-top:2px">PDF · PPTX · DOCX · PNG · JPG</div>
+       </div>
+       <div style="flex:1;min-width:180px">
+        <textarea id="map-pip-context" rows="3" style="width:100%;border:1px solid #DBEAFE;border-radius:6px;padding:6px 10px;font-size:11.5px;font-family:inherit;resize:vertical;box-sizing:border-box;background:#fff" placeholder="Or describe known integrations, data flows, cloud targets, planned changes... (optional)"></textarea>
+       </div>
+      </div>
+      <input type="file" id="map-pip-file" accept=".pdf,.pptx,.ppt,.docx,.doc,.txt,.png,.jpg,.jpeg,.webp" style="display:none" onchange="mapPipFileSelected(this.files[0])"/>
+      <div id="map-pip-status" style="display:none;margin-top:6px;padding:6px 10px;border-radius:6px;font-size:11.5px;font-weight:600"></div>
      </div>
      <div id="pip-result-3" style="display:none;margin-top:14px"></div>
     </div>
@@ -4008,6 +4028,35 @@ function _renderPipARBResult(data) {
  el.style.display = 'block';
 }
 
+// ── MAPPING document upload helpers ─────────────────────────────
+let _mapUploadedContext = '';
+
+function mapPipDrop(e) { e.preventDefault(); const f=e.dataTransfer.files[0]; if(f) mapPipFileSelected(f); }
+
+async function mapPipFileSelected(file) {
+ if (!file) return;
+ const lbl = document.getElementById('map-pip-file-label');
+ const status = document.getElementById('map-pip-status');
+ if (lbl) lbl.textContent = file.name;
+ if (status) { status.style.display='block'; status.style.background='#FFFBEB'; status.style.color='#92400E'; status.textContent='Extracting dependency context from document...'; }
+ try {
+  const fd = new FormData(); fd.append('file', file);
+  const res = await fetch(API + '/arb/ingest', { method:'POST', body:fd });
+  if (!res.ok) throw new Error(await res.text());
+  const d = await res.json();
+  // Build text context from extracted fields
+  _mapUploadedContext = [
+   d.description||'', d.integration_points||'', d.technology_stack?(Array.isArray(d.technology_stack)?d.technology_stack.join(', '):d.technology_stack):'',
+   d.business_case||'', d.current_system||''
+  ].filter(Boolean).join('\n');
+  if (status) { status.style.background='#F0FDF4'; status.style.color='#14532D'; status.textContent='Context extracted from ' + file.name + ' — will be included in mapping analysis'; }
+  toast('Mapping context extracted — will be used in dependency analysis', 'success');
+ } catch(e) {
+  _mapUploadedContext = '';
+  if (status) { status.style.background='#FEF2F2'; status.style.color='#B91C1C'; status.textContent='Extraction failed: ' + e.message.slice(0,80); }
+ }
+}
+
 // ── STEP 3: MAPPING ──────────────────────────────────────────────
 async function runPipelineFromTimeData() {
  if (!portIngestData?.applications?.length) { toast('Analyse applications first', 'warn'); return; }
@@ -4016,10 +4065,15 @@ async function runPipelineFromTimeData() {
  if (btn) { btn.disabled = true; btn.innerHTML = spin + 'Running…'; }
  _setPipDot(3, 'running');
  try {
+  // Merge uploaded mapping doc context + free-text context
+  const mapCtxBase = getMappingContextPayload() || {};
+  const mapFreeText = document.getElementById('map-pip-context')?.value?.trim() || '';
+  const combinedMapCtx = [_mapUploadedContext, mapFreeText].filter(Boolean).join('\n');
+  if (combinedMapCtx) mapCtxBase.additional_notes = (mapCtxBase.additional_notes||'') + '\n' + combinedMapCtx;
   const body = {
    applications: portIngestData.applications,
    ea_context: getContextPayload(),
-   mapping_context: getMappingContextPayload(),
+   mapping_context: mapCtxBase,
    assessment_results: assessmentResults || null,
    arb_result: eaARBResult || null,
   };
@@ -4076,81 +4130,154 @@ function revealMaturity() {
  toast('Maturity assessment ready — proceed to Insights', 'success');
 }
 
+// H/M/L linear meter SVG — matches KPMG framework visual (image 2)
+function _lmhMeter(score, width) {
+ width = width || 130;
+ const s = parseFloat(score) || 1;
+ const pct = Math.max(0, Math.min(1, (s - 1) / 4));
+ const barW = width - 10, x = 5 + pct * barW;
+ const bandC = score >= 4 ? '#22C55E' : score >= 3 ? '#F59E0B' : '#EF4444';
+ return `<svg viewBox="0 0 ${width} 32" style="width:${width}px;height:32px;display:block">
+  <defs><linearGradient id="lmh" x1="0" x2="1"><stop offset="0%" stop-color="#EF4444"/><stop offset="45%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#22C55E"/></linearGradient></defs>
+  <rect x="5" y="10" width="${barW}" height="9" rx="4.5" fill="url(#lmh)" opacity=".8"/>
+  <polygon points="${x},9 ${x-4},3 ${x+4},3" fill="#0C233C"/>
+  <circle cx="${x}" cy="14.5" r="3.5" fill="${bandC}" stroke="#fff" stroke-width="1.5"/>
+  <text x="5" y="30" font-size="9" fill="#64748B" font-family="Helvetica">L</text>
+  <text x="${width/2-3}" y="30" font-size="9" fill="#64748B" font-family="Helvetica">M</text>
+  <text x="${width-12}" y="30" font-size="9" fill="#64748B" font-family="Helvetica">H</text>
+ </svg>`;
+}
+
+// Overall gauge: semicircle arc coloured by band
+function _overallGauge(score, band) {
+ const lColor = {High:'#22C55E',Medium:'#F59E0B',Low:'#EF4444'}[band]||'#94A3B8';
+ const s2 = parseFloat(score) || 1;
+ const pct = Math.min(Math.max((s2 - 1) / 4, 0), 0.999);
+ const r=72,cx=100,cy=90;
+ const aRad=Math.PI*pct;
+ const ex=(cx-r*Math.cos(aRad)).toFixed(1), ey=(cy-r*Math.sin(aRad)).toFixed(1);
+ const arcD=pct>0.01?`M 28 90 A ${r} ${r} 0 0 1 ${ex} ${ey}`:'';
+ return `<svg viewBox="0 0 200 115" style="width:160px;height:92px">
+  <path d="M 28 90 A 72 72 0 0 1 172 90" stroke="#E2E8F0" stroke-width="14" fill="none" stroke-linecap="round"/>
+  ${arcD?`<path d="${arcD}" stroke="${lColor}" stroke-width="14" fill="none" stroke-linecap="round"/>`:''}
+  <text x="100" y="80" text-anchor="middle" font-size="28" font-weight="800" fill="#0C233C">${(parseFloat(score)||0).toFixed(1)}</text>
+  <text x="22" y="108" font-size="9" fill="#EF4444" font-family="Helvetica">Low</text>
+  <text x="82" y="108" font-size="9" fill="#F59E0B" font-family="Helvetica">Medium</text>
+  <text x="152" y="108" font-size="9" fill="#22C55E" font-family="Helvetica">High</text>
+ </svg>`;
+}
+
 function _renderPipMaturity(data) {
- const el = document.getElementById('pip-result-3'); if (!el) return;
- const score = parseFloat(data.overall_maturity_score) || 0;
- const level = data.maturity_level || 'Unknown';
- const dims  = data.dimensions || {};
- const prios = data.top_priorities || [];
- const lColor = { High:'#22C55E', Medium:'#F59E0B', Low:'#EF4444', Unknown:'#94A3B8' }[level] || '#94A3B8';
+ const el = document.getElementById('pip-result-4'); if (!el) return;
+ const score  = parseFloat(data.overall_maturity_score) || 0;
+ const band   = data.overall_band || data.maturity_level || 'Unknown';
+ const dims   = data.dimensions || {};
+ const prios  = data.top_priorities || [];
+ const pillars= data.pillar_scores || {};
+ const bandC  = {High:'#22C55E',Medium:'#F59E0B',Low:'#EF4444',Unknown:'#94A3B8'}[band]||'#94A3B8';
 
- // SVG arc: semicircle centre (100,90) r=72, (28,90)→(172,90) going UP through (100,18)
- const pct = Math.min(Math.max(score / 10, 0), 0.999);
- const r = 72, cx = 100, cy = 90;
- const aRad = Math.PI * pct;
- const ex = (cx - r * Math.cos(aRad)).toFixed(1);
- const ey = (cy - r * Math.sin(aRad)).toFixed(1);
- const arcD = pct > 0.01 ? `M 28 90 A ${r} ${r} 0 0 1 ${ex} ${ey}` : '';
+ // Pillar order from the framework
+ const PILLAR_ORDER = [
+  ['Vision & Strategy', ['vision_and_strategy']],
+  ['People',            ['organization','leadership_and_governance','behaviour_and_culture']],
+  ['Processes',         ['metrics_and_analysis','policy_and_standards','enabling_processes']],
+  ['Technology',        ['tools_and_technology']],
+ ];
+ const DIM_LABELS = {
+  vision_and_strategy:'Vision & Strategy', organization:'Organization',
+  leadership_and_governance:'Leadership & Governance', behaviour_and_culture:'Behaviour & Culture',
+  metrics_and_analysis:'Metrics & Analysis', policy_and_standards:'Policy & Standards',
+  enabling_processes:'Enabling Processes', tools_and_technology:'Tools & Technology',
+ };
+ const PILLAR_COLORS = {'Vision & Strategy':'#00338D','People':'#0EA5E9','Processes':'#7B2FBE','Technology':'#16A34A'};
 
- const dimEntries = typeof dims === 'object' ? Object.entries(dims).slice(0,8) : [];
-
- el.innerHTML = `
-  <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
-   <!-- Gauge -->
-   <div style="display:flex;flex-direction:column;align-items:center;min-width:160px">
-    <div style="font-size:10.5px;font-weight:700;color:#64748B;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Maturity Score</div>
-    <div style="display:flex;border:1px solid #E2E8F0;border-radius:6px;overflow:hidden;margin-bottom:8px;font-size:10.5px">
-     <button id="gauge-btn-pts" onclick="setGaugeMode('pts')" style="padding:4px 12px;border:none;cursor:pointer;font-weight:700;font-family:inherit;background:#1E49E2;color:#fff;transition:.2s">Points</button>
-     <button id="gauge-btn-lvl" onclick="setGaugeMode('lvl')" style="padding:4px 12px;border:none;cursor:pointer;font-weight:600;font-family:inherit;background:#fff;color:#64748B;transition:.2s">Level</button>
+ const dimHTML = PILLAR_ORDER.map(([pillar, keys]) => {
+  const pillarC = PILLAR_COLORS[pillar]||'#64748B';
+  const pillarScore = pillars[pillar] || (keys.reduce((s,k)=>{const d=dims[k];return s+(d?parseFloat(d.score||0):0);},0)/keys.length);
+  const pillarBand  = pillarScore>=4?'High':pillarScore>=3?'Medium':'Low';
+  const pillarBandC = {High:'#22C55E',Medium:'#F59E0B',Low:'#EF4444'}[pillarBand];
+  return `
+   <div style="border:1px solid #E2E8F0;border-radius:10px;overflow:hidden;margin-bottom:10px">
+    <div style="background:${pillarC};padding:8px 12px;display:flex;align-items:center;justify-content:space-between">
+     <div style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.06em">${pillar}</div>
+     <div style="display:flex;align-items:center;gap:8px">
+      ${_lmhMeter(pillarScore, 100)}
+      <span style="font-size:10px;font-weight:800;color:#fff;background:${pillarBandC};padding:2px 8px;border-radius:10px">${pillarBand}</span>
+     </div>
     </div>
-    <svg viewBox="0 0 200 110" style="width:164px;height:92px">
-     <path d="M 28 90 A 72 72 0 0 1 172 90" stroke="#E2E8F0" stroke-width="14" fill="none" stroke-linecap="round"/>
-     ${arcD ? `<path d="${arcD}" stroke="${lColor}" stroke-width="14" fill="none" stroke-linecap="round"/>` : ''}
-     <text id="gauge-main" x="100" y="82" text-anchor="middle" font-size="26" font-weight="800" fill="#0C233C">${score.toFixed(1)}</text>
-     <text id="gauge-sub" x="100" y="98" text-anchor="middle" font-size="11" fill="#94A3B8">/ 10</text>
-    </svg>
-    <div style="margin-top:2px;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:800;color:#fff;background:${lColor}">${level}</div>
-   </div>
-   <!-- Dimension bars -->
-   <div style="flex:1;min-width:180px">
-    <div style="font-size:10.5px;font-weight:700;color:#64748B;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Dimensions</div>
-    ${dimEntries.length ? dimEntries.map(([dim,val])=>{
-     const s2 = typeof val==='object'?(val.score||0):(val||0);
-     const pBar = Math.round(Math.min(s2,10)*10);
-     const dc = s2>=7?'#22C55E':s2>=4?'#F59E0B':'#EF4444';
-     const lbl = dim.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-     return `<div style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
-       <span style="color:#475569;font-weight:600">${esc(lbl)}</span>
-       <span style="color:#0C233C;font-weight:800">${typeof s2==='number'?s2.toFixed(1):s2}</span>
+    ${keys.map(key => {
+     const d = dims[key] || {};
+     const s = parseFloat(d.score||0);
+     const b = d.band||(s>=4?'High':s>=3?'Medium':'Low');
+     const bc= {High:'#22C55E',Medium:'#F59E0B',Low:'#EF4444'}[b]||'#94A3B8';
+     const pos = d.positive_findings || d.improvements || [];
+     const imp = d.improvement_areas || d.gaps || [];
+     return `<div style="padding:10px 12px;border-bottom:1px solid #F1F5F9">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+       <div style="font-size:12px;font-weight:700;color:#0C233C;min-width:150px">${DIM_LABELS[key]||key}</div>
+       <div style="display:flex;align-items:center;gap:8px">
+        ${_lmhMeter(s, 110)}
+        <span style="font-size:10px;font-weight:800;color:#fff;background:${bc};padding:2px 8px;border-radius:10px">${b}</span>
+        <span style="font-size:10.5px;font-weight:600;color:#64748B">${s.toFixed(1)}/5</span>
+       </div>
       </div>
-      <div style="height:6px;background:#E2E8F0;border-radius:4px;overflow:hidden">
-       <div style="height:100%;width:${pBar}%;background:${dc};border-radius:4px;transition:width .7s ease"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+       ${pos.length?`<div>
+        ${pos.slice(0,3).map(f=>`<div style="font-size:11px;color:#166534;display:flex;gap:5px;margin-bottom:3px;align-items:flex-start"><span style="color:#22C55E;font-weight:800;flex-shrink:0;font-size:13px">+</span>${esc(String(f).slice(0,90))}</div>`).join('')}
+       </div>`:'<div></div>'}
+       ${imp.length?`<div>
+        ${imp.slice(0,3).map(f=>`<div style="font-size:11px;color:#991B1B;display:flex;gap:5px;margin-bottom:3px;align-items:flex-start"><span style="color:#EF4444;font-weight:800;flex-shrink:0;font-size:13px">-</span>${esc(String(f).slice(0,90))}</div>`).join('')}
+       </div>`:'<div></div>'}
       </div>
      </div>`;
-    }).join('') : '<div style="font-size:12px;color:#94A3B8;font-style:italic">No dimension data</div>'}
+    }).join('')}
+   </div>`;
+ }).join('');
+
+ el.innerHTML = `
+  <!-- Overall score + toggle -->
+  <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #E2E8F0">
+   <div style="display:flex;flex-direction:column;align-items:center">
+    <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Overall Maturity</div>
+    <div style="display:flex;border:1px solid #E2E8F0;border-radius:6px;overflow:hidden;margin-bottom:6px;font-size:10.5px">
+     <button id="gauge-btn-pts" onclick="setGaugeMode('pts')" style="padding:3px 10px;border:none;cursor:pointer;font-weight:700;font-family:inherit;background:#1E49E2;color:#fff">Score</button>
+     <button id="gauge-btn-lvl" onclick="setGaugeMode('lvl')" style="padding:3px 10px;border:none;cursor:pointer;font-weight:600;font-family:inherit;background:#fff;color:#64748B">Band</button>
+    </div>
+    ${_overallGauge(score, band)}
+    <div style="margin-top:4px;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:800;color:#fff;background:${bandC}">${band}</div>
+   </div>
+   <!-- Pillar summary -->
+   <div style="flex:1;min-width:200px">
+    <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">4 Pillars — Assessment Rating</div>
+    ${PILLAR_ORDER.map(([pillar, keys]) => {
+     const ps = pillars[pillar]||(keys.reduce((s,k)=>{const d=dims[k];return s+(d?parseFloat(d.score||0):0);},0)/Math.max(keys.length,1));
+     const pb = ps>=4?'High':ps>=3?'Medium':'Low';
+     const pc = {High:'#22C55E',Medium:'#F59E0B',Low:'#EF4444'}[pb];
+     return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div style="font-size:11.5px;font-weight:600;color:#334155;min-width:120px">${pillar}</div>
+      ${_lmhMeter(ps, 100)}
+      <span style="font-size:10px;font-weight:700;color:${pc}">${pb}</span>
+     </div>`;
+    }).join('')}
    </div>
   </div>
-  ${prios.length ? `<div style="margin-top:14px;padding:10px 14px;background:#EEF2FF;border-radius:8px;border:1px solid #C7D7FC">
-   <div style="font-size:10.5px;font-weight:700;color:#1E49E2;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Top Priorities</div>
-   ${prios.slice(0,3).map(p=>`<div style="font-size:12px;color:#334155;margin-bottom:3px;display:flex;gap:7px"><span style="color:#1E49E2;font-weight:800;flex-shrink:0">›</span>${esc(typeof p==='string'?p:(p.priority||JSON.stringify(p)))}</div>`).join('')}
-  </div>` : ''}`;
+  <!-- 8 Dimensions across 4 pillars -->
+  <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">8 Dimensions — Maturity Variations</div>
+  ${dimHTML}
+  ${prios.length?`<div style="padding:10px 14px;background:#EEF2FF;border-radius:8px;border:1px solid #C7D7FC;margin-top:4px">
+   <div style="font-size:10px;font-weight:700;color:#1E49E2;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Top Priorities</div>
+   ${prios.slice(0,3).map(p=>`<div style="font-size:12px;color:#334155;margin-bottom:4px;display:flex;gap:7px"><span style="color:#1E49E2;font-weight:800;flex-shrink:0">›</span>${esc(typeof p==='string'?p:(p.priority||JSON.stringify(p)))}</div>`).join('')}
+  </div>`:''}`;
 
  el.style.display = 'block';
- window._matGauge = { score, level, lColor };
+ window._matGauge = { score, band, bandC };
 }
 
 function setGaugeMode(mode) {
  const d = window._matGauge; if (!d) return;
- document.getElementById('gauge-btn-pts').style.background = mode==='pts'?'#1E49E2':'#fff';
- document.getElementById('gauge-btn-pts').style.color      = mode==='pts'?'#fff':'#64748B';
- document.getElementById('gauge-btn-lvl').style.background = mode==='lvl'?'#1E49E2':'#fff';
- document.getElementById('gauge-btn-lvl').style.color      = mode==='lvl'?'#fff':'#64748B';
- const m = document.getElementById('gauge-main');
- const s = document.getElementById('gauge-sub');
- if (!m) return;
- if (mode === 'pts') { m.textContent = d.score.toFixed(1); m.setAttribute('font-size','26'); if(s){s.textContent='/ 10';} }
- else { m.textContent = d.level; m.setAttribute('font-size','20'); if(s){s.textContent='';} }
+ const pts=document.getElementById('gauge-btn-pts'), lvl=document.getElementById('gauge-btn-lvl');
+ if(pts){pts.style.background=mode==='pts'?'#1E49E2':'#fff';pts.style.color=mode==='pts'?'#fff':'#64748B';}
+ if(lvl){lvl.style.background=mode==='lvl'?'#1E49E2':'#fff';lvl.style.color=mode==='lvl'?'#fff':'#64748B';}
 }
 
 function revealInsights() {

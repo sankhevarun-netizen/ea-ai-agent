@@ -90,12 +90,13 @@ BADGE = {
     "tbd":        (SLATE, (226,227,229)),
 }
 
-TIME_DESC = {
+RATIONALIZATION_DESC = {
     "INVEST":    "High strategic value -- continue and grow investment",
     "TOLERATE":  "Functional but not strategic -- maintain, no new investment",
     "MIGRATE":   "Move to a better platform, cloud, or replacement",
     "ELIMINATE": "Decommission -- retire or replace immediately",
 }
+TIME_DESC = RATIONALIZATION_DESC  # backward compat alias
 
 ACTION_DESC = {
     "Retain":     "Strategic and healthy -- no immediate action required",
@@ -456,7 +457,7 @@ class ReportGenerator:
             [
                 f"Date of Issue:  {gen_date}",
                 f"Scope:          {len(tools)} Applications Assessed",
-                f"Framework:      TIME + 6R Rationalization Model",
+                f"Framework:      6R Rationalization Model",
                 f"Classification: CONFIDENTIAL",
             ],
         )
@@ -488,7 +489,7 @@ class ReportGenerator:
             tc = t.get("time_classification", "TOLERATE")
             time_counts[tc]  = time_counts.get(tc, 0) + 1
 
-        pdf.sub_title("TIME Classification Breakdown")
+        pdf.sub_title("Rationalization Breakdown")
         self._pdf_time_table(pdf, time_counts, len(tools))
 
         pdf.sub_title("6R Action Breakdown")
@@ -615,9 +616,9 @@ class ReportGenerator:
                     pdf.table_row([k.replace("_", " ").title(), str(v)], [80, 102], shade=i%2==0)
 
         # ── Section 2 -- Portfolio Rationalization (TIME) ──────────────────────
-        pdf.section_title("2.", "Portfolio Rationalization -- TIME Analysis")
+        pdf.section_title("2.", "Portfolio Rationalization Analysis")
         if time_exec:
-            pdf.exec_box(time_exec, label="TIME AGENT -- EXECUTIVE SUMMARY")
+            pdf.exec_box(time_exec, label="RATIONALIZATION -- EXECUTIVE SUMMARY")
 
         action_counts: Dict[str, int] = {}
         time_counts:   Dict[str, int] = {}
@@ -627,7 +628,7 @@ class ReportGenerator:
             tc = t.get("time_classification", "TOLERATE")
             time_counts[tc]  = time_counts.get(tc, 0) + 1
 
-        pdf.sub_title("TIME Classification Breakdown")
+        pdf.sub_title("Rationalization Breakdown")
         self._pdf_time_table(pdf, time_counts, len(apps))
 
         pdf.sub_title("6R Action Breakdown")
@@ -696,7 +697,7 @@ class ReportGenerator:
     # ── Shared section helpers ────────────────────────────────────────────────
 
     def _pdf_time_table(self, pdf, counts, total):
-        pdf.table_header(["TIME Classification", "Count", "% Portfolio", "Strategic Meaning"], [38, 16, 20, 108])
+        pdf.table_header(["Classification", "Count", "% Portfolio", "Strategic Meaning"], [38, 16, 20, 108])
         for i, cat in enumerate(["INVEST", "TOLERATE", "MIGRATE", "ELIMINATE"]):
             c = counts.get(cat, 0)
             if c == 0:
@@ -731,7 +732,7 @@ class ReportGenerator:
             pdf.line(14, pdf.get_y(), 196, pdf.get_y())
 
     def _pdf_tool_table(self, pdf, tools):
-        cols   = ["Application", "Vendor", "Category", "Annual Cost", "Users", "Score", "TIME", "6R Action", "Confidence"]
+        cols   = ["Application", "Vendor", "Category", "Annual Cost", "Users", "Score", "Rationalization", "6R Action", "Confidence"]
         widths = [34, 22, 20, 20, 12, 12, 20, 22, 20]
         pdf.table_header(cols, widths)
         for i, t in enumerate(tools):
@@ -758,7 +759,7 @@ class ReportGenerator:
             pdf.set_draw_color(*MGREY); pdf.line(14, pdf.get_y(), 196, pdf.get_y())
 
     def _pdf_tool_table_compact(self, pdf, tools):
-        cols   = ["Application", "Category", "Annual Cost", "Users", "Score", "TIME", "6R Action"]
+        cols   = ["Application", "Category", "Annual Cost", "Users", "Score", "Rationalization", "6R Action"]
         widths = [42, 26, 22, 14, 14, 26, 26]
         pdf.table_header(cols, widths)
         for i, t in enumerate(tools):
@@ -824,7 +825,7 @@ class ReportGenerator:
         app_analyses = mapping.get("app_analyses", [])
         if app_analyses:
             pdf.sub_title("Per-Application Dependency Analysis")
-            pdf.table_header(["Application","TIME","Impact Level","Coupling","Direct Dependencies"],
+            pdf.table_header(["Application","Rationalization","Impact Level","Coupling","Direct Dependencies"],
                              [40, 24, 22, 18, 78])
             for i, a in enumerate(app_analyses):
                 deps = ", ".join((a.get("direct_dependencies") or [])[:3])
@@ -937,7 +938,7 @@ class ReportGenerator:
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_text_color(*NAVY)
         pdf.set_x(14)
-        pdf.cell(0, 6, "TIME Framework", ln=True)
+        pdf.cell(0, 6, "Rationalization Framework", ln=True)
         pdf.set_font("Helvetica", "", 8)
         pdf.set_text_color(*BLACK)
         pdf.set_x(14)
@@ -1044,7 +1045,7 @@ tbody tr:nth-child(even){{background:#f8fbff}}
 <div class="cover">
   <h1>EA AI Intelligence<br>Portfolio Rationalization Report</h1>
   <div class="sub">Enterprise Architecture  |  Application Portfolio Assessment  |  AI-Powered Advisory</div>
-  <div class="meta">Date of Issue: {gen_date}<br>Applications Assessed: {len(tools)}<br>Framework: TIME + 6R Rationalization Model<br>Classification: CONFIDENTIAL</div>
+  <div class="meta">Date of Issue: {gen_date}<br>Applications Assessed: {len(tools)}<br>Framework: 6R Rationalization Model<br>Classification: CONFIDENTIAL</div>
 </div>
 <div class="kpi-grid">
   <div class="kpi"><div class="val">{len(tools)}</div><div class="lbl">Applications Assessed</div></div>
@@ -1056,13 +1057,13 @@ tbody tr:nth-child(even){{background:#f8fbff}}
 <div class="section">
   <h2><span class="num">2</span> Portfolio Classification Summary</h2>
   <div class="two-col">
-    <table><thead><tr><th>TIME</th><th>Count</th><th>Portfolio %</th><th>Strategic Meaning</th></tr></thead><tbody>{time_rows}</tbody></table>
+    <table><thead><tr><th>Classification</th><th>Count</th><th>Portfolio %</th><th>Strategic Meaning</th></tr></thead><tbody>{time_rows}</tbody></table>
     <table><thead><tr><th>6R Action</th><th>Count</th><th>Portfolio %</th><th>Description</th></tr></thead><tbody>{action_rows}</tbody></table>
   </div>
 </div>
 <div class="section">
   <h2><span class="num">3</span> Application Portfolio Detail</h2>
-  <table><thead><tr><th>Application</th><th>Vendor</th><th>Category</th><th>Annual Cost</th><th>Users</th><th>Score</th><th>TIME</th><th>6R Action</th></tr></thead><tbody>{tool_rows}</tbody></table>
+  <table><thead><tr><th>Application</th><th>Vendor</th><th>Category</th><th>Annual Cost</th><th>Users</th><th>Score</th><th>Rationalization</th><th>6R Action</th></tr></thead><tbody>{tool_rows}</tbody></table>
 </div>
 {self._dup_section(dup_rows) if duplications else ""}
 <div class="footer">EA AI Intelligence  |  CONFIDENTIAL  |  {datetime.now().strftime('%Y')}</div>

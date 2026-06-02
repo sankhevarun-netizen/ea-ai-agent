@@ -63,15 +63,15 @@ Overall Score: {overall}/5 ({band})
 Dimension Scores:
 {dim_lines}
 
-Pillar mapping guide:
-  - vision_strategy       → D1 Vision & Strategy
-  - organization          → D2 Governance & Organisation (partial)
-  - leadership_governance → D2 Governance & Organisation (primary)
-  - behavior_culture      → D8 Business Value & Innovation (culture aspect)
-  - metrics_analysis      → D8 Business Value & Innovation (measurement aspect)
-  - policy_standards      → D3 Architecture Development + D6 Technology Architecture
-  - enabling_processes    → D4 Application Architecture + D5 Data Architecture + D7 Integration
-  - tools_technology      → D6 Technology Architecture + D7 Integration & Interoperability
+Pillar mapping guide (questionnaire dimension → framework dimension key):
+  - vision_strategy       → vision_and_strategy        (Pillar: Vision & Strategy)
+  - organization          → organization               (Pillar: People)
+  - leadership_governance → leadership_and_governance  (Pillar: People)
+  - behavior_culture      → behaviour_and_culture      (Pillar: People)
+  - metrics_analysis      → metrics_and_analysis       (Pillar: Processes)
+  - policy_standards      → policy_and_standards       (Pillar: Processes)
+  - enabling_processes    → enabling_processes          (Pillar: Processes)
+  - tools_technology      → tools_and_technology       (Pillar: Technology)
 
 When generating gaps and improvements per dimension, reference the specific question areas
 that scored low from the assessment data above.
