@@ -670,6 +670,78 @@ async def ea_full(body: Dict[str, Any]):
     return pipeline
 
 
+@app.post("/mapping/analyse")
+async def mapping_analyse(body: Dict[str, Any]):
+    """
+    Run ONLY the MAPPING stage (dependency analysis) for the given applications.
+    Called from the pipeline stepper Step 3 so Steps 4-6 can run separately.
+
+    Body keys:
+      applications   — full scored list from /time/ingest
+      arb_result     — ARB decision output (optional)
+      ea_context     — context dict
+      mapping_context — mapping-specific context
+    """
+    from agents.mapping_agent import run_mapping_batch
+    import json as _json
+
+    applications = body.get("applications", [])
+    arb_result   = body.get("arb_result") or {}
+    ea_ctx       = body.get("ea_context") or {}
+    map_ctx      = body.get("mapping_context") or {}
+
+    flagged = [
+        a for a in applications
+        if a.get("time_classification") in ("ELIMINATE", "MIGRATE")
+        or a.get("rationalization_action") in ("Replace", "Retire", "Refactor")
+    ]
+
+    if not flagged:
+        return {
+            "skipped": True,
+            "reason": "No ELIMINATE/MIGRATE applications — no dependency risk to analyse.",
+            "overall_impact_level": "LOW",
+            "mapped_applications": [],
+            "total_dependencies": 0,
+        }
+
+    # Build ARB context string
+    arb_summary = ""
+    if arb_result:
+        arb_summary = (
+            f"ARB Decision: {arb_result.get('decision','NOT_RUN')}. "
+            f"Compliance: {arb_result.get('compliance_score',0)}. "
+            f"Key risks: {'; '.join((arb_result.get('risks') or [])[:3])}."
+        )
+
+    additional_ctx = ea_ctx.get("additional_context", "")
+    map_notes = map_ctx.get("additional_notes", "")
+    combined_ctx = "\n".join(filter(None, [additional_ctx, arb_summary, map_notes]))
+
+    mapping_input = {
+        "applications":           flagged,
+        "all_apps":               applications,
+        "industry":               ea_ctx.get("industry", ""),
+        "sub_sector":             ea_ctx.get("sub_sector", ""),
+        "governance":             ea_ctx.get("governance", ""),
+        "ea_framework":           ea_ctx.get("ea_framework", ""),
+        "cloud_target":           ea_ctx.get("cloud_strategy", "") or map_ctx.get("cloud_target", ""),
+        "known_integrations":     map_ctx.get("known_integrations", ""),
+        "planned_changes":        map_ctx.get("planned_changes", ""),
+        "data_sensitivity":       map_ctx.get("data_sensitivity", ""),
+        "integration_complexity": map_ctx.get("integration_complexity", ""),
+        "cmdb_tool":              map_ctx.get("cmdb_tool", ""),
+        "additional_context":     combined_ctx,
+    }
+
+    try:
+        result = run_mapping_batch(mapping_input)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Mapping analysis failed: {str(e)}")
+
+    return result
+
+
 @app.post("/ea-pipeline/step")
 async def pipeline_wizard_step(body: Dict[str, Any]):
     """

@@ -111,14 +111,30 @@ def run_mapping(input_data: dict) -> dict:
     )
 
     # 4. Call Claude
-    result_str = call_claude(enriched_prompt, user_message)
+    result_str = call_claude(enriched_prompt, user_message, max_tokens=8192)
 
     # 5. Parse
-    result_str_clean = result_str.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
+    result_str_clean = result_str.strip()
+    # Strip markdown fences
+    if result_str_clean.startswith("```"):
+        lines = result_str_clean.split("\n")
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        result_str_clean = "\n".join(lines).strip()
     try:
         result = json.loads(result_str_clean)
     except json.JSONDecodeError:
-        result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
+        import re as _re
+        m = _re.search(r'\{[\s\S]*\}', result_str_clean)
+        if m:
+            try:
+                result = json.loads(m.group())
+            except Exception:
+                result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
+        else:
+            result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
 
     # 6. Persist
     store_decision(input_data, json.dumps(result, default=_json_default), agent="MAPPING")
@@ -207,12 +223,28 @@ def run_mapping_batch(input_data: dict) -> dict:
         f"{json.dumps(app_summary, indent=2, default=_json_default)}"
     )
 
-    result_str = call_claude(enriched_prompt, user_message)
-    result_str_clean = result_str.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
+    result_str = call_claude(enriched_prompt, user_message, max_tokens=8192)
+    result_str_clean = result_str.strip()
+    # Strip markdown fences
+    if result_str_clean.startswith("```"):
+        lines = result_str_clean.split("\n")
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        result_str_clean = "\n".join(lines).strip()
     try:
         result = json.loads(result_str_clean)
     except json.JSONDecodeError:
-        result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
+        import re as _re
+        m = _re.search(r'\{[\s\S]*\}', result_str_clean)
+        if m:
+            try:
+                result = json.loads(m.group())
+            except Exception:
+                result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
+        else:
+            result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
 
     store_decision({"flagged_apps": len(flagged_apps)}, json.dumps(result, default=_json_default), agent="MAPPING_BATCH")
     return result

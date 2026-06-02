@@ -1452,20 +1452,31 @@
     </div>
    </div>
 
-   <!-- Panel 4: MATURITY -->
+   <!-- Panel 4: MATURITY — with mandatory inline questionnaire -->
    <div id="pip-panel-4" style="display:none;margin-top:10px">
-    <div style="border:1px solid #E9D5FF;border-radius:10px;padding:14px 16px;background:#FAF5FF">
-     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div style="border:1px solid #E9D5FF;border-radius:10px;overflow:hidden;background:#FAF5FF">
+     <!-- Header -->
+     <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:1px solid #E9D5FF">
       <div>
-       <div style="font-size:12.5px;font-weight:800;color:#3B0764">Step 4 — EA Maturity Assessment (MATURITY)</div>
-       <div style="font-size:11.5px;color:#9333EA;margin-top:2px">8-dimension scoring across Vision, People, Process and Technology pillars with gauge meter.</div>
+       <div style="font-size:12.5px;font-weight:800;color:#3B0764">Step 4 — EA Maturity Assessment</div>
+       <div style="font-size:11.5px;color:#9333EA;margin-top:2px">Complete the 30-question assessment below, then run the maturity analysis.</div>
       </div>
-      <button id="pip-run-4" onclick="revealMaturity()" style="background:#7B2FBE;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;flex-shrink:0;font-family:inherit;white-space:nowrap">
+      <button id="pip-run-4" onclick="runPipMaturity()" style="background:#7B2FBE;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;flex-shrink:0;font-family:inherit;white-space:nowrap">
        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-       View Maturity
+       Run Maturity Assessment
       </button>
      </div>
-     <div id="pip-result-4" style="display:none;margin-top:14px"></div>
+     <!-- Inline 30-question form -->
+     <div id="pip-mat-quest" style="padding:14px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+       <div style="font-size:11px;font-weight:700;color:#6B21A8;text-transform:uppercase;letter-spacing:.06em">30-Question EA Maturity Assessment — all questions required</div>
+       <div style="font-size:11px;color:#9333EA">Answered: <strong id="pip-q-count">0</strong> / 30</div>
+      </div>
+      <div style="height:4px;background:#E9D5FF;border-radius:2px;margin-bottom:14px;overflow:hidden"><div id="pip-q-prog" style="height:100%;width:0%;background:#7B2FBE;transition:width .3s;border-radius:2px"></div></div>
+      <div id="pip-q-body"></div>
+     </div>
+     <!-- Results -->
+     <div id="pip-result-4" style="display:none;padding:14px 16px"></div>
     </div>
    </div>
 
@@ -4057,7 +4068,9 @@ async function mapPipFileSelected(file) {
  }
 }
 
-// ── STEP 3: MAPPING ──────────────────────────────────────────────
+// ── STEP 3: MAPPING (mapping-only endpoint) ─────────────────────
+let _mappingResult = null;
+
 async function runPipelineFromTimeData() {
  if (!portIngestData?.applications?.length) { toast('Analyse applications first', 'warn'); return; }
  const btn = document.getElementById('pip-run-3');
@@ -4065,7 +4078,6 @@ async function runPipelineFromTimeData() {
  if (btn) { btn.disabled = true; btn.innerHTML = spin + 'Running…'; }
  _setPipDot(3, 'running');
  try {
-  // Merge uploaded mapping doc context + free-text context
   const mapCtxBase = getMappingContextPayload() || {};
   const mapFreeText = document.getElementById('map-pip-context')?.value?.trim() || '';
   const combinedMapCtx = [_mapUploadedContext, mapFreeText].filter(Boolean).join('\n');
@@ -4074,61 +4086,220 @@ async function runPipelineFromTimeData() {
    applications: portIngestData.applications,
    ea_context: getContextPayload(),
    mapping_context: mapCtxBase,
-   assessment_results: assessmentResults || null,
    arb_result: eaARBResult || null,
   };
-  const res = await fetch(API + '/ea-full', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const res = await fetch(API + '/mapping/analyse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error(await res.text());
+  _mappingResult = await res.json();
+  _setPipDot(3, 'done'); _setPipLine('pip-line-34', true);
+  _renderPipMapping(_mappingResult);
+  // Unlock step 4 — show questionnaire
+  document.getElementById('pip-panel-4').style.display = 'block';
+  _setPipDot(4, 'ready');
+  _renderPipQuestionnaire();
+  if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M5 13l4 4L19 7"/></svg> Mapping Done'; btn.style.background='#22C55E'; }
+  addActivity('MAPPING', 'Completed', 'success');
+  toast('Mapping complete — complete the questionnaire in Step 4', 'success');
+  document.getElementById('pip-panel-4').scrollIntoView({ behavior:'smooth', block:'start' });
+ } catch(e) {
+  _setPipDot(3, 'error');
+  if (btn) { btn.disabled = false; btn.innerHTML = 'Retry'; btn.style.background='#1E49E2'; }
+  toast('Mapping error: ' + e.message, 'error');
+ }
+}
+
+// ── STEP 4 questionnaire render ──────────────────────────────────
+let _pipQAnswers = {};
+
+function _renderPipQuestionnaire() {
+ const body = document.getElementById('pip-q-body'); if (!body) return;
+ _pipQAnswers = {};
+ _updatePipQProgress();
+ const IQ_SECTION_ORDER = [
+  { label:'Vision & Strategy',    key:'vision_strategy',      ids:['q1','q2','q3','q4'] },
+  { label:'Organization',          key:'organization',          ids:['q5','q6'] },
+  { label:'Leadership & Governance', key:'leadership_governance', ids:['q7','q8'] },
+  { label:'Behaviour & Culture',   key:'behavior_culture',      ids:['q9','q10'] },
+  { label:'Metrics & Analysis',    key:'metrics_analysis',      ids:['q11','q12','q13'] },
+  { label:'Policy & Standards',    key:'policy_standards',      ids:['q14','q15','q16','q17','q18','q19'] },
+  { label:'Enabling Processes',    key:'enabling_processes',    ids:['q20','q21','q22','q23','q24','q25','q26','q27','q28','q29'] },
+  { label:'Tools & Technology',    key:'tools_technology',      ids:['q30'] },
+ ];
+ const PILLAR_COLORS = {
+  'Vision & Strategy':'#00338D','Organization':'#0EA5E9','Leadership & Governance':'#0EA5E9',
+  'Behaviour & Culture':'#0EA5E9','Metrics & Analysis':'#7B2FBE','Policy & Standards':'#7B2FBE',
+  'Enabling Processes':'#7B2FBE','Tools & Technology':'#16A34A',
+ };
+ body.innerHTML = IQ_SECTION_ORDER.map(sec => {
+  const qs = (typeof IQ_QUESTIONS !== 'undefined' ? IQ_QUESTIONS : []).filter(q => sec.ids.includes(q.id));
+  const c = PILLAR_COLORS[sec.label] || '#64748B';
+  return `<div style="margin-bottom:16px;border:1px solid #E9D5FF;border-radius:8px;overflow:hidden">
+   <div style="background:${c};padding:7px 12px;font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.06em">${sec.label}</div>
+   ${qs.map(q => `<div style="padding:10px 12px;border-bottom:1px solid #F3E8FF">
+    <div style="font-size:12px;color:#3B0764;font-weight:600;margin-bottom:7px">${q.text}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+     ${Object.entries(q.opts||{}).map(([k,v])=>`<label style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;font-size:11.5px;color:#475569;padding:4px 8px;border:1px solid #E9D5FF;border-radius:6px;background:#fff;transition:.15s;max-width:100%;box-sizing:border-box">
+      <input type="radio" name="pipq-${q.id}" value="${k}" onchange="_pipQAnswer('${q.id}','${k}')" style="margin-top:2px;flex-shrink:0;accent-color:#7B2FBE"/>
+      <span><strong>${k}.</strong> ${esc(v)}</span>
+     </label>`).join('')}
+    </div>
+   </div>`).join('')}
+  </div>`;
+ }).join('');
+}
+
+function _pipQAnswer(qid, val) {
+ _pipQAnswers[qid] = val;
+ _updatePipQProgress();
+ // Highlight selected option
+ document.querySelectorAll(`input[name="pipq-${qid}"]`).forEach(r => {
+  r.parentElement.style.background = r.checked ? '#EDE9FE' : '#fff';
+  r.parentElement.style.borderColor = r.checked ? '#7B2FBE' : '#E9D5FF';
+ });
+}
+
+function _updatePipQProgress() {
+ const answered = Object.keys(_pipQAnswers).length;
+ const pct = Math.round(answered / 30 * 100);
+ const cnt = document.getElementById('pip-q-count');
+ const prog = document.getElementById('pip-q-prog');
+ if (cnt) cnt.textContent = answered;
+ if (prog) prog.style.width = pct + '%';
+}
+
+// ── STEP 4: Run Maturity + Insights after questionnaire ──────────
+async function runPipMaturity() {
+ if (!portIngestData?.applications?.length) { toast('Complete Mapping first (Step 3)', 'warn'); return; }
+ const answered = Object.keys(_pipQAnswers).length;
+ if (answered < 30) {
+  toast(`Please answer all 30 questions (${answered}/30 done)`, 'warn');
+  document.getElementById('pip-q-body')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  return;
+ }
+ const btn = document.getElementById('pip-run-4');
+ const spin = '<span style="display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px"></span>';
+ if (btn) { btn.disabled = true; btn.innerHTML = spin + 'Running Assessment…'; }
+ _setPipDot(4, 'running');
+
+ // Build questionnaire results in the format /ea-pipeline/step expects
+ const IQ_SECTION_KEYS = ['vision_strategy','organization','leadership_governance','behavior_culture','metrics_analysis','policy_standards','enabling_processes','tools_technology'];
+ const IQ_Q_IDS_BY_SEC = { vision_strategy:['q1','q2','q3','q4'], organization:['q5','q6'], leadership_governance:['q7','q8'], behavior_culture:['q9','q10'], metrics_analysis:['q11','q12','q13'], policy_standards:['q14','q15','q16','q17','q18','q19'], enabling_processes:['q20','q21','q22','q23','q24','q25','q26','q27','q28','q29'], tools_technology:['q30'] };
+ const IQ_SEC_LABELS = { vision_strategy:'Vision & Strategy', organization:'Organization', leadership_governance:'Leadership & Governance', behavior_culture:'Behaviour & Culture', metrics_analysis:'Metrics & Analysis', policy_standards:'Policy & Standards', enabling_processes:'Enabling Processes', tools_technology:'Tools & Technology' };
+ const SCORE_MAP = {A:1,B:2,C:3,D:4,E:5};
+
+ const dims = IQ_SECTION_KEYS.map(sec => {
+  const qids = IQ_Q_IDS_BY_SEC[sec] || [];
+  const scores = qids.filter(id => _pipQAnswers[id]).map(id => SCORE_MAP[_pipQAnswers[id]] || 0);
+  const avg = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : 0;
+  const band = avg <= 2 ? 'Low' : avg <= 3.5 ? 'Medium' : 'High';
+  return { key:sec, label: IQ_SEC_LABELS[sec], score: parseFloat(avg.toFixed(2)), band, answers: Object.fromEntries(qids.map(id=>[id,_pipQAnswers[id]]).filter(([,v])=>v)) };
+ });
+ const overall = dims.reduce((s,d)=>s+d.score,0)/dims.length;
+ const qResults = {
+  overall_score: parseFloat(overall.toFixed(2)),
+  overall_band: overall <= 2 ? 'Low' : overall <= 3.5 ? 'Medium' : 'High',
+  dimensions: dims,
+  respondent_count: 1,
+  respondent_names: ['Pipeline Assessment'],
+  source: 'pipeline_stepper',
+ };
+
+ try {
+  const body = {
+   time_result: { applications: portIngestData.applications, summary: portIngestData.summary || {}, duplications: portIngestData.duplications || [] },
+   mapping_result: _mappingResult || null,
+   assessment_results: qResults,
+   arb_result: eaARBResult || null,
+   ...getContextPayload(),
+  };
+  const res = await fetch(API + '/ea-pipeline/step', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
   if (!res.ok) throw new Error(await res.text());
   eaPipelineData = await res.json();
   lastPipelineData = eaPipelineData;
   pipelineReportB64 = eaPipelineData.report_b64 || null;
   pipelineReportFilename = eaPipelineData.report_filename || 'ea_full_report.pdf';
-  _setPipDot(3, 'done'); _setPipLine('pip-line-34', true);
-  _renderPipMapping(eaPipelineData.MAPPING || {});
-  // Unlock step 4
-  document.getElementById('pip-panel-4').style.display = 'block';
-  _setPipDot(4, 'ready');
-  if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M5 13l4 4L19 7"/></svg> Mapping Done'; btn.style.background='#22C55E'; }
-  addActivity('MAPPING', 'Completed', 'success');
-  toast('Mapping complete — proceed to Maturity', 'success');
+
+  _setPipDot(4, 'done'); _setPipLine('pip-line-45', true);
+  // Hide questionnaire, show maturity result
+  const qPanel = document.getElementById('pip-mat-quest');
+  if (qPanel) qPanel.style.display = 'none';
+  _renderPipMaturity(eaPipelineData.MATURITY || {});
+  // Unlock step 5
+  document.getElementById('pip-panel-5').style.display = 'block';
+  _setPipDot(5, 'ready');
+  if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M5 13l4 4L19 7"/></svg> Done'; btn.style.background='#22C55E'; }
+  addActivity('MATURITY', 'Completed', 'success');
+  toast('Maturity assessment complete — proceed to Insights', 'success');
  } catch(e) {
-  _setPipDot(3, 'error');
-  if (btn) { btn.disabled = false; btn.innerHTML = 'Retry'; btn.style.background='#1E49E2'; }
-  toast('Pipeline error: ' + e.message, 'error');
+  _setPipDot(4, 'error');
+  if (btn) { btn.disabled=false; btn.innerHTML='Retry'; btn.style.background='#7B2FBE'; }
+  toast('Maturity error: ' + e.message, 'error');
  }
 }
 
 function _renderPipMapping(data) {
  const el = document.getElementById('pip-result-3'); if (!el) return;
- const apps = data.mapped_applications || [];
- const overall = data.overall_impact_level || 'UNKNOWN';
- const cMap = { HIGH:'#EF4444', MEDIUM:'#F59E0B', LOW:'#22C55E', UNKNOWN:'#94A3B8' };
- const c = cMap[overall] || '#94A3B8';
+ const apps   = data.app_analyses || data.mapped_applications || [];
+ const overall= (data.overall_impact_level || 'UNKNOWN').toUpperCase();
+ const risks  = data.cross_app_risks || [];
+ const wins   = data.quick_wins || [];
+ const cMap   = { HIGH:'#EF4444', MEDIUM:'#F59E0B', LOW:'#22C55E', CRITICAL:'#7F1D1D', UNKNOWN:'#94A3B8' };
+ const c      = cMap[overall] || '#94A3B8';
+
  el.innerHTML = `
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-   <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;color:#fff;background:${c}">${overall} IMPACT</span>
-   <span style="font-size:12px;color:#64748B">${apps.length} app${apps.length!==1?'s':''} mapped</span>
-   ${data.total_dependencies?`<span style="font-size:12px;color:#64748B">${data.total_dependencies} dependencies</span>`:''}
+  <!-- Header -->
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+   <span style="padding:4px 14px;border-radius:20px;font-size:11px;font-weight:800;color:#fff;background:${c}">${overall} IMPACT</span>
+   <span style="font-size:12px;color:#64748B">${apps.length} application${apps.length!==1?'s':''} analysed</span>
+   ${data.data_basis?`<span style="font-size:11px;color:#94A3B8;font-style:italic">Based on: ${esc(data.data_basis.slice(0,80))}…</span>`:''}
   </div>
-  ${apps.length ? `<div style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse">
-   <thead><tr style="background:#EFF6FF"><th style="text-align:left;padding:6px 10px;color:#3B82F6;font-size:10.5px;font-weight:700;border-bottom:1px solid #DBEAFE">Application</th><th style="text-align:left;padding:6px 10px;color:#3B82F6;font-size:10.5px;font-weight:700;border-bottom:1px solid #DBEAFE">Action</th><th style="text-align:left;padding:6px 10px;color:#3B82F6;font-size:10.5px;font-weight:700;border-bottom:1px solid #DBEAFE">Impact</th><th style="text-align:left;padding:6px 10px;color:#3B82F6;font-size:10.5px;font-weight:700;border-bottom:1px solid #DBEAFE">Key Dependencies</th></tr></thead>
-   <tbody>${apps.slice(0,6).map((a,i)=>`<tr style="background:${i%2?'#F8FBFF':'#fff'}"><td style="padding:6px 10px;font-weight:600;color:#0C233C">${esc(a.name||'—')}</td><td style="padding:6px 10px;color:#475569">${esc(a.recommended_action||'—')}</td><td style="padding:6px 10px"><span style="padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;color:#fff;background:${cMap[a.impact_level]||'#94A3B8'}">${a.impact_level||'—'}</span></td><td style="padding:6px 10px;color:#475569;font-size:11px">${a.dependencies?a.dependencies.slice(0,2).map(d=>esc(d)).join(', ')+(a.dependencies.length>2?' …':''):'—'}</td></tr>`).join('')}</tbody>
-  </table></div>` : '<div style="font-size:12px;color:#94A3B8;font-style:italic">No flagged applications required mapping</div>'}`;
+
+  <!-- App analyses table -->
+  ${apps.length ? `
+  <div style="overflow-x:auto;margin-bottom:14px">
+   <table style="width:100%;font-size:12px;border-collapse:collapse">
+    <thead><tr style="background:#EFF6FF">
+     <th style="text-align:left;padding:7px 10px;color:#3B82F6;font-size:10.5px;font-weight:700;border-bottom:2px solid #DBEAFE">Application</th>
+     <th style="text-align:left;padding:7px 10px;color:#3B82F6;font-size:10.5px;font-weight:700;border-bottom:2px solid #DBEAFE">Impact</th>
+     <th style="text-align:left;padding:7px 10px;color:#3B82F6;font-size:10.5px;font-weight:700;border-bottom:2px solid #DBEAFE">Coupling</th>
+     <th style="text-align:left;padding:7px 10px;color:#3B82F6;font-size:10.5px;font-weight:700;border-bottom:2px solid #DBEAFE">Known Dependencies</th>
+     <th style="text-align:left;padding:7px 10px;color:#3B82F6;font-size:10.5px;font-weight:700;border-bottom:2px solid #DBEAFE">Removal Risk</th>
+    </tr></thead>
+    <tbody>${apps.map((a,i)=>{
+     const il = (a.impact_level||'UNKNOWN').toUpperCase();
+     const ic = cMap[il]||'#94A3B8';
+     const deps = a.known_dependencies||a.dependencies||[];
+     const prereqs = a.migration_prerequisites||[];
+     return `<tr style="background:${i%2?'#F8FBFF':'#fff'}">
+      <td style="padding:8px 10px">
+       <div style="font-weight:700;color:#0C233C">${esc(a.app_name||a.name||'—')}</div>
+       <div style="font-size:10.5px;color:#64748B">${esc(a.time_classification||'')}</div>
+      </td>
+      <td style="padding:8px 10px"><span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;color:#fff;background:${ic}">${il}</span></td>
+      <td style="padding:8px 10px;font-size:11.5px;color:#475569">${a.coupling_score!=null?a.coupling_score+'/10':'—'}</td>
+      <td style="padding:8px 10px;font-size:11.5px;color:#475569">${deps.length?deps.slice(0,3).map(d=>esc(typeof d==='string'?d:d.name||JSON.stringify(d))).join(', ')+(deps.length>3?' +more':''):'None identified'}</td>
+      <td style="padding:8px 10px;font-size:11.5px;color:#334155">${esc(String(a.removal_risk||'—').slice(0,80))}</td>
+     </tr>
+     ${prereqs.length?`<tr style="background:#FFFBEB"><td colspan="5" style="padding:5px 10px;font-size:11px;color:#92400E"><strong>Prerequisites:</strong> ${prereqs.slice(0,3).map(p=>esc(String(p).slice(0,70))).join(' · ')}</td></tr>`:''}`;
+    }).join('')}</tbody>
+   </table>
+  </div>` : '<div style="font-size:12px;color:#94A3B8;font-style:italic;margin-bottom:12px">No flagged applications required dependency mapping</div>'}
+
+  <!-- Cross-app risks -->
+  ${risks.length?`<div style="margin-bottom:12px;padding:10px 14px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px">
+   <div style="font-size:10.5px;font-weight:700;color:#B91C1C;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Cross-Application Risks</div>
+   ${risks.slice(0,4).map(r=>`<div style="font-size:12px;color:#7F1D1D;display:flex;gap:6px;margin-bottom:3px"><span style="color:#EF4444;font-weight:800;flex-shrink:0">▸</span>${esc(String(r).slice(0,120))}</div>`).join('')}
+  </div>`:''}
+
+  <!-- Quick wins -->
+  ${wins.length?`<div style="padding:10px 14px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px">
+   <div style="font-size:10.5px;font-weight:700;color:#14532D;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Quick Wins</div>
+   ${wins.slice(0,3).map(w=>`<div style="font-size:12px;color:#166534;display:flex;gap:6px;margin-bottom:3px"><span style="color:#22C55E;font-weight:800;flex-shrink:0">▸</span>${esc(String(w).slice(0,120))}</div>`).join('')}
+  </div>`:''}`;
  el.style.display = 'block';
 }
 
-// ── STEP 4: MATURITY ──────────────────────────────────────────────
-function revealMaturity() {
- if (!eaPipelineData) { toast('Run Mapping first', 'warn'); return; }
- _setPipDot(4, 'done'); _setPipLine('pip-line-45', true);
- _renderPipMaturity(eaPipelineData.MATURITY || {});
- document.getElementById('pip-panel-5').style.display = 'block';
- _setPipDot(5, 'ready');
- const btn = document.getElementById('pip-run-4');
- if (btn) { btn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M5 13l4 4L19 7"/></svg> Done'; btn.style.background='#22C55E'; btn.disabled=true; }
- addActivity('MATURITY', 'Completed', 'success');
- toast('Maturity assessment ready — proceed to Insights', 'success');
-}
+// ── STEP 4: revealMaturity no longer used — runPipMaturity handles step 4 ──
 
 // H/M/L linear meter SVG — matches KPMG framework visual (image 2)
 function _lmhMeter(score, width) {
@@ -4567,8 +4738,9 @@ async function runEAAnalysis() {
  addActivity('TIME', 'Completed', 'success');
  toast('Analysis complete — ' + apps.length + ' applications scored. Continue with the pipeline steps below.', 'success');
  // Reset pipeline stepper for fresh run
- eaPipelineData = null; eaARBResult = null;
+ eaPipelineData = null; eaARBResult = null; _mappingResult = null; _pipQAnswers = {};
  ['pip-panel-3','pip-panel-4','pip-panel-5','pip-panel-6'].forEach(id => { const p=document.getElementById(id); if(p) p.style.display='none'; });
+ const qPanel = document.getElementById('pip-mat-quest'); if(qPanel) qPanel.style.display='block';
  ['pip-result-2','pip-result-3','pip-result-4','pip-result-5'].forEach(id => { const r=document.getElementById(id); if(r){r.style.display='none';r.innerHTML='';} });
  [2,3,4,5,6].forEach(n => _setPipDot(n, n===2?'ready':'pending'));
  ['pip-line-23','pip-line-34','pip-line-45','pip-line-56'].forEach(id => _setPipLine(id, false));

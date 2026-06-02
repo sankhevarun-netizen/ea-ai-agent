@@ -21,13 +21,13 @@ def _get_client() -> anthropic.Anthropic:
 MODEL = "claude-sonnet-4-6"
 
 
-def call_claude(system_prompt: str, user_message: str) -> str:
+def call_claude(system_prompt: str, user_message: str, max_tokens: int = 4096) -> str:
     """Single-turn Claude call. Returns the text content string."""
     try:
         client = _get_client()
         response = client.messages.create(
             model=MODEL,
-            max_tokens=4096,
+            max_tokens=max_tokens,
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         )
