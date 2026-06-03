@@ -28,7 +28,7 @@ fabricate dependencies, integration links, or business process connections that 
 in the input data. If a field is absent or unknown, set it to null or an empty list and note
 it as "Not provided" rather than guessing.
 
-You are given a list of ELIMINATE/MIGRATE applications and any context explicitly supplied by
+You are given a list of applications flagged for action (Retire/Replace/Refactor/Rehost/Replatform) and any context explicitly supplied by
 the client (known integrations, planned changes, CMDB details, etc.).
 
 For each application, report ONLY on:
@@ -49,7 +49,7 @@ Output ONLY valid JSON with this exact structure (no markdown, no preamble):
   "app_analyses": [
     {
       "app_name": "name",
-      "time_classification": "ELIMINATE | MIGRATE",
+      "rationalization_action": "Retire | Replace | Refactor | Rehost | Replatform",
       "integration_count": null,
       "known_dependencies": [],
       "impact_level": "LOW | MEDIUM | HIGH | CRITICAL",
@@ -144,7 +144,7 @@ def run_mapping(input_data: dict) -> dict:
 
 def run_mapping_batch(input_data: dict) -> dict:
     """
-    Batch dependency analysis for multiple ELIMINATE/MIGRATE apps.
+    Batch dependency analysis for applications flagged for action (Retire/Replace/Refactor).
     Used by the full EA pipeline to assess migration risk across all flagged apps.
     """
     flagged_apps = input_data.get("applications", [])
@@ -174,7 +174,7 @@ def run_mapping_batch(input_data: dict) -> dict:
 
 ### Full Application Portfolio ({len(all_apps)} apps — use for dependency context):
 {json.dumps([{"name": a.get("name"), "category": a.get("category"),
-              "time_classification": a.get("time_classification"),
+              "rationalization_action": a.get("rationalization_action"),
               "integrations": a.get("integrations"), "criticality": a.get("criticality"),
               "deployment": a.get("deployment"), "annual_cost": a.get("annual_cost")}
              for a in all_apps], indent=2)}

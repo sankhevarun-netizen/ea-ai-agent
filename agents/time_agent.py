@@ -360,14 +360,12 @@ def _score_tools(tools: List[Dict]) -> List[Dict]:
         tool = _normalize_tool(t)
         scores = _scoring.score_tool(tool)
         composite = _scoring.composite_score(scores)
-        action_6r = _scoring.determine_6r_action(scores, tool)
-        time_cls = _scoring.determine_time_classification(scores, tool)
+        action_6r  = _scoring.determine_6r_action(scores, tool)
         confidence = _scoring.confidence_level(tool)
         tool.update(
             scores=scores,
             composite_score=composite,
             rationalization_action=action_6r,
-            time_classification=time_cls,
             confidence_level=confidence,
         )
         scored.append(tool)
@@ -507,18 +505,18 @@ def run_time(input_data: dict) -> dict:
     except json.JSONDecodeError:
         narrative = {"raw_response": narrative_str}
 
-    # 6. Build TIME summary counts
-    time_counts: Dict[str, int] = {}
+    # 6. Build 6R action breakdown counts
+    action_counts: Dict[str, int] = {}
     for t in scored_tools:
-        tc = t.get("time_classification", "TOLERATE")
-        time_counts[tc] = time_counts.get(tc, 0) + 1
+        action = t.get("rationalization_action", "Replatform")
+        action_counts[action] = action_counts.get(action, 0) + 1
 
     result = {
         "applications": scored_tools,
         "portfolio_summary": {
             "total_apps": len(scored_tools),
             "total_annual_cost": sum(t.get("annual_cost") or 0 for t in scored_tools),
-            "time_breakdown": time_counts,
+            "action_breakdown": action_counts,
             "duplications_found": len(duplications),
             "potential_savings": sum(d.get("potential_annual_savings", 0) for d in duplications),
         },
@@ -531,9 +529,9 @@ def run_time(input_data: dict) -> dict:
         {"apps_count": len(apps_in)},
         json.dumps({
             "portfolio_summary": result["portfolio_summary"],
-            "time_breakdown": time_counts,
+            "action_breakdown": action_counts,
         }, default=_json_default),
-        agent="TIME",
+        agent="RATIONALIZATION",
     )
 
     return result

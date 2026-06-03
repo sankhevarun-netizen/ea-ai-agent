@@ -278,7 +278,7 @@ async def arb_evaluate(body: Dict[str, Any]):
     applications = body.get("applications", [])
     flagged = [
         a for a in applications
-        if a.get("time_classification") in ("ELIMINATE", "MIGRATE")
+        if a.get("rationalization_action") in ("Retire", "Replace", "Refactor", "Rehost", "Replatform")
         or a.get("rationalization_action") in ("Replace", "Retire", "Refactor")
     ]
 
@@ -307,7 +307,7 @@ async def arb_evaluate(body: Dict[str, Any]):
         "annual_running_cost": body.get("annual_running_cost") or 0,
         "business_case": body.get("business_case") or (
             f"Portfolio analysis shows {len(flagged)} of {len(applications)} applications are "
-            f"classified ELIMINATE or MIGRATE. Rationalization will reduce technical debt, "
+            f"flagged for action (Retire/Replace/Refactor/Rehost/Replatform). Rationalization will reduce technical debt, "
             f"eliminate duplications ({rat_summary.get('duplications_found', 0)} found), "
             f"and align the portfolio with strategic business outcomes. "
             f"Industry: {ea_ctx.get('industry', 'not specified')}. "
@@ -327,7 +327,7 @@ async def arb_evaluate(body: Dict[str, Any]):
                 "vendor": a.get("vendor"),
                 "category": a.get("category"),
                 "rationalization_action": a.get("rationalization_action"),
-                "time_classification": a.get("time_classification"),
+                "rationalization_action": a.get("rationalization_action"),
                 "annual_cost": a.get("annual_cost"),
                 "composite_score": a.get("composite_score"),
                 "end_of_life": a.get("end_of_life"),
@@ -579,7 +579,7 @@ async def time_ingest(
             "total_annual_cost": sum(t.get("annual_cost") or 0 for t in scored),
             "duplications_found": len(duplications),
             "potential_savings": sum(d.get("potential_annual_savings", 0) for d in duplications),
-            "time_breakdown": _time_counts(scored),
+            "action_breakdown": _action_counts(scored),
         },
     }
 
@@ -692,14 +692,14 @@ async def mapping_analyse(body: Dict[str, Any]):
 
     flagged = [
         a for a in applications
-        if a.get("time_classification") in ("ELIMINATE", "MIGRATE")
+        if a.get("rationalization_action") in ("Retire", "Replace", "Refactor", "Rehost", "Replatform")
         or a.get("rationalization_action") in ("Replace", "Retire", "Refactor")
     ]
 
     if not flagged:
         return {
             "skipped": True,
-            "reason": "No ELIMINATE/MIGRATE applications — no dependency risk to analyse.",
+            "reason": "No applications flagged for action (Retire/Replace/Refactor) — no dependency risk to analyse.",
             "overall_impact_level": "LOW",
             "mapped_applications": [],
             "total_dependencies": 0,
@@ -807,27 +807,24 @@ GUIDANCE STYLE RULES (mandatory):
 - If they say "next", "done", "what now", or similar, immediately give the next step.
 - Keep responses short (3-6 lines max). No long paragraphs.
 
-STEP-BY-STEP FLOW:
-STEP 1 — Go to AI Agents (left sidebar) to run individual agent queries, or go to Reports for the full pipeline.
-STEP 2 — In AI Agents: select an agent (ARB, TIME, MAPPING, MATURITY), enter your query, and click Run.
-STEP 3 — For the full 4-agent pipeline: go to Reports → click "Run Full Pipeline" or "Run Pipeline →".
-STEP 4 — Review TIME classifications on screen (INVEST / TOLERATE / MIGRATE / ELIMINATE).
-STEP 5 — The full pipeline runs all 4 agents: TIME > MAPPING > MATURITY > INSIGHTS (~60-90 sec).
-STEP 6 — Review the on-screen EA Intelligence report preview.
-STEP 7 — Click "Download PDF Report" to get the full consulting-grade PDF.
+STEP-BY-STEP PIPELINE FLOW (6 Steps):
+STEP 1 — Upload application inventory (CSV/Excel/PDF) on the EA Analysis page for Portfolio Rationalization.
+STEP 2 — ARB Governance: submit for Architecture Review Board approval (or skip to proceed).
+STEP 3 — Run Mapping: dependency and impact analysis for flagged applications.
+STEP 4 — Complete the 30-question EA Maturity questionnaire, then run the Maturity Assessment.
+STEP 5 — View Strategic Insights: AI-synthesised recommendations across all previous steps.
+STEP 6 — Preview and Download the full EA Intelligence PDF report.
 
 PLATFORM AGENTS:
 - ARB: Architecture Review Board — reviews proposals, returns APPROVE/REJECT/CONDITIONAL + compliance score + risks.
-- TIME: Portfolio Rationalization — scores apps 0-10 on 7 dimensions, classifies as INVEST/TOLERATE/MIGRATE/ELIMINATE, assigns 6R action (Retain/Rehost/Replatform/Refactor/Replace/Retire).
-- MAPPING: Dependency Analysis — maps upstream/downstream dependencies, coupling scores, migration risk.
-- MATURITY: EA Maturity Assessment — scores EA practice 1-5 across 6 dimensions.
+- RATIONALIZATION: Portfolio analysis — scores apps 0-10 on 7 dimensions, assigns 6R action (Retain/Rehost/Replatform/Refactor/Replace/Retire), identifies duplications and savings.
+- MAPPING: Dependency Analysis — maps upstream/downstream dependencies, coupling scores, migration sequencing risk.
+- MATURITY: EA Maturity Assessment — scores EA practice 1-5 across 8 dimensions (KPMG 4-pillar framework: Vision & Strategy, People, Processes, Technology). Produces High/Medium/Low band per dimension.
 - INSIGHTS: Executive Synthesis — C-suite summary, financial impact, KPIs, quick wins.
 
 CSV format: name, vendor, category, annual_cost, user_count, criticality, deployment, integrations, age_years, end_of_life, compliance_required, business_unit
 Valid criticality: Critical, High, Medium, Low
-Valid categories: Monitoring, Logging, APM, Security, ITSM, Collaboration, CRM, ERP, BSS, OSS, Cloud, Analytics, DevOps, Network, Storage, Database, Other
-
-TIME score: >= 7.5 + low risk = INVEST. 5-7.5 = TOLERATE. On-prem + debt = MIGRATE. EOL or < 3.5 = ELIMINATE.
+Valid 6R actions: Retain, Rehost, Replatform, Refactor, Replace, Retire
 
 Always end your reply with: "NEXT: [exact action the user should take now]" """
 
@@ -845,9 +842,9 @@ async def chat_assistant(body: Dict[str, Any]):
 
 # ─── Helper ──────────────────────────────────────────────────────────────────
 
-def _time_counts(tools: list) -> dict:
+def _action_counts(tools: list) -> dict:
     counts: dict = {}
     for t in tools:
-        tc = t.get("time_classification", "TOLERATE")
-        counts[tc] = counts.get(tc, 0) + 1
+        action = t.get("rationalization_action", "Replatform")
+        counts[action] = counts.get(action, 0) + 1
     return counts

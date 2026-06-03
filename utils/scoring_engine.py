@@ -20,15 +20,8 @@ TIER1_VENDORS = {
     "vmware", "palo alto", "crowdstrike", "zscaler", "elastic",
 }
 
-# 6R → TIME mapping
-SIX_R_TO_TIME = {
-    "Retain": "INVEST",
-    "Rehost": "MIGRATE",
-    "Replatform": "MIGRATE",
-    "Refactor": "MIGRATE",
-    "Replace": "ELIMINATE",
-    "Retire": "ELIMINATE",
-}
+# 6R actions that require dependency mapping / migration planning
+SIX_R_ACTION_REQUIRED = {"Retire", "Replace", "Refactor", "Rehost", "Replatform"}
 
 
 class ScoringEngine:
@@ -89,18 +82,6 @@ class ScoringEngine:
             return "Retain"
         return "Replatform"
 
-    def determine_time_classification(self, scores: Dict[str, float], tool: Dict) -> str:
-        """Map 6R action to TIME classification."""
-        action_6r = self.determine_6r_action(scores, tool)
-        composite = self.composite_score(scores)
-
-        # Tolerate: functional but not strategic — mid-range scores, no urgent action
-        if action_6r in ("Rehost", "Replatform", "Refactor"):
-            if composite >= 5.0:
-                return "TOLERATE"
-            return "MIGRATE"
-
-        return SIX_R_TO_TIME.get(action_6r, "TOLERATE")
 
     def confidence_level(self, tool: Dict) -> str:
         known_fields = sum(

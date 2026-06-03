@@ -90,14 +90,6 @@ BADGE = {
     "tbd":        (SLATE, (226,227,229)),
 }
 
-RATIONALIZATION_DESC = {
-    "INVEST":    "High strategic value -- continue and grow investment",
-    "TOLERATE":  "Functional but not strategic -- maintain, no new investment",
-    "MIGRATE":   "Move to a better platform, cloud, or replacement",
-    "ELIMINATE": "Decommission -- retire or replace immediately",
-}
-TIME_DESC = RATIONALIZATION_DESC  # backward compat alias
-
 ACTION_DESC = {
     "Retain":     "Strategic and healthy -- no immediate action required",
     "Rehost":     "Lift-and-shift to cloud infrastructure",
@@ -480,17 +472,11 @@ class ReportGenerator:
             (f"${pot_savings:,.0f}",   "Est. Annual Savings"),
         ])
 
-        # TIME + 6R breakdown
+        # 6R action breakdown
         action_counts: Dict[str, int] = {}
-        time_counts:   Dict[str, int] = {}
         for t in tools:
-            a  = t.get("rationalization_action", "TBD")
+            a = t.get("rationalization_action", "TBD")
             action_counts[a] = action_counts.get(a, 0) + 1
-            tc = t.get("time_classification", "TOLERATE")
-            time_counts[tc]  = time_counts.get(tc, 0) + 1
-
-        pdf.sub_title("Rationalization Breakdown")
-        self._pdf_time_table(pdf, time_counts, len(tools))
 
         pdf.sub_title("6R Action Breakdown")
         self._pdf_action_table(pdf, action_counts, len(tools))
@@ -622,15 +608,9 @@ class ReportGenerator:
             pdf.exec_box(time_exec, label="RATIONALIZATION -- EXECUTIVE SUMMARY")
 
         action_counts: Dict[str, int] = {}
-        time_counts:   Dict[str, int] = {}
         for t in apps:
-            a  = t.get("rationalization_action", "TBD")
+            a = t.get("rationalization_action", "TBD")
             action_counts[a] = action_counts.get(a, 0) + 1
-            tc = t.get("time_classification", "TOLERATE")
-            time_counts[tc]  = time_counts.get(tc, 0) + 1
-
-        pdf.sub_title("Rationalization Breakdown")
-        self._pdf_time_table(pdf, time_counts, len(apps))
 
         pdf.sub_title("6R Action Breakdown")
         self._pdf_action_table(pdf, action_counts, len(apps))
@@ -701,24 +681,6 @@ class ReportGenerator:
 
     # ── Shared section helpers ────────────────────────────────────────────────
 
-    def _pdf_time_table(self, pdf, counts, total):
-        pdf.table_header(["Classification", "Count", "% Portfolio", "Strategic Meaning"], [38, 16, 20, 108])
-        for i, cat in enumerate(["INVEST", "TOLERATE", "MIGRATE", "ELIMINATE"]):
-            c = counts.get(cat, 0)
-            if c == 0:
-                continue
-            pct = round(c / max(total, 1) * 100)
-            pdf.set_x(14)
-            pdf.set_fill_color(*(LGREY if i%2==0 else WHITE))
-            pdf.badge(cat, 36)
-            pdf.set_font("Helvetica", "", 8)
-            pdf.cell(16, 6, str(c), fill=False)
-            pdf.cell(20, 6, f"{pct}%", fill=False)
-            pdf.cell(108, 6, TIME_DESC.get(cat, "")[:70], fill=False)
-            pdf.ln()
-            pdf.set_draw_color(*MGREY)
-            pdf.line(14, pdf.get_y(), 196, pdf.get_y())
-
     def _pdf_action_table(self, pdf, counts, total):
         pdf.table_header(["6R Action", "Count", "% Portfolio", "Description"], [30, 16, 20, 116])
         for i, action in enumerate(["Retain","Rehost","Replatform","Refactor","Replace","Retire"]):
@@ -737,35 +699,34 @@ class ReportGenerator:
             pdf.line(14, pdf.get_y(), 196, pdf.get_y())
 
     def _pdf_tool_table(self, pdf, tools):
-        cols   = ["Application", "Vendor", "Category", "Annual Cost", "Users", "Score", "Rationalization", "6R Action", "Confidence"]
-        widths = [34, 22, 20, 20, 12, 12, 20, 22, 20]
+        cols   = ["Application", "Vendor", "Category", "Annual Cost", "Users", "Score", "6R Action", "Confidence"]
+        widths = [36, 24, 22, 22, 14, 14, 28, 22]
         pdf.table_header(cols, widths)
         for i, t in enumerate(tools):
             if pdf.get_y() > 268:
                 pdf.add_page(); pdf.table_header(cols, widths)
             cost  = f"${t.get('annual_cost',0):,.0f}" if t.get("annual_cost") else "-"
             score = t.get("composite_score", "-")
-            tc    = t.get("time_classification", "TOLERATE")
             act   = t.get("rationalization_action", "TBD")
             conf  = t.get("confidence_level", "Low")
             fill  = LGREY if i%2==0 else WHITE
             pdf.set_fill_color(*fill)
             pdf.set_x(14)
             pdf.set_font("Helvetica", "B", 7)
-            pdf.cell(34, 6, (t.get("name") or "-")[:22], fill=True)
+            pdf.cell(36, 6, (t.get("name") or "-")[:24], fill=True)
             pdf.set_font("Helvetica", "", 7)
-            pdf.cell(22, 6, (t.get("vendor") or "-")[:14], fill=True)
-            pdf.cell(20, 6, (t.get("category") or "-")[:13], fill=True)
-            pdf.cell(20, 6, cost, fill=True)
-            pdf.cell(12, 6, str(t.get("user_count") or "-"), fill=True)
-            pdf.cell(12, 6, f"{score}/10", fill=True)
-            pdf.badge(tc, 20); pdf.badge(act, 22); pdf.badge(conf, 20)
+            pdf.cell(24, 6, (t.get("vendor") or "-")[:15], fill=True)
+            pdf.cell(22, 6, (t.get("category") or "-")[:14], fill=True)
+            pdf.cell(22, 6, cost, fill=True)
+            pdf.cell(14, 6, str(t.get("user_count") or "-"), fill=True)
+            pdf.cell(14, 6, f"{score}/10", fill=True)
+            pdf.badge(act, 28); pdf.badge(conf, 22)
             pdf.ln()
             pdf.set_draw_color(*MGREY); pdf.line(14, pdf.get_y(), 196, pdf.get_y())
 
     def _pdf_tool_table_compact(self, pdf, tools):
-        cols   = ["Application", "Category", "Annual Cost", "Users", "Score", "Rationalization", "6R Action"]
-        widths = [42, 26, 22, 14, 14, 26, 26]
+        cols   = ["Application", "Category", "Annual Cost", "Users", "Score", "6R Action", "Confidence"]
+        widths = [46, 28, 22, 14, 14, 30, 16]
         pdf.table_header(cols, widths)
         for i, t in enumerate(tools):
             if pdf.get_y() > 268:
@@ -781,8 +742,8 @@ class ReportGenerator:
             pdf.cell(22, 6, cost, fill=True)
             pdf.cell(14, 6, str(t.get("user_count") or "-"), fill=True)
             pdf.cell(14, 6, f"{t.get('composite_score','-')}/10", fill=True)
-            pdf.badge(t.get("time_classification","TOLERATE"), 26)
-            pdf.badge(t.get("rationalization_action","TBD"), 26)
+            pdf.badge(t.get("rationalization_action","TBD"), 28)
+            pdf.badge(t.get("confidence_level","Low"), 18)
             pdf.ln()
             pdf.set_draw_color(*MGREY); pdf.line(14, pdf.get_y(), 196, pdf.get_y())
 
@@ -809,7 +770,7 @@ class ReportGenerator:
 
     def _pdf_mapping_section(self, pdf, mapping):
         if not mapping or mapping.get("skipped"):
-            reason = mapping.get("reason", "No apps flagged for ELIMINATE or MIGRATE.")
+            reason = mapping.get("reason", "No apps flagged for action (Retire/Replace/Refactor).")
             pdf.set_font("Helvetica", "I", 9)
             pdf.set_text_color(*DGREY)
             pdf.set_x(14)
@@ -841,7 +802,7 @@ class ReportGenerator:
                 pdf.set_x(14)
                 pdf.set_font("Helvetica", "B", 7)
                 pdf.cell(40, 6, (a.get("app_name") or "-")[:24], fill=True)
-                pdf.badge(a.get("time_classification","-"), 24)
+                pdf.badge(a.get("rationalization_action","-"), 26)
                 pdf.badge(a.get("impact_level","-"), 22)
                 pdf.set_font("Helvetica", "", 7)
                 pdf.cell(18, 6, f"{a.get('coupling_score','-')}/10", fill=True)
@@ -1129,19 +1090,16 @@ class ReportGenerator:
         gen_date    = datetime.now().strftime("%d %B %Y  %H:%M")
 
         action_counts: Dict[str, int] = {}
-        time_counts:   Dict[str, int] = {}
         for t in tools:
-            a  = t.get("rationalization_action", "TBD")
+            a = t.get("rationalization_action", "TBD")
             action_counts[a] = action_counts.get(a, 0) + 1
-            tc = t.get("time_classification", "TOLERATE")
-            time_counts[tc]  = time_counts.get(tc, 0) + 1
 
         assessment        = assessments[-1] if assessments else {}
         assessment_section = self._assessment_section([assessment] if assessment else [])
         tool_rows         = self._tool_rows(tools)
         dup_rows          = self._dup_rows(duplications)
         action_rows       = self._action_summary_rows(action_counts)
-        time_rows         = self._time_summary_rows(time_counts)
+        time_rows         = ""  # TIME framework removed — 6R breakdown used instead
 
         return f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <title>EA Portfolio Rationalization Report</title>
@@ -1242,15 +1200,8 @@ tbody tr:nth-child(even){{background:#f8fbff}}
         return "\n".join(parts)
 
     def _time_summary_rows(self, counts):
-        total = max(sum(counts.values()), 1)
-        rows  = ""
-        for cat in ["INVEST","TOLERATE","MIGRATE","ELIMINATE"]:
-            c = counts.get(cat, 0)
-            if c == 0: continue
-            rows += (f'<tr><td><span class="badge badge-{cat.lower()}">{cat}</span></td>'
-                     f'<td><strong>{c}</strong></td><td>{round(c/total*100)}%</td>'
-                     f'<td>{TIME_DESC.get(cat,"")}</td></tr>')
-        return rows
+        # TIME framework removed — returns empty string, 6R breakdown used instead
+        return ""
 
     def _action_summary_rows(self, counts):
         total = max(sum(counts.values()), 1)
@@ -1267,14 +1218,14 @@ tbody tr:nth-child(even){{background:#f8fbff}}
         rows = ""
         for t in tools:
             act  = t.get("rationalization_action","TBD")
-            tc   = t.get("time_classification","TOLERATE")
+            conf = t.get("confidence_level","Low")
             cost = f"${t.get('annual_cost',0):,.0f}" if t.get("annual_cost") else "-"
             rows += (f'<tr><td><strong>{t.get("name","-")}</strong></td>'
                      f'<td>{t.get("vendor") or "-"}</td><td>{t.get("category","-")}</td>'
                      f'<td>{cost}</td><td>{t.get("user_count","-")}</td>'
                      f'<td><strong>{t.get("composite_score","-")}</strong>/10</td>'
-                     f'<td><span class="badge badge-{tc.lower()}">{tc}</span></td>'
-                     f'<td><span class="badge badge-{act.lower()}">{act}</span></td></tr>')
+                     f'<td><span class="badge badge-{act.lower()}">{act}</span></td>'
+                     f'<td><span class="badge badge-{conf.lower()}">{conf}</span></td></tr>')
         return rows
 
     def _dup_rows(self, duplications):

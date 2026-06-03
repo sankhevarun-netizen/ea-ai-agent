@@ -104,7 +104,7 @@ def run_full_pipeline(input_data: dict) -> dict:
     # Only analyse apps flagged ELIMINATE or MIGRATE — others don't need migration impact
     flagged = [
         a for a in applications
-        if a.get("time_classification") in ("ELIMINATE", "MIGRATE")
+        if a.get("rationalization_action") in ("Retire", "Replace", "Refactor", "Rehost", "Replatform")
     ]
     print(f"[Pipeline] Stage 2/4 — MAPPING: {len(flagged)} flagged apps (ELIMINATE/MIGRATE)...")
     if flagged:
@@ -131,7 +131,7 @@ def run_full_pipeline(input_data: dict) -> dict:
     else:
         pipeline["MAPPING"] = {
             "skipped": True,
-            "reason": "No ELIMINATE/MIGRATE applications in portfolio — no dependency risk to analyse.",
+            "reason": "No applications flagged for action (Retire/Replace/Refactor) — no dependency risk to analyse.",
         }
 
     # ── STAGE 3: MATURITY — EA Maturity Assessment ────────────────────────────
@@ -141,7 +141,7 @@ def run_full_pipeline(input_data: dict) -> dict:
         avg_score = sum(a.get("composite_score", 5) for a in applications) / max(len(applications), 1)
         categories = list({a.get("category", "Other") for a in applications})
         eliminate_pct = round(
-            time_summary.get("time_breakdown", {}).get("ELIMINATE", 0) / max(len(applications), 1) * 100
+            (time_summary.get("action_breakdown", {}).get("Retire", 0) + time_summary.get("action_breakdown", {}).get("Replace", 0)) / max(len(applications), 1) * 100
         )
         maturity_input = {
             "industry":               industry,
@@ -159,7 +159,7 @@ def run_full_pipeline(input_data: dict) -> dict:
             "eliminate_percentage":   eliminate_pct,
             "duplications_found":     len(duplications),
             "total_annual_cost":      time_summary.get("total_annual_cost", 0),
-            "time_breakdown":         time_summary.get("time_breakdown", {}),
+            "action_breakdown":       time_summary.get("action_breakdown", {}),
             "has_cmdb_data":          bool(cmdb_tool) or any(a.get("integrations") is not None for a in applications),
             "has_cost_data":          any(a.get("annual_cost") is not None for a in applications),
             "portfolio_health":       time_assessment.get("portfolio_overview", {}).get("portfolio_health", "Unknown"),
@@ -284,7 +284,7 @@ def run_pipeline_from_step3(input_data: dict) -> dict:
         avg_score = sum(a.get("composite_score", 5) for a in applications) / max(len(applications), 1)
         categories = list({a.get("category", "Other") for a in applications})
         eliminate_pct = round(
-            time_summary.get("time_breakdown", {}).get("ELIMINATE", 0)
+            (time_summary.get("action_breakdown", {}).get("Retire", 0) + time_summary.get("action_breakdown", {}).get("Replace", 0))
             / max(len(applications), 1) * 100
         )
         maturity_input = {
@@ -301,7 +301,7 @@ def run_pipeline_from_step3(input_data: dict) -> dict:
             "eliminate_percentage": eliminate_pct,
             "duplications_found":   len(duplications),
             "total_annual_cost":    time_summary.get("total_annual_cost", 0),
-            "time_breakdown":       time_summary.get("time_breakdown", {}),
+            "action_breakdown":     time_summary.get("action_breakdown", {}),
             "has_cmdb_data":        any(a.get("integrations") is not None for a in applications),
             "has_cost_data":        any(a.get("annual_cost") is not None for a in applications),
             "portfolio_health":     time_assessment.get("portfolio_overview", {}).get("portfolio_health", "Unknown"),
