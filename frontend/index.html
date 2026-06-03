@@ -7013,7 +7013,8 @@ function startIQRespondent(){
  const errEl=document.getElementById('iq-name-err');
  const name=(nameEl.value||'').trim();
  if(!name){errEl.textContent='Please enter your name.';return;}
- if(iqSession.users.find(u=>u.name.toLowerCase()===name.toLowerCase())){errEl.textContent='This name already responded.';return;}
+ if(iqSession.users.length>=15){errEl.textContent='Maximum 15 respondents reached.';return;}
+ if(iqSession.users.find(u=>u.name.toLowerCase()===name.toLowerCase())){errEl.textContent='This name has already responded.';return;}
  errEl.textContent='';
  iqCurrentUser=name;
  iqCurrentAnswers={};
