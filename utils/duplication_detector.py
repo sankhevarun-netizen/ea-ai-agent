@@ -10,15 +10,30 @@ class DuplicationDetector:
             by_category[t.get("category", "Other")].append(t)
 
         duplications = []
+        seen_pair_ids: set = set()   # prevent A-B and B-A both appearing
+        consolidate_flagged: set = set()  # apps already marked for consolidation
+
         for category, group in by_category.items():
             if len(group) < 2:
                 continue
-            for i in range(len(group)):
-                for j in range(i + 1, len(group)):
-                    a, b = group[i], group[j]
+            # Sort by composite score descending so higher-scored app is always 'a'
+            group_sorted = sorted(group, key=lambda t: t.get("composite_score") or 0, reverse=True)
+            for i in range(len(group_sorted)):
+                for j in range(i + 1, len(group_sorted)):
+                    a, b = group_sorted[i], group_sorted[j]
+                    # Skip if consolidate candidate already flagged in another pair
+                    b_name = b.get("name", "")
+                    if b_name in consolidate_flagged:
+                        continue
+                    pair_key = tuple(sorted([a.get("name",""), b_name]))
+                    if pair_key in seen_pair_ids:
+                        continue
                     overlap = self._overlap_score(a, b)
                     if overlap >= 0.45:
-                        duplications.append(self._build_record(a, b, overlap, category))
+                        record = self._build_record(a, b, overlap, category)
+                        duplications.append(record)
+                        seen_pair_ids.add(pair_key)
+                        consolidate_flagged.add(record["consolidate_candidate"])
 
         return sorted(duplications, key=lambda x: x["overlap_percentage"], reverse=True)
 

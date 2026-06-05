@@ -1514,6 +1514,18 @@
       </div>
       <div style="color:#6B21A8;font-style:italic">Complete all 30 questions, then click <strong>Run Maturity Assessment</strong>.</div>
      </div>
+     <!-- Step 4 Input Guide -->
+     <div style="background:#FAF5FF;border-bottom:1px solid #E9D5FF;padding:10px 16px;font-size:11px;color:#6B21A8">
+      <div style="font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:5px">
+       <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#9333EA" stroke-width="2.5"><path stroke-linecap="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+       What to do in this step
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+       <div><span style="font-weight:700;color:#7B2FBE">Answer all 30 questions:</span> Score each question A–E (1=lowest, 5=highest). All 30 must be answered before you can run the assessment.</div>
+       <div><span style="font-weight:700;color:#7B2FBE">Multiple respondents (up to 15):</span> Complete the inline questionnaire here for the pipeline run. For multi-user input, go to the <strong>Maturity</strong> page (sidebar) where up to 15 team members can each submit responses — scores are majority-voted.</div>
+      </div>
+      <div style="margin-top:5px;color:#9333EA"><strong>Output:</strong> Overall score (1–5), band (Low/Medium/High), 8 dimension scores across 4 pillars, improvement roadmap — feeds directly into Insights and the final report.</div>
+     </div>
      <!-- Inline 30-question form -->
      <div id="pip-mat-quest" style="padding:14px 16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
@@ -7219,7 +7231,7 @@ function wizRenderStep1(){
    <td style="padding:7px 12px;color:#64748B">${esc(a.category||'-')}</td>
    <td style="padding:7px 12px;text-align:center;font-weight:700;color:${(a.composite_score||0)>=7?'#16A34A':(a.composite_score||0)>=5?'#D97706':'#DC2626'}">${(a.composite_score||0).toFixed(1)}</td>
    <td style="padding:7px 12px">${tbadge(a.rationalization_action||'Replatform',timeCls)}</td>
-   <td style="padding:7px 12px">${tbadge(a.rationalization_action||'TBD',actCls)}</td>
+   <td style="padding:7px 12px;font-weight:600;color:${(a.composite_score||0)>=7?'#16A34A':(a.composite_score||0)>=4?'#D97706':'#DC2626'}">${a.confidence_level||'—'}</td>
    <td style="padding:7px 12px;text-align:right;color:#334155">${cost}</td>
   </tr>`;
  }).join('');
