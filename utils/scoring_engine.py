@@ -82,6 +82,17 @@ class ScoringEngine:
             return "Retain"
         return "Replatform"
 
+    def determine_time_classification(self, scores: Dict[str, float]) -> str:
+        """Classify into TIME quadrant based on Business Value x Technical Health axes."""
+        bv = scores.get("business_value", 5.0)
+        th = scores.get("technical_health", 5.0)
+        if bv >= 5.0 and th >= 5.0:
+            return "Invest"
+        if bv >= 5.0:
+            return "Tolerate"
+        if th >= 5.0:
+            return "Migrate"
+        return "Eliminate"
 
     def confidence_level(self, tool: Dict) -> str:
         known_fields = sum(

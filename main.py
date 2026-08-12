@@ -97,10 +97,30 @@ def serve_assessment():
 
 @app.get("/health")
 def health():
+    claude_status = "unknown"
+    claude_error = None
+    model_used = None
+    try:
+        from services.claude_service import _get_client, MODEL
+        client = _get_client()
+        client.messages.create(
+            model=MODEL,
+            max_tokens=1,
+            messages=[{"role": "user", "content": "ping"}],
+        )
+        claude_status = "ok"
+        model_used = MODEL
+    except Exception as e:
+        claude_status = "error"
+        claude_error = str(e)
+
     return {
         "status": "EA AI Intelligence running",
         "version": "1.0.0",
         "agents": list(AGENT_MAP.keys()),
+        "claude": claude_status,
+        "model": model_used,
+        "claude_error": claude_error,
     }
 
 
@@ -170,7 +190,7 @@ async def arb_ingest(
 ):
     """
     Extract structured ARB proposal fields from an uploaded document or image.
-    Supports: PDF, PPTX, DOCX, TXT, MD, PNG, JPG, JPEG, GIF, WEBP.
+    Supports: PDF, PPTX, DOCX, XLSX, XLS, CSV, TXT, MD, PNG, JPG, JPEG, GIF, WEBP.
     Returns JSON with proposal_title, description, technology_stack, costs, etc.
     """
     from services.claude_service import call_claude, call_claude_vision
@@ -236,6 +256,24 @@ async def arb_ingest(
                 extracted = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
             except Exception:
                 extracted = content.decode("utf-8", errors="replace")
+
+        # ── Excel / CSV ──────────────────────────────────────────────────────
+        elif ext in (".xlsx", ".xls", ".csv"):
+            import pandas as pd, io as _io
+            try:
+                if ext == ".csv":
+                    sheets = {"Sheet1": pd.read_csv(_io.BytesIO(content))}
+                else:
+                    sheets = pd.read_excel(_io.BytesIO(content), sheet_name=None)
+                parts = []
+                for sheet_name, df in sheets.items():
+                    if df.empty:
+                        continue
+                    parts.append(f"--- Sheet: {sheet_name} ---")
+                    parts.append(df.to_csv(index=False))
+                extracted = "\n".join(parts)
+            except Exception as e:
+                raise HTTPException(422, f"Could not read spreadsheet: {e}")
 
         # ── Plain text / Markdown ─────────────────────────────────────────────
         else:
@@ -374,6 +412,76 @@ async def arb_evaluate(body: Dict[str, Any]):
         "proposal": proposal,
         "flagged_count": len(flagged),
         "total_apps": len(applications),
+    }
+
+
+@app.post("/arb/signoff")
+async def arb_signoff(body: Dict[str, Any]):
+    """
+    Store the human sign-off audit trail for an ARB decision.
+    Called after architect review and/or CIO approval in the pipeline wizard.
+
+    Body keys:
+      arb_decision        — original AI ARB result dict
+      architect_name      — reviewer name
+      architect_decision  — 'accept' | 'override_approved' | 'override_conditional' | 'override_rejected'
+      architect_notes     — free-text review comments
+      cio_name            — approver name
+      cio_decision        — 'approved' | 'rejected' | 'more_info'
+      cio_notes           — sign-off notes
+      signed_at           — ISO timestamp from client
+    """
+    from services.supabase_service import store_decision
+    from datetime import datetime, timezone
+
+    arb_decision    = body.get("arb_decision", {})
+    architect_name  = (body.get("architect_name") or "").strip()
+    arch_decision   = body.get("architect_decision", "accept")
+    architect_notes = (body.get("architect_notes") or "").strip()
+    cio_name        = (body.get("cio_name") or "").strip()
+    cio_decision    = body.get("cio_decision", "")
+    cio_notes       = (body.get("cio_notes") or "").strip()
+    signed_at       = body.get("signed_at") or datetime.now(timezone.utc).isoformat()
+
+    # Resolve effective final decision (CIO may override architect, architect may override AI)
+    ai_decision = (arb_decision.get("decision") or "UNKNOWN").upper()
+    override_map = {
+        "override_approved":    "APPROVED",
+        "override_conditional": "CONDITIONAL",
+        "override_rejected":    "REJECTED",
+    }
+    effective_decision = override_map.get(arch_decision, ai_decision)
+    if cio_decision == "rejected":
+        effective_decision = "REJECTED"
+    elif cio_decision == "more_info":
+        effective_decision = "PENDING_MORE_INFO"
+
+    signoff = {
+        "architect": {
+            "name":     architect_name,
+            "decision": arch_decision,
+            "notes":    architect_notes,
+        },
+        "cio": {
+            "name":     cio_name,
+            "decision": cio_decision,
+            "notes":    cio_notes,
+        } if cio_name else None,
+        "effective_decision": effective_decision,
+        "ai_decision":        ai_decision,
+        "signed_at":          signed_at,
+    }
+
+    store_decision(
+        {"arb_decision": ai_decision, "architect": architect_name, "cio": cio_name},
+        __import__("json").dumps(signoff),
+        agent="ARB_SIGNOFF",
+    )
+
+    return {
+        **arb_decision,
+        "signoff": signoff,
+        "effective_decision": effective_decision,
     }
 
 
@@ -653,11 +761,8 @@ async def ea_full(body: Dict[str, Any]):
         )
         pipeline["report_path"] = report_path
         pipeline["report_filename"] = Path(report_path).name
-        # Embed PDF as base64 so the browser can download it directly
-        # without a second request (Vercel /tmp is not shared across invocations)
         with open(report_path, "rb") as f:
             pdf_bytes = f.read()
-        # Compress before base64 to stay within Vercel's 4.5 MB response limit
         compressed = zlib.compress(pdf_bytes, level=9)
         pipeline["report_b64"] = base64.b64encode(compressed).decode("ascii")
         pipeline["report_compressed"] = True
@@ -666,6 +771,12 @@ async def ea_full(body: Dict[str, Any]):
         pipeline["report_error"] = str(e)
         pipeline["report_filename"] = None
         pipeline["report_b64"] = None
+
+    try:
+        html_str = _reporter.generate_pipeline_html(pipeline)
+        pipeline["html_b64"] = base64.b64encode(html_str.encode("utf-8")).decode("ascii")
+    except Exception as e:
+        pipeline["html_b64"] = None
 
     return pipeline
 
@@ -742,6 +853,26 @@ async def mapping_analyse(body: Dict[str, Any]):
     return result
 
 
+@app.post("/compliance/check")
+async def compliance_check(body: Dict[str, Any]):
+    """
+    Run the Compliance Mapping agent against the portfolio for selected regulations.
+    This is Phase 2 of Step 3 (Mapping) in the pipeline wizard.
+
+    Body keys:
+      applications  — list of scored apps (from TIME output)
+      regulations   — list of regulation strings the user toggled ON
+      mapping_output — result from /mapping/analyse (or null if skipped)
+      industry, sub_sector, governance, additional_context
+    """
+    from agents.compliance_agent import run_compliance
+    try:
+        result = run_compliance(body)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Compliance check failed: {str(e)}")
+    return result
+
+
 @app.post("/ea-pipeline/step")
 async def pipeline_wizard_step(body: Dict[str, Any]):
     """
@@ -752,6 +883,7 @@ async def pipeline_wizard_step(body: Dict[str, Any]):
     Body keys:
       time_result        — output from /time/ingest (full JSON)
       mapping_result     — output from MAPPING agent (or null)
+      compliance_result  — output from /compliance/check (or null if skipped)
       assessment_results — questionnaire answers from inline questionnaire
       industry, sub_sector, governance, ea_framework, ea_tools,
       cloud_strategy, additional_context
@@ -778,6 +910,12 @@ async def pipeline_wizard_step(body: Dict[str, Any]):
         pipeline["report_error"] = str(e)
         pipeline["report_filename"] = None
         pipeline["report_b64"] = None
+
+    try:
+        html_str = _reporter.generate_pipeline_html(pipeline)
+        pipeline["html_b64"] = base64.b64encode(html_str.encode("utf-8")).decode("ascii")
+    except Exception as e:
+        pipeline["html_b64"] = None
 
     return pipeline
 
@@ -827,6 +965,41 @@ Valid criticality: Critical, High, Medium, Low
 Valid 6R actions: Retain, Rehost, Replatform, Refactor, Replace, Retire
 
 Always end your reply with: "NEXT: [exact action the user should take now]" """
+
+
+@app.post("/ea-report/pdf")
+async def generate_report_only(body: Dict[str, Any]):
+    """
+    Generate PDF + HTML from pre-computed pipeline data — NO agent re-runs.
+    Called from the frontend when pipelineReportB64 is missing after a stepper run.
+    Body: the pipeline dict (TIME, ARB, MAPPING, MATURITY, INSIGHTS keys).
+    """
+    pipeline = body
+    result: Dict[str, Any] = {}
+
+    try:
+        report_path = _reporter.generate_pipeline_pdf(
+            pipeline=pipeline,
+            output_dir=str(REPORTS_DIR),
+        )
+        result["report_filename"] = Path(report_path).name
+        with open(report_path, "rb") as f:
+            pdf_bytes = f.read()
+        compressed = zlib.compress(pdf_bytes, level=9)
+        result["report_b64"] = base64.b64encode(compressed).decode("ascii")
+        result["report_compressed"] = True
+        result["report_size_kb"] = round(len(pdf_bytes) / 1024, 1)
+    except Exception as e:
+        result["report_error"] = str(e)
+        result["report_b64"] = None
+
+    try:
+        html_str = _reporter.generate_pipeline_html(pipeline)
+        result["html_b64"] = base64.b64encode(html_str.encode("utf-8")).decode("ascii")
+    except Exception as e:
+        result["html_b64"] = None
+
+    return result
 
 
 @app.post("/chat")

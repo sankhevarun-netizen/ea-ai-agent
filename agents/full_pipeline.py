@@ -6,6 +6,7 @@ Industry context (when provided) is threaded through every stage.
 import json
 from agents.time_agent import run_time
 from agents.mapping_agent import run_mapping_batch
+from agents.compliance_agent import run_compliance
 from agents.maturity_agent import run_maturity
 from agents.insights_agent import run_insights
 
@@ -134,6 +135,35 @@ def run_full_pipeline(input_data: dict) -> dict:
             "reason": "No applications flagged for action (Retire/Replace/Refactor) — no dependency risk to analyse.",
         }
 
+    # ── STAGE 2.5: COMPLIANCE — Regulatory Gap Analysis ──────────────────────
+    print("[Pipeline] Stage 2.5 — COMPLIANCE: Regulatory Gap Analysis...")
+    regulations = input_data.get("regulations", [])
+    compliance_result = input_data.get("compliance_result") or {}
+    if compliance_result and not compliance_result.get("skipped"):
+        # Pre-computed by wizard stepper — use as-is
+        pipeline["COMPLIANCE"] = compliance_result
+    elif regulations:
+        try:
+            compliance_input = {
+                "applications":    applications,
+                "regulations":     regulations,
+                "industry":        industry,
+                "sub_sector":      sub_sector,
+                "mapping_output":  pipeline.get("MAPPING", {}),
+                "governance":      governance,
+                "additional_context": additional_ctx,
+            }
+            pipeline["COMPLIANCE"] = run_compliance(compliance_input)
+        except Exception as e:
+            errors["COMPLIANCE"] = str(e)
+            pipeline["COMPLIANCE"] = {"skipped": True, "reason": f"Compliance check failed: {str(e)}"}
+    else:
+        pipeline["COMPLIANCE"] = {"skipped": True, "reason": "No regulations selected."}
+
+    _compliance = pipeline.get("COMPLIANCE", {})
+    _comp_score = _compliance.get("overall_compliance_score") if not _compliance.get("skipped") else None
+    _comp_gaps  = len(_compliance.get("critical_gaps", [])) if not _compliance.get("skipped") else 0
+
     # ── STAGE 3: MATURITY — EA Maturity Assessment ────────────────────────────
     print("[Pipeline] Stage 3/4 — MATURITY: EA Maturity Assessment...")
     assessment_results = input_data.get("assessment_results") or {}
@@ -164,6 +194,8 @@ def run_full_pipeline(input_data: dict) -> dict:
             "has_cost_data":          any(a.get("annual_cost") is not None for a in applications),
             "portfolio_health":       time_assessment.get("portfolio_overview", {}).get("portfolio_health", "Unknown"),
             "mapping_complexity":     pipeline.get("MAPPING", {}).get("overall_impact_level", "UNKNOWN"),
+            "compliance_score":       _comp_score,
+            "compliance_gaps_count":  _comp_gaps,
             # Human assessment questionnaire results (30Q, up to 15 respondents)
             "assessment_results":     assessment_results,
         }
@@ -191,6 +223,14 @@ def run_full_pipeline(input_data: dict) -> dict:
                 "expected_outcomes":     time_assessment.get("expected_outcomes", {}),
             },
             "mapping_output": pipeline.get("MAPPING", {}),
+            "compliance_output": {
+                "overall_compliance_score": _comp_score,
+                "regulations_checked":      _compliance.get("regulations_checked", []),
+                "critical_gaps":            _compliance.get("critical_gaps", [])[:5],
+                "top_risks":                _compliance.get("top_risks", [])[:5],
+                "regulation_summary":       _compliance.get("regulation_summary", {}),
+                "remediation_roadmap":      _compliance.get("remediation_roadmap", [])[:5],
+            } if not _compliance.get("skipped") else {},
             "arb_output": {
                 "decision":          arb_decision,
                 "compliance_score":  arb_compliance,
@@ -218,11 +258,12 @@ def run_full_pipeline(input_data: dict) -> dict:
         "governance":           governance or "",
         "ea_framework":         ea_framework or "",
         "cloud_strategy":       unified_context["cloud_strategy"] or "",
-        "stages_completed":     [s for s in ["TIME","MAPPING","MATURITY","INSIGHTS"] if s not in errors],
+        "stages_completed":     [s for s in ["TIME","MAPPING","COMPLIANCE","MATURITY","INSIGHTS"] if s not in errors],
         "stages_failed":        list(errors.keys()),
         "errors":               errors,
         "total_apps_assessed":  len(applications),
         "flagged_for_action":   len(flagged),
+        "compliance_score":     _comp_score,
         "maturity_score":       pipeline.get("MATURITY", {}).get("overall_maturity_score"),
         "overall_risk":         pipeline.get("INSIGHTS", {}).get("risk_profile", {}).get("overall_risk"),
         "potential_savings":    time_summary.get("potential_savings", 0),
@@ -278,6 +319,13 @@ def run_pipeline_from_step3(input_data: dict) -> dict:
     time_summary    = time_result.get("portfolio_summary") or time_result.get("summary") or {}
     time_assessment = time_result.get("assessment", {})
 
+    # ── COMPLIANCE — pre-computed by wizard Phase 2 of Step 3 ────────────────
+    compliance_result = input_data.get("compliance_result") or {}
+    pipeline["COMPLIANCE"] = compliance_result if compliance_result else {"skipped": True, "reason": "Compliance check skipped."}
+    _compliance = pipeline["COMPLIANCE"]
+    _comp_score = _compliance.get("overall_compliance_score") if not _compliance.get("skipped") else None
+    _comp_gaps  = len(_compliance.get("critical_gaps", [])) if not _compliance.get("skipped") else 0
+
     # ── STAGE 3: MATURITY ────────────────────────────────────────
     print("[WizardPipeline] Stage 3 — MATURITY...")
     try:
@@ -307,6 +355,8 @@ def run_pipeline_from_step3(input_data: dict) -> dict:
             "portfolio_health":     time_assessment.get("portfolio_overview", {}).get("portfolio_health", "Unknown"),
             "mapping_complexity":   (mapping_result.get("overall_impact_level", "UNKNOWN")
                                      if isinstance(mapping_result, dict) else "UNKNOWN"),
+            "compliance_score":     _comp_score,
+            "compliance_gaps_count": _comp_gaps,
             "assessment_results":   assessment_results,
         }
         pipeline["MATURITY"] = run_maturity(maturity_input)
@@ -333,6 +383,14 @@ def run_pipeline_from_step3(input_data: dict) -> dict:
                 "expected_outcomes":   time_assessment.get("expected_outcomes", {}),
             },
             "mapping_output":  pipeline.get("MAPPING", {}),
+            "compliance_output": {
+                "overall_compliance_score": _comp_score,
+                "regulations_checked":      _compliance.get("regulations_checked", []),
+                "critical_gaps":            _compliance.get("critical_gaps", [])[:5],
+                "top_risks":                _compliance.get("top_risks", [])[:5],
+                "regulation_summary":       _compliance.get("regulation_summary", {}),
+                "remediation_roadmap":      _compliance.get("remediation_roadmap", [])[:5],
+            } if not _compliance.get("skipped") else {},
             "arb_output": {
                 "decision":           arb_result.get("decision", "NOT_RUN"),
                 "confidence_score":   arb_result.get("confidence_score", 0),
@@ -364,11 +422,12 @@ def run_pipeline_from_step3(input_data: dict) -> dict:
         "governance":          governance or "",
         "ea_framework":        ea_framework or "",
         "cloud_strategy":      cloud_strategy or "",
-        "stages_completed":    [s for s in ["TIME", "MAPPING", "MATURITY", "INSIGHTS"] if s not in errors],
+        "stages_completed":    [s for s in ["TIME", "MAPPING", "COMPLIANCE", "MATURITY", "INSIGHTS"] if s not in errors],
         "stages_failed":       list(errors.keys()),
         "errors":              errors,
         "total_apps_assessed": len(applications),
         "flagged_for_action":  len(flagged),
+        "compliance_score":    _comp_score,
         "maturity_score":      pipeline.get("MATURITY", {}).get("overall_maturity_score"),
         "overall_risk":        pipeline.get("INSIGHTS", {}).get("risk_profile", {}).get("overall_risk"),
         "potential_savings":   time_summary.get("potential_savings", 0),

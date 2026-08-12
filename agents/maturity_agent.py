@@ -115,6 +115,61 @@ that scored low from the assessment data above.
     except json.JSONDecodeError:
         result = {"raw_response": result_str, "parse_error": "Response was not valid JSON"}
 
+    # 5b. Anchor dimension scores directly to questionnaire evidence (best-effort).
+    # Claude generates textual findings; questionnaire scores are authoritative for numbers.
+    try:
+        if has_assessment and assessment_results.get("dimensions") and isinstance(result.get("dimensions"), dict):
+            key_map = {
+                "vision_strategy":       "vision_and_strategy",
+                "organization":          "organization",
+                "leadership_governance": "leadership_and_governance",
+                "behavior_culture":      "behaviour_and_culture",
+                "metrics_analysis":      "metrics_and_analysis",
+                "policy_standards":      "policy_and_standards",
+                "enabling_processes":    "enabling_processes",
+                "tools_technology":      "tools_and_technology",
+            }
+            for dim in assessment_results["dimensions"]:
+                dim_key = dim.get("id") or dim.get("key", "")  # stepper sends "key", inline sends "id"
+                fw_key = key_map.get(dim_key, "")
+                if not fw_key or fw_key not in result["dimensions"]:
+                    continue
+                if not isinstance(result["dimensions"][fw_key], dict):
+                    result["dimensions"][fw_key] = {"positive_findings": [], "improvement_areas": []}
+                if dim.get("score") is not None:
+                    result["dimensions"][fw_key]["score"] = round(float(dim["score"]), 2)
+                    result["dimensions"][fw_key]["band"] = dim.get("band", "Low")
+
+            # Recalculate overall score from anchored dimension scores
+            dim_scores = [
+                v["score"] for v in result["dimensions"].values()
+                if isinstance(v, dict) and v.get("score") is not None
+            ]
+            if dim_scores:
+                overall = round(sum(dim_scores) / len(dim_scores), 2)
+                result["overall_maturity_score"] = overall
+                result["overall_band"] = "High" if overall > 3.5 else "Medium" if overall > 2 else "Low"
+
+            # Recalculate pillar scores
+            pillar_dim_map = {
+                "Vision & Strategy": ["vision_and_strategy"],
+                "People":            ["organization", "leadership_and_governance", "behaviour_and_culture"],
+                "Processes":         ["metrics_and_analysis", "policy_and_standards", "enabling_processes"],
+                "Technology":        ["tools_and_technology"],
+            }
+            if not isinstance(result.get("pillar_scores"), dict):
+                result["pillar_scores"] = {}
+            for pillar, keys in pillar_dim_map.items():
+                pscores = [
+                    result["dimensions"][k]["score"] for k in keys
+                    if k in result["dimensions"] and isinstance(result["dimensions"][k], dict)
+                    and result["dimensions"][k].get("score") is not None
+                ]
+                if pscores:
+                    result["pillar_scores"][pillar] = round(sum(pscores) / len(pscores), 2)
+    except Exception:
+        pass  # anchoring is best-effort; keep Claude's original output if anything goes wrong
+
     # 6. Persist
     store_decision(input_data, json.dumps(result), agent="MATURITY")
 

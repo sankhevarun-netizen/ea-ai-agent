@@ -361,11 +361,13 @@ def _score_tools(tools: List[Dict]) -> List[Dict]:
         scores = _scoring.score_tool(tool)
         composite = _scoring.composite_score(scores)
         action_6r  = _scoring.determine_6r_action(scores, tool)
+        time_cls   = _scoring.determine_time_classification(scores)
         confidence = _scoring.confidence_level(tool)
         tool.update(
             scores=scores,
             composite_score=composite,
             rationalization_action=action_6r,
+            time_classification=time_cls,
             confidence_level=confidence,
         )
         scored.append(tool)
@@ -474,6 +476,20 @@ def run_time(input_data: dict) -> dict:
 
     # 4. Detect duplications
     duplications = _detector.detect_duplications(scored_tools)
+
+    # 4b. Align rationalization actions with duplication findings.
+    # A consolidate_candidate that scored "Retain" contradicts the duplication
+    # recommendation, so we downgrade it to "Replace" (High/Medium priority)
+    # or "Replatform" (Low priority).
+    consolidate_map = {
+        d["consolidate_candidate"]: d["priority"]
+        for d in duplications
+        if d.get("consolidate_candidate")
+    }
+    for t in scored_tools:
+        if t.get("rationalization_action") == "Retain" and t.get("name") in consolidate_map:
+            priority = consolidate_map[t["name"]]
+            t["rationalization_action"] = "Replace" if priority in ("High", "Medium") else "Replatform"
 
     # 5. Ask Claude for narrative + recommendations (memory-enriched)
     enriched_prompt = (
